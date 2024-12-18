@@ -25,49 +25,21 @@ For a C++ project simply rename the file to .cpp and re-run the build script
 */
 
 #include "raylib.h"
+#include "util.h"
 
 int main ()
 {
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-
 	// Create the window and OpenGL context
 	InitWindow(1280, 800, "Navaduel");
-
-	//Initialize camera 1
-	Camera camera1 = { 0 };
-	camera1.position = (Vector3){ 20.0f, 20.0f, 20.0f }; // Camera position
-	camera1.target = (Vector3){ 0.0f, 8.0f, 0.0f };      // Camera looking at point
-	camera1.up = (Vector3){ 0.0f, 1.6f, 0.0f };          // Camera up vector (rotation towards target)
-	camera1.fovy = 45.0f;                                // Camera field-of-view Y
-    camera1.projection = CAMERA_PERSPECTIVE;
-
-	SetTargetFPS(60);
-
-	Model ship = LoadModel("../../resources/models/ship2.glb");
-
-	Vector3 shipPos = { 0.0f, 0.0f, 0.0f };
+	//Set Framerate
+    SetTargetFPS(60);
 
 	// game loop
 	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
 	{
-		Vector3 oldCamPos = camera1.position;    // Store old camera1 position
-		Vector3 oldShip1Pos = shipPos;
-
-        UpdateCamera(&camera1, CAMERA_FIRST_PERSON);
-
-		BeginDrawing();
-			ClearBackground(RAYWHITE);
-			BeginMode3D(camera1);
-
-                // Draw the ship
-                DrawModel(ship, shipPos, 1.0f, WHITE);
-                DrawGrid(10, 5.0f);
-
-            EndMode3D();
-		EndDrawing();
-
-            
+		init();
 	}
 
 	// destroy the window and cleanup the OpenGL context
