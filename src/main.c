@@ -23,10 +23,9 @@ For a C++ project simply rename the file to .cpp and re-run the build script
 --  3. This notice may not be removed or altered from any source distribution.
 
 */
-//Include needed 3rd party libs
+// Include needed 3rd party libs
 #include "raylib.h"
-//Include first party headers
-#include "util.h"
+// Include first party headers
 
 // #Dont know if this is a worthy inclusion, keep in mind for structuring
 //  typedef struct{
@@ -77,25 +76,45 @@ int main()
 	//! Game loop
 	while (!WindowShouldClose()) // run the loop untill the user presses ESCAPE or presses the Close button on the window
 	{
+
+		//rendering begin
 		switch (current_screen)
 		{
 		case MAIN:
 		{
 			BeginDrawing();
+			ClearBackground(RAYWHITE);
 			DrawText("NAVADUEL", 20, 20, 30, BLUE);
 			int scrh = GetScreenHeight();
 			int scrw = GetScreenWidth();
-			DrawRectangleRec((Rectangle){scrw / 2 - 80, scrh / 2 - 20, 160, 40}, BLACK);
-			if (rectangle_pressed((Rectangle){scrw / 2 - 80, scrh / 2 - 20, 160, 40}))
+			Rectangle play_button = {scrw / 2 - 80, scrh / 2 - 20, 160, 40};
+			DrawRectangleRec(play_button, BLACK);
+
+			//TODO: Check if button was clicked. Make button collision detection into a function
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 			{
-				current_screen = GAME;
+				Vector2 mousepos = GetMousePosition();
+				// check horizontal alignment
+				if (mousepos.x - play_button.x > 0 && mousepos.x - play_button.x - play_button.width < 0)
+				{
+					if (mousepos.y - play_button.y > 0 && mousepos.y - play_button.y - play_button.height < 0)
+					{
+						DrawRectangle(50, 50, 200, 200, RED);
+						current_screen = GAME;
+					}
+					else
+						DrawRectangle(50, 50, 200, 200, BLUE);
+				}
+				else
+					DrawRectangle(50, 50, 200, 200, BLUE);
 			}
 			EndDrawing();
-		}
+		} break;
 		case GAME:
 		{
 			//! Input Handling:
 			UpdateCameraPro(&camera1, (Vector3){0, 0, 0}, (Vector3){0, 0, 0}, 0);
+
 			//! Rendering:
 			BeginDrawing();
 			ClearBackground(RAYWHITE);
@@ -105,9 +124,9 @@ int main()
 			// Draw water surface as a thin cube mesh
 			DrawModel(water_model, (Vector3){-100, -1, -100}, 1, BLUE);
 			EndMode3D();
-
 			EndDrawing();
-		}
+		} break;
+		default: break;
 		}
 	}
 
