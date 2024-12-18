@@ -26,44 +26,48 @@ For a C++ project simply rename the file to .cpp and re-run the build script
 
 #include "raylib.h"
 
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
-
 int main ()
 {
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
+	InitWindow(1280, 800, "Navaduel");
 
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	SearchAndSetResourceDir("resources");
+	Camera camera = { 0 };
+	camera.position = (Vector3){ 20.0f, 20.0f, 20.0f }; // Camera position
+	camera.target = (Vector3){ 0.0f, 8.0f, 0.0f };      // Camera looking at point
+	camera.up = (Vector3){ 0.0f, 1.6f, 0.0f };          // Camera up vector (rotation towards target)    	camera.fovy = 45.0f;                                // Camera field-of-view Y    	camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+	camera.fovy = 45.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;
 
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
-	
+	SetTargetFPS(60);
+
+	Model ship = LoadModel("../../resources/models/ship2.glb");
+
+	Vector3 shipPos = { 0.0f, 0.0f, 0.0f };
+
 	// game loop
 	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
 	{
-		// drawing
+		Vector3 oldCamPos = camera.position;    // Store old camera position
+		Vector3 oldShip1Pos = shipPos;
+
+        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+
 		BeginDrawing();
+			ClearBackground(RAYWHITE);
+			BeginMode3D(camera);
 
-		// Setup the back buffer for drawing (clear color and depth buffers)
-		ClearBackground(BLACK);
+                // Draw the ship
+                DrawModel(ship, shipPos, 1.0f, WHITE);
+                DrawGrid(10, 5.0f);
 
-		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
-
-		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
-		
-		// end the frame and get ready for the next one  (display frame, poll input, etc...)
+            EndMode3D();
 		EndDrawing();
-	}
 
-	// cleanup
-	// unload our texture so it can be cleaned up
-	UnloadTexture(wabbit);
+            
+	}
 
 	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
