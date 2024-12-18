@@ -1,4 +1,4 @@
-#NAVAL DUEL
+# NAVAL DUEL
 A 3D 2 Player Game made using Raylib 
 
 ## BUILDING
