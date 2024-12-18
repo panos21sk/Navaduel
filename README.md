@@ -1,4 +1,7 @@
-# BUILDING
+#NAVAL DUEL
+A 3D 2 Player Game made using Raylib 
+
+## BUILDING
 
 ## Supported Platforms
 Quickstart supports the main 3 desktop platforms:
@@ -30,9 +33,6 @@ There are two compiler toolchains available for windows, MinGW-W64 (a free compi
 
 # Output files
 The built code will be in the bin dir
-
-# Working directories and the resources folder
-The example uses a utility function from `path_utils.h` that will find the resources dir and set it as the current working directory. This is very useful when starting out. If you wish to manage your own working directory you can simply remove the call to the function and the header.
 
 # License
 Copyright (c) 2020-2024 Jeffery Myers
