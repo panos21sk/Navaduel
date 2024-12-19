@@ -25,6 +25,7 @@ For a C++ project simply rename the file to .cpp and re-run the build script
 */
 // Include needed 3rd party libs
 #include "raylib.h"
+#include "raymath.h"
 // Include first party headers
 
 // #Dont know if this is a worthy inclusion, keep in mind for structuring
@@ -57,9 +58,12 @@ int main()
 	Camera camera1 = {0};
 	camera1.position = (Vector3){0.0f, 25.0f, 50.0f}; // Camera position
 	camera1.target = (Vector3){0.0f, 10.0f, 0.0f};	  // Camera looking at point
-	camera1.up = (Vector3){0.0f, 1.6f, 0.0f};		  // Camera up vector (rotation towards target)
+	camera1.up = (Vector3){0.0f, 0.0f, -1.0f};		  // Camera up vector (rotation towards target)
 	camera1.fovy = 45.0f;							  // Camera field-of-view Y
 	camera1.projection = CAMERA_PERSPECTIVE;
+
+	Vector3 camera_distance_vector = {0.0f, 25.0f, 50.f};
+	Vector3 ship1forward_vec = {0.0f, 0.0f, 1.0f};
 	Vector3 ship1pos = {0.0f, 0.0f, 0.0f}; // initialization
 	Vector3 ship1rot = {0.0f, 0.0f, 0.0f};
 
@@ -76,7 +80,6 @@ int main()
 	//! Game loop
 	while (!WindowShouldClose()) // run the loop untill the user presses ESCAPE or presses the Close button on the window
 	{
-
 		//rendering begin
 		switch (current_screen)
 		{
@@ -113,7 +116,31 @@ int main()
 		case GAME:
 		{
 			//! Input Handling:
-			UpdateCameraPro(&camera1, (Vector3){0, 0, 0}, (Vector3){0, 0, 0}, 0);
+			Vector3 ship1_mvmnt_vector = {0.0f, 0.0f, 0.0f};
+			if(IsKeyDown(KEY_W)){
+				ship1_mvmnt_vector = (Vector3){0.0f, 0.0f, -1.0f};
+				ship1pos = Vector3Add(ship1pos, ship1_mvmnt_vector);
+				ship1pos.z += ship1_mvmnt_vector.z;
+			} else if(IsKeyDown(KEY_S)){
+				ship1_mvmnt_vector = (Vector3){0.0f, 0.0f, 1.0f};
+				ship1pos = Vector3Add(ship1pos, ship1_mvmnt_vector);
+				ship1pos.z += ship1_mvmnt_vector.z;
+			} 
+			//apply rotation to model, only when a or d are pressed to not have any reduntant calls when rotation doesnt change
+			else if(IsKeyDown(KEY_A)){
+				ship1rot.y += 0.2f;
+				ship.transform = MatrixRotateXYZ(ship1rot);
+			} else if(IsKeyDown(KEY_D)){
+				ship1rot.y -= 0.2f;
+				ship.transform = MatrixRotateXYZ(ship1rot);
+			}
+
+			//Update Camera manually
+			//TODO: Find a way to get the camera behind the ship regardless of where its facing
+			camera1.position = Vector3Add(ship1pos, camera_distance_vector);
+			camera1.target = Vector3Add(ship1pos, (Vector3){0.0f, 10.0f, 0.0f});
+			//UpdateCameraPro(&camera1, ship1_mvmnt_vector, (Vector3){0.0f,0.0f,0.0f}, 0); Works like shit
+
 
 			//! Rendering:
 			BeginDrawing();
