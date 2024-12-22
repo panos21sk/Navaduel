@@ -1,18 +1,9 @@
 // Include needed 3rd party libs
 #include "raylib.h"
 #include "raymath.h"
-#define WIDTH 1280
-#define HEIGHT 600
 // Include first party headers
-
-typedef enum
-{
-	MAIN, //entry screen
-	OPTIONS, //options
-	GAME, //main game screen
-	GAME_OVER, //game over screen - when a ship gets destroyed
-	ABOUT // credits and basic gameplay
-} screen;
+#include "ship.h"
+#include "settings.h"
 
 int main() {
 	//! Initialize window
@@ -23,47 +14,49 @@ int main() {
 	// Set Framerate
 	SetTargetFPS(60);
 
+	struct accel_settings accel_settings = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
+
 	//! Initialize Game State
 	// First player
+	Ship ship1;
 	Camera camera1 = {0};
-	camera1.position = (Vector3){0.0f, 25.0f, 50.0f};// Camera position
-	camera1.target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
-	camera1.up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
-	camera1.fovy = 45.0f;									// Camera field-of-view Y
-	camera1.projection = CAMERA_PERSPECTIVE;
+	ship1.camera = &camera1;
+	ship1.camera->position = (Vector3){0.0f, 25.0f, 50.0f}; // Camera position
+	ship1.camera->target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
+	ship1.camera->up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
+	ship1.camera->fovy = 45.0f;									// Camera field-of-view Y
+	ship1.camera->projection = CAMERA_PERSPECTIVE;
+	ship1.model = LoadModel("resources/models/ship1.glb");
+	struct movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S};
+	ship1.movement_buttons = btns1;
+	ship1.accel = accel_settings;
+	ship1.position = (Vector3){0.0f, 0.0f, 0.0f};
 
 	RenderTexture screenShip1 = LoadRenderTexture(WIDTH/2, HEIGHT);
 
 	// Second player
+	Ship ship2;
 	Camera camera2 = {0};
-	camera2.position = (Vector3){25.0f, 25.0f, 0.0f};// Camera position
-	camera2.target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
-	camera2.up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
-	camera2.fovy = 45.0f;									// Camera field-of-view Y
-	camera2.projection = CAMERA_PERSPECTIVE;
+	ship2.camera = &camera2;
+	ship2.camera->position = (Vector3){25.0f, 25.0f, 0.0f};// Camera position
+	ship2.camera->target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
+	ship2.camera->up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
+	ship2.camera->fovy = 45.0f;									// Camera field-of-view Y
+	ship2.camera->projection = CAMERA_PERSPECTIVE;
+	ship2.model = LoadModel("resources/models/ship2.glb");
+	struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN};
+	ship2.movement_buttons = btns2;
+	ship2.accel = accel_settings;
+	ship2.position = (Vector3){0.0f, 0.0f, 0.0f};
 
 	RenderTexture screenShip2 = LoadRenderTexture(WIDTH/2, HEIGHT);
 
 	Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
 	Vector3 camera_distance_vector = {0.0f, 25.0f, 50.f};
-	Vector3 ship1pos = {0.0f, 0.0f, 0.0f}; // initialization
-	Vector3 ship1rot = {0.0f, 0.0f, 0.0f};
-
-	Vector3 ship2pos = {0.0f, 0.0f, 10.0f};
-
-	// Acceleration coefficients for Ship1;
-	float accel_x_coefficient_1_r = 0.01f; // right
-	float accel_x_coefficient_1_l = 0.01f; // left
-	float accel_z_coefficient_1_f = 0.01f; // front
-	float accel_z_coefficient_1_b = 0.01f; // back
-
-	float accel_x_coefficient_2 = 0.01f;
-	float accel_z_coefficient_2 = 0.01f;
 
 	//! Iniatializing Models for rendering
-	Model ship = LoadModel("../../resources/models/ship2.glb");
-	Texture2D water_tex = LoadTexture("../resources/sprites/water.png");
+	Texture2D water_tex = LoadTexture("resources/sprites/water.png");
 	Mesh water_cube = GenMeshCube(300, 1, 300);
 	Model water_model = LoadModelFromMesh(water_cube);
 	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex;
@@ -78,149 +71,83 @@ int main() {
 	while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
 		//rendering begin
-		switch (current_screen)
-		{
-		case MAIN:
-		{
-			mouse_point = GetMousePosition();
-			BeginDrawing();
-			ClearBackground(RAYWHITE);
-			DrawText("NAVALDUEL", 20, 20, 30, BLUE);
-			DrawRectangleRec(play_button, BLACK);
-
-			//TODO: Check if button was clicked. Make button collision detection into a function
-			if (CheckCollisionPointRec(mouse_point, play_button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+		switch (current_screen) {
+			case MAIN:
 			{
-				//Vector2 mousepos = GetMousePosition();
-				// check horizontal alignment
-				/*if (mousepos.x - play_button.x > 0 && mousepos.x - play_button.x - play_button.width < 0)
+				mouse_point = GetMousePosition();
+				BeginDrawing();
+				ClearBackground(RAYWHITE);
+				DrawText("NAVALDUEL", 20, 20, 30, BLUE);
+				DrawRectangleRec(play_button, BLACK);
+
+				//TODO: Check if button was clicked. Make button collision detection into a function
+				if (CheckCollisionPointRec(mouse_point, play_button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				{
-					if (mousepos.y - play_button.y > 0 && mousepos.y - play_button.y - play_button.height < 0)
+					current_screen = GAME;
+				}
+				EndDrawing();
+				break;
+			}
+			case GAME:
+			{
+				DisableCursor();
+				//! Input Handling:
+				// Ship Movement
+				checkMovement(&ship1);
+				checkMovement(&ship2);
+
+				//Update Camera manually
+				//TODO: Find a way to get the camera behind the ship regardless of where its facing
+				updateCamera(&ship1, camera_distance_vector);
+				updateCamera(&ship2, camera_distance_vector);
+
+				BeginTextureMode(screenShip1);
+				{
+					ClearBackground(RAYWHITE);
+
+					BeginMode3D(camera1);
 					{
-						DrawRectangle(50, 50, 200, 200, RED);
-						current_screen = GAME;
+						DrawModel(water_model, (Vector3){-100, -1, -100}, 1, BLUE);
+						DrawModel(ship1.model, ship1.camera->position, 1, RED);
+						DrawModel(ship2.model, ship2.camera->position, 1, BLUE);
 					}
-					else
-						DrawRectangle(50, 50, 200, 200, BLUE);
-				}
-				else
-					DrawRectangle(50, 50, 200, 200, BLUE);*/
-				current_screen = GAME;
-			}
-			EndDrawing();
-		} break;
-		case GAME:
-		{
-			DisableCursor();
-			//! Input Handling:
-			// Ship Movement
-			{
-				// Ship1 axis movement
-				if(IsKeyDown(KEY_W)){
-					ship1pos.z += -2.0f*accel_z_coefficient_1_f;
-					accel_z_coefficient_1_f = (accel_z_coefficient_1_f < 1) ? (accel_z_coefficient_1_f+0.005f) : 1;
-				}
-				if(IsKeyDown(KEY_S)) {
-					ship1pos.z += 2.0f*accel_z_coefficient_1_b;
-					accel_z_coefficient_1_b = (accel_z_coefficient_1_b < 1) ? (accel_z_coefficient_1_b+0.005f) : 1;
-				}
-				if(IsKeyDown(KEY_A)) {
-					ship1pos.x += -2.0f*accel_x_coefficient_1_l;
-					accel_x_coefficient_1_l = (accel_x_coefficient_1_l < 1) ? (accel_x_coefficient_1_l+0.005f) : 1;
-				}
-				if(IsKeyDown(KEY_D)) {
-					ship1pos.x += 2.0f*accel_x_coefficient_1_r;
-					accel_x_coefficient_1_r = (accel_x_coefficient_1_r < 1) ? (accel_x_coefficient_1_r+0.005f) : 1;
-				}
-				//apply rotation to model, only when q or e are pressed to not have any reduntant calls when rotation doesnt change
-				//only 1 rotation per action (if-else block)
-				if(IsKeyDown(KEY_Q)){
-					ship1rot.y += 0.2f;
-					ship.transform = MatrixRotateXYZ(ship1rot);
-				} else if(IsKeyDown(KEY_E)){
-					ship1rot.y -= 0.2f;
-					ship.transform = MatrixRotateXYZ(ship1rot);
-				}
+					EndMode3D();
 
-				if(IsKeyReleased(KEY_W)) accel_z_coefficient_1_f = 0.01f;
-				if(IsKeyReleased(KEY_S)) accel_z_coefficient_1_b = 0.01f;
-				if(IsKeyReleased(KEY_A)) accel_x_coefficient_1_l = 0.01f;
-				if(IsKeyReleased(KEY_D)) accel_x_coefficient_1_r = 0.01f;
-
-				//ship2 axis movement
-				if(IsKeyDown(KEY_UP)) {
-					ship2pos.z += -1.0f;
+					DrawRectangle(0, 0, GetScreenWidth()/2, 40, Fade(RAYWHITE, 0.8f));
+					DrawText("W/S/A/D to move", 10, 10, 20, DARKBLUE);
 				}
-				if(IsKeyDown(KEY_DOWN)) {
-					ship2pos.z += 1.0f;
-				}
-				if(IsKeyDown(KEY_RIGHT)) {
-					ship2pos.x += 1.0f;
-				}
-				if(IsKeyDown(KEY_LEFT)) {
-					ship2pos.x += -1.0f;
-				}
-				//ship2 rotation
-				if(IsKeyDown(KEY_SLASH)) {
+				EndTextureMode();
 
-				} else if(IsKeyDown(KEY_APOSTROPHE)) {
-
-				}
-			}
-			//Update Camera manually
-			//TODO: Find a way to get the camera behind the ship regardless of where its facing
-
-			camera1.position = Vector3Add(ship1pos, camera_distance_vector);
-			camera1.target = Vector3Add(ship1pos, (Vector3){0.0f, 10.0f, 0.0f});
-
-			camera2.position = Vector3Add(ship2pos, camera_distance_vector);
-			camera2.target = Vector3Add(ship2pos, (Vector3){0.0f, 10.0f, 0.0f});
-
-			BeginTextureMode(screenShip1);
-			{
-				ClearBackground(RAYWHITE);
-
-				BeginMode3D(camera1);
+				BeginTextureMode(screenShip2);
 				{
-					DrawModel(water_model, (Vector3){-100, -1, -100}, 1, BLUE);
-					DrawCube(camera1.position, 1, 1, 1, RED);
-					DrawCube(camera2.position, 1, 1, 1, BLUE);
+					ClearBackground(RAYWHITE);
+
+					BeginMode3D(camera2);
+					{
+						DrawModel(water_model, (Vector3){-100, -1, -100}, 1.0f, BLUE);
+						DrawModel(ship1.model, ship1.camera->position, 1.0f, RED);
+						DrawModel(ship2.model, ship2.camera->position, 1.0f, BLUE);
+					}
+					EndMode3D();
+
+					DrawRectangle(0, 0, GetScreenWidth()/2, 40, Fade(RAYWHITE, 0.8f));
+					DrawText("UP/DOWN/RIGHT/LEFT to move", 10, 10, 20, DARKBLUE);
 				}
-				EndMode3D();
-
-				DrawRectangle(0, 0, GetScreenWidth()/2, 40, Fade(RAYWHITE, 0.8f));
-				DrawText("W/S/A/D to move", 10, 10, 20, DARKBLUE);
-			}
-			EndTextureMode();
-
-			BeginTextureMode(screenShip2);
-			{
-				ClearBackground(RAYWHITE);
-
-				BeginMode3D(camera2);
+				EndTextureMode();
+				//! Rendering:
+				BeginDrawing();
 				{
-					DrawModel(water_model, (Vector3){-100, -1, -100}, 1, BLUE);
-					DrawCube(camera1.position, 1, 1, 1, RED);
-					DrawCube(camera2.position, 1, 1, 1, BLUE);
+					ClearBackground(RAYWHITE);
+
+					DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){ 0, 0 }, WHITE);
+					DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){ WIDTH/2.0f, 0 }, WHITE);
+					DrawLine(WIDTH/2, 0, WIDTH/2, HEIGHT, BLACK);
 				}
-				EndMode3D();
-
-				DrawRectangle(0, 0, GetScreenWidth()/2, 40, Fade(RAYWHITE, 0.8f));
-				DrawText("UP/DOWN/RIGHT/LEFT to move", 10, 10, 20, DARKBLUE);
+				EndDrawing();
+				break;
 			}
-			EndTextureMode();
-			//! Rendering:
-			BeginDrawing();
-			{
-				ClearBackground(RAYWHITE);
-
-				DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){ 0, 0 }, WHITE);
-				DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){ WIDTH/2.0f, 0 }, WHITE);
-				DrawLine(WIDTH/2, 0, WIDTH/2, HEIGHT, BLACK);
-			}
-			EndDrawing();
-		} break;
-		default: break;
+			default:
+				break;
 		}
 	}
 	UnloadRenderTexture(screenShip1);
