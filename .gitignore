@@ -1,6 +1,5 @@
 .*
 .*/
 bin/
-Makefile
 .idea
 cmake-build-debug

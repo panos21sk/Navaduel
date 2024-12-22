@@ -1,17 +1,9 @@
 // Include needed 3rd party libs
 #include "raylib.h"
 #include "raymath.h"
-#define WIDTH 920
+#define WIDTH 1280
 #define HEIGHT 600
 // Include first party headers
-
-// #Dont know if this is a worthy inclusion, keep in mind for structuring
-//  typedef struct{
-////for player 1
-//     Camera camera1;
-//     Vector3 ship1pos;
-//     Vector3 ship1rot;
-// } state;
 
 typedef enum
 {
@@ -44,26 +36,34 @@ int main() {
 
 	// Second player
 	Camera camera2 = {0};
-	camera1.position = (Vector3){25.0f, 25.0f, 0.0f};// Camera position
-	camera1.target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
-	camera1.up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
-	camera1.fovy = 45.0f;									// Camera field-of-view Y
-	camera1.projection = CAMERA_PERSPECTIVE;
+	camera2.position = (Vector3){25.0f, 25.0f, 0.0f};// Camera position
+	camera2.target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
+	camera2.up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
+	camera2.fovy = 45.0f;									// Camera field-of-view Y
+	camera2.projection = CAMERA_PERSPECTIVE;
 
 	RenderTexture screenShip2 = LoadRenderTexture(WIDTH/2, HEIGHT);
 
 	Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
 	Vector3 camera_distance_vector = {0.0f, 25.0f, 50.f};
-	Vector3 ship1forward_vec = {0.0f, 0.0f, 1.0f};
 	Vector3 ship1pos = {0.0f, 0.0f, 0.0f}; // initialization
 	Vector3 ship1rot = {0.0f, 0.0f, 0.0f};
 
-	Vector3 ship2pos = {0.0f, 0.0f, 0.0f};
+	Vector3 ship2pos = {0.0f, 0.0f, 10.0f};
+
+	// Acceleration coefficients for Ship1;
+	float accel_x_coefficient_1_r = 0.01f; // right
+	float accel_x_coefficient_1_l = 0.01f; // left
+	float accel_z_coefficient_1_f = 0.01f; // front
+	float accel_z_coefficient_1_b = 0.01f; // back
+
+	float accel_x_coefficient_2 = 0.01f;
+	float accel_z_coefficient_2 = 0.01f;
 
 	//! Iniatializing Models for rendering
 	Model ship = LoadModel("../../resources/models/ship2.glb");
-	Texture2D water_tex = LoadTexture("../../resources/sprites/water.png");
+	Texture2D water_tex = LoadTexture("../resources/sprites/water.png");
 	Mesh water_cube = GenMeshCube(300, 1, 300);
 	Model water_model = LoadModelFromMesh(water_cube);
 	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex;
@@ -113,36 +113,60 @@ int main() {
 		{
 			DisableCursor();
 			//! Input Handling:
-			Vector3 ship1_mvmnt_vector;
-			Vector3 ship2_mvmnt_vector;
-			//ship1 axis movement
-			if(IsKeyDown(KEY_W)){
-				ship1_mvmnt_vector = (Vector3){0.0f, 0.0f, -2.0f};
-				ship1pos = Vector3Add(ship1pos, ship1_mvmnt_vector);
-			} else if(IsKeyDown(KEY_S)) {
-				ship1_mvmnt_vector = (Vector3){0.0f, 0.0f, 2.0f};
-				ship1pos = Vector3Add(ship1pos, ship1_mvmnt_vector);
-			} else if(IsKeyDown(KEY_A)) {
-				ship1_mvmnt_vector = (Vector3){-2.0f, 0.0f, 0.0f};
-				ship1pos = Vector3Add(ship1pos, ship1_mvmnt_vector);
-			} else if(IsKeyDown(KEY_D)) {
-				ship1_mvmnt_vector = (Vector3){2.0f, 0.0f, 0.0f};
-				ship1pos = Vector3Add(ship1pos, ship1_mvmnt_vector);
-			}
-			//apply rotation to model, only when a or d are pressed to not have any reduntant calls when rotation doesnt change
-			//maybe trying rotation using mouse only???
-			else if(IsKeyDown(KEY_Q)){
-				ship1rot.y += 0.2f;
-				ship.transform = MatrixRotateXYZ(ship1rot);
-			} else if(IsKeyDown(KEY_E)){
-				ship1rot.y -= 0.2f;
-				ship.transform = MatrixRotateXYZ(ship1rot);
-			}
-			//ship2 axis movement
-			if(IsKeyDown(KEY_UP)) {
+			// Ship Movement
+			{
+				// Ship1 axis movement
+				if(IsKeyDown(KEY_W)){
+					ship1pos.z += -2.0f*accel_z_coefficient_1_f;
+					accel_z_coefficient_1_f = (accel_z_coefficient_1_f < 1) ? (accel_z_coefficient_1_f+0.005f) : 1;
+				}
+				if(IsKeyDown(KEY_S)) {
+					ship1pos.z += 2.0f*accel_z_coefficient_1_b;
+					accel_z_coefficient_1_b = (accel_z_coefficient_1_b < 1) ? (accel_z_coefficient_1_b+0.005f) : 1;
+				}
+				if(IsKeyDown(KEY_A)) {
+					ship1pos.x += -2.0f*accel_x_coefficient_1_l;
+					accel_x_coefficient_1_l = (accel_x_coefficient_1_l < 1) ? (accel_x_coefficient_1_l+0.005f) : 1;
+				}
+				if(IsKeyDown(KEY_D)) {
+					ship1pos.x += 2.0f*accel_x_coefficient_1_r;
+					accel_x_coefficient_1_r = (accel_x_coefficient_1_r < 1) ? (accel_x_coefficient_1_r+0.005f) : 1;
+				}
+				//apply rotation to model, only when q or e are pressed to not have any reduntant calls when rotation doesnt change
+				//only 1 rotation per action (if-else block)
+				if(IsKeyDown(KEY_Q)){
+					ship1rot.y += 0.2f;
+					ship.transform = MatrixRotateXYZ(ship1rot);
+				} else if(IsKeyDown(KEY_E)){
+					ship1rot.y -= 0.2f;
+					ship.transform = MatrixRotateXYZ(ship1rot);
+				}
 
-			}
+				if(IsKeyReleased(KEY_W)) accel_z_coefficient_1_f = 0.01f;
+				if(IsKeyReleased(KEY_S)) accel_z_coefficient_1_b = 0.01f;
+				if(IsKeyReleased(KEY_A)) accel_x_coefficient_1_l = 0.01f;
+				if(IsKeyReleased(KEY_D)) accel_x_coefficient_1_r = 0.01f;
 
+				//ship2 axis movement
+				if(IsKeyDown(KEY_UP)) {
+					ship2pos.z += -1.0f;
+				}
+				if(IsKeyDown(KEY_DOWN)) {
+					ship2pos.z += 1.0f;
+				}
+				if(IsKeyDown(KEY_RIGHT)) {
+					ship2pos.x += 1.0f;
+				}
+				if(IsKeyDown(KEY_LEFT)) {
+					ship2pos.x += -1.0f;
+				}
+				//ship2 rotation
+				if(IsKeyDown(KEY_SLASH)) {
+
+				} else if(IsKeyDown(KEY_APOSTROPHE)) {
+
+				}
+			}
 			//Update Camera manually
 			//TODO: Find a way to get the camera behind the ship regardless of where its facing
 
@@ -152,22 +176,6 @@ int main() {
 			camera2.position = Vector3Add(ship2pos, camera_distance_vector);
 			camera2.target = Vector3Add(ship2pos, (Vector3){0.0f, 10.0f, 0.0f});
 
-			//UpdateCameraPro(&camera1, ship1_mvmnt_vector, (Vector3){0.0f,0.0f,0.0f}, 0);
-			/*UpdateCameraPro(&camera1,
-			(Vector3){
-				(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))*2.0f -      // Move forward-backward
-				(IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))*2.0f,
-				(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))*2.0f -   // Move right-left
-				(IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))*2.0f,
-				0.0f                                                // Move up-down
-			},
-			(Vector3){
-				GetMouseDelta().x,                            // Rotation: yaw
-				GetMouseDelta().y,                            // Rotation: pitch
-				0.0f                                                // Rotation: roll
-			},
-			GetMouseWheelMove()*2.0f);*/
-
 			BeginTextureMode(screenShip1);
 			{
 				ClearBackground(RAYWHITE);
@@ -176,6 +184,7 @@ int main() {
 				{
 					DrawModel(water_model, (Vector3){-100, -1, -100}, 1, BLUE);
 					DrawCube(camera1.position, 1, 1, 1, RED);
+					DrawCube(camera2.position, 1, 1, 1, BLUE);
 				}
 				EndMode3D();
 
@@ -191,6 +200,7 @@ int main() {
 				BeginMode3D(camera2);
 				{
 					DrawModel(water_model, (Vector3){-100, -1, -100}, 1, BLUE);
+					DrawCube(camera1.position, 1, 1, 1, RED);
 					DrawCube(camera2.position, 1, 1, 1, BLUE);
 				}
 				EndMode3D();
@@ -206,6 +216,7 @@ int main() {
 
 				DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){ 0, 0 }, WHITE);
 				DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){ WIDTH/2.0f, 0 }, WHITE);
+				DrawLine(WIDTH/2, 0, WIDTH/2, HEIGHT, BLACK);
 			}
 			EndDrawing();
 		} break;
