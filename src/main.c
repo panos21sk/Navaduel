@@ -35,6 +35,11 @@ int main() {
 				DisplayGameOverScreen(); //Ends the game (game over)
 				break;
 			}
+			case OPTIONS:
+			{	
+				DisplayOptionsScreen();
+				break;
+			}
 			default:
 				break;
 		}

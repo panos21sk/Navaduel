@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "ship.h"
+//#include "stdbool.h" - Dont know whether the inclusion is implicit or even needed for the bool type
 #define WIDTH 1280
 #define HEIGHT 700
 #define CAMERA_DISTANCE_VECTOR (Vector3){0.0f, 25.0f, 50.0f}
@@ -18,6 +19,12 @@ typedef enum
 
 extern screen current_screen;
 extern Rectangle play_button;
+
+typedef struct {
+    bool show_reticle;
+    bool first_or_third_person_cam;
+} setting;
+extern setting settings;
 
 void InitMainWindow();
 void DeinitMainWindow();

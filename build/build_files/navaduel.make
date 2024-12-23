@@ -176,7 +176,11 @@ GENERATED :=
 OBJECTS :=
 
 GENERATED += $(OBJDIR)/main.o
+GENERATED += $(OBJDIR)/screens.o
+GENERATED += $(OBJDIR)/ship.o
 OBJECTS += $(OBJDIR)/main.o
+OBJECTS += $(OBJDIR)/screens.o
+OBJECTS += $(OBJDIR)/ship.o
 
 # Rules
 # #############################################
@@ -241,6 +245,12 @@ endif
 # #############################################
 
 $(OBJDIR)/main.o: ../../src/main.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/screens.o: ../../src/screens.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ship.o: ../../src/ship.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 
