@@ -1,6 +1,3 @@
-#!/bin/bash
-
-cd build 
-./premake5 gmake2
-cd ..
 make
+echo 'Moving navaduel binary'
+mv -f ./bin/Debug/navaduel ./navaduel
