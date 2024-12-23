@@ -19,10 +19,12 @@ typedef enum
 extern screen current_screen;
 extern Rectangle play_button;
 
-void displayMainScreen();
-void displayGameScreen(Ship *ship1, Ship *ship2, Model water_model, RenderTexture screenShip1, RenderTexture screenShip2);
-void displayGameOverScreen();
-void displayOptionsScreen();
-void displayAboutScreen();
+void InitMainWindow();
+void DeinitMainWindow();
+void DisplayMainScreen();
+void DisplayGameScreen(Ship *ship1, Ship *ship2, Model water_model);
+void DisplayGameOverScreen();
+void DisplayOptionsScreen();
+void DisplayAboutScreen();
 
 #endif //SCREENS_H

@@ -36,8 +36,8 @@ extern Ship ship2;
 extern Camera camera1;
 extern Camera camera2;
 
-void setupShips();
-void checkMovement(Ship *ship);
-void updateCamera(const Ship *ship, Vector3 distance_vector);
+void SetupShips();
+void CheckMovement(Ship *ship);
+void UpdateShipCamera(const Ship *ship, Vector3 distance_vector);
 
 #endif //SHIP_H
