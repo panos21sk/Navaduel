@@ -6,7 +6,8 @@
 //#include "stdbool.h" - Dont know whether the inclusion is implicit or even needed for the bool type
 #define WIDTH 1280
 #define HEIGHT 700
-#define CAMERA_DISTANCE_VECTOR (Vector3){0.0f, 25.0f, 50.0f}
+#define CAMERA_DISTANCE_VECTOR_TP (Vector3){0.0f, 25.0f, -50.0f}
+#define CAMERA_DISTANCE_VECTOR_FP (Vector3){0.0f, 15.0f, 25.0f}
 
 typedef enum
 {
