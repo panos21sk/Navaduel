@@ -9,7 +9,7 @@ Ship ship2;
 Camera camera1 = {0};
 Camera camera2 = {0};
 
-void setupShips() {
+void SetupShips() {
     //Variable init
     const struct movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S};
     const struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN};
@@ -39,7 +39,7 @@ void setupShips() {
     ship2.position = (Vector3){0.0f, 0.0f, 0.0f};
 }
 
-void checkMovement(Ship *ship) {
+void CheckMovement(Ship *ship) {
     //Checking axis movement
     if(IsKeyDown(ship->movement_buttons.forward)) {
         ship->position.z += -MOVEMENT_STEP*ship->accel.f_coefficient;
@@ -87,7 +87,7 @@ void checkMovement(Ship *ship) {
     }
 }
 
-void updateCamera(const Ship *ship, const Vector3 distance_vector) {
+void UpdateShipCamera(const Ship *ship, const Vector3 distance_vector) {
     ship->camera->position = Vector3Add(ship->position, distance_vector);
     ship->camera->target = Vector3Add(ship->position, (Vector3){0.0f, 10.0f, 0.0f});
 }
