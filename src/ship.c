@@ -2,6 +2,43 @@
 #include "raylib.h"
 #include "raymath.h"
 
+const struct accel_settings default_accel = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
+
+Ship ship1;
+Ship ship2;
+Camera camera1 = {0};
+Camera camera2 = {0};
+
+void setupShips() {
+    //Variable init
+    const struct movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S};
+    const struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN};
+
+    //Ship 1
+    ship1.camera = &camera1;
+    ship1.camera->position = (Vector3){0.0f, 25.0f, 50.0f}; // Camera position
+    ship1.camera->target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
+    ship1.camera->up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
+    ship1.camera->fovy = 45.0f;									// Camera field-of-view Y
+    ship1.camera->projection = CAMERA_PERSPECTIVE;
+    ship1.model = LoadModel("resources/models/ship1.glb");
+    ship1.movement_buttons = btns1;
+    ship1.accel = default_accel;
+    ship1.position = (Vector3){0.0f, 0.0f, 0.0f};
+
+    //Ship 2
+    ship2.camera = &camera2;
+    ship2.camera->position = (Vector3){25.0f, 25.0f, 0.0f};// Camera position
+    ship2.camera->target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
+    ship2.camera->up = (Vector3){0.0f, 0.0f, -1.0f};		// Camera up vector (rotation towards target)
+    ship2.camera->fovy = 45.0f;									// Camera field-of-view Y
+    ship2.camera->projection = CAMERA_PERSPECTIVE;
+    ship2.model = LoadModel("resources/models/ship2.glb");
+    ship2.movement_buttons = btns2;
+    ship2.accel = default_accel;
+    ship2.position = (Vector3){0.0f, 0.0f, 0.0f};
+}
+
 void checkMovement(Ship *ship) {
     //Checking axis movement
     if(IsKeyDown(ship->movement_buttons.forward)) {
