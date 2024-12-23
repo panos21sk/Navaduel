@@ -22,10 +22,32 @@ void checkMovement(Ship *ship) {
     }
 
     //Setting all acceleration coefficients back to std
-    if(IsKeyReleased(ship->movement_buttons.forward)) ship->accel.f_coefficient = MIN_ACCEL;
-    if(IsKeyReleased(ship->movement_buttons.backwards)) ship->accel.b_coefficient = MIN_ACCEL;
-    if(IsKeyReleased(ship->movement_buttons.left)) ship->accel.l_coefficient = MIN_ACCEL;
-    if(IsKeyReleased(ship->movement_buttons.right)) ship->accel.r_coefficient = MIN_ACCEL;
+    //Realistic ship physics while on water (deacceleration)
+    //Might change the decrement step (more deacceleration than acceleration)
+    if(IsKeyUp(ship->movement_buttons.forward)) {
+        if(ship->accel.f_coefficient > MIN_ACCEL) {
+            ship->position.z += -MOVEMENT_STEP*ship->accel.f_coefficient;
+            ship->accel.f_coefficient -= DEACCEL_STEP;
+        }
+    }
+    if(IsKeyUp(ship->movement_buttons.backwards)) {
+        if(ship->accel.b_coefficient > MIN_ACCEL) {
+            ship->position.z += MOVEMENT_STEP*ship->accel.b_coefficient;
+            ship->accel.b_coefficient -= DEACCEL_STEP;
+        }
+    }
+    if(IsKeyUp(ship->movement_buttons.left)) {
+        if(ship->accel.l_coefficient > MIN_ACCEL) {
+            ship->position.x += -MOVEMENT_STEP*ship->accel.l_coefficient;
+            ship->accel.l_coefficient -= DEACCEL_STEP;
+        }
+    }
+    if(IsKeyUp(ship->movement_buttons.right)) {
+        if(ship->accel.r_coefficient > MIN_ACCEL) {
+            ship->position.x += MOVEMENT_STEP*ship->accel.r_coefficient;
+            ship->accel.r_coefficient -= DEACCEL_STEP;
+        }
+    }
 }
 
 void updateCamera(const Ship *ship, const Vector3 distance_vector) {

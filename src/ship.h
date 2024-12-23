@@ -4,8 +4,9 @@
 #include "raylib.h"
 #define MAX_ACCEL 1
 #define ACCEL_STEP 0.005f
+#define DEACCEL_STEP 0.005f //same with accel_step for now
 #define MIN_ACCEL 0.01f
-#define MOVEMENT_STEP 2.0f
+#define MOVEMENT_STEP 1.0f
 
 struct movement_buttons {
     int right;
