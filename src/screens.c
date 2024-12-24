@@ -14,8 +14,8 @@ Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40}
 Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
 Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 140, 160, 40};
 Rectangle about_button = {(float)WIDTH - 165, (float)HEIGHT - 45, 160, 40};
-Rectangle github_jim_button;
-Rectangle github_panos_button;
+Rectangle github_jim_button = {(float)WIDTH/2+90, 210, 160, 40};
+Rectangle github_panos_button = {(float)WIDTH/2+430, 210, 160, 40};
 
 RenderTexture screenShip1;
 RenderTexture screenShip2;
@@ -249,6 +249,32 @@ void DisplayOptionsScreen()
 
 void DisplayAboutScreen() {
     const Vector2 mouse_point = GetMousePosition();
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
+
+        DrawText("Gameplay", 10, 10, 100, GREEN);
+        DrawText("Credits", WIDTH/2+10, 10, 100, GREEN);
+        DrawRectangleRec((Rectangle){(float)WIDTH/2-5, 0, 5, HEIGHT}, BLACK);
+
+        //Credits
+        DrawText("This game was brought to you by:", WIDTH/2+10, 110, 35, BLACK);
+        DrawText("Kakagiannis Dimitrios & Panagiotis Skoulis", WIDTH/2+5, 165, 30, BLUE);
+        DrawRectangleRec(github_jim_button, BLACK);
+        DrawRectangleRec(github_panos_button, BLACK);
+
+        if(CheckCollisionPointRec(mouse_point, github_jim_button)) {
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ; // TODO: Throw the user to the github account page
+            DrawRectangleRec(github_jim_button, RED);
+        }
+        if(CheckCollisionPointRec(mouse_point, github_panos_button)) {
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ; // TODO: Throw the user to the github account page
+            DrawRectangleRec(github_panos_button, RED);
+        }
+        DrawText("GITHUB", (int)github_jim_button.x + 5, (int)github_jim_button.y + 10, 20, WHITE);
+        DrawText("GITHUB", (int)github_panos_button.x + 5, (int)github_panos_button.y + 10, 20, WHITE);
+    }
+    EndDrawing();
 }
 
 void DeinitMainWindow()
