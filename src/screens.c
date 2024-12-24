@@ -135,6 +135,7 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
     EndTextureMode();
 
     if (startup_counter > 0) {
+        char *text = malloc(sizeof(char));
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -143,7 +144,6 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
             DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
 
-            char *text = malloc(sizeof(char));
             sprintf(text, "%d", startup_counter);
             DrawText(text, WIDTH/4, HEIGHT/2, 50, WHITE);
             DrawText(text, 3*WIDTH/4, HEIGHT/2, 50, WHITE);
@@ -151,6 +151,7 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
         }
         EndDrawing();
         sleep(1);
+        free(text);
     } else if (startup_counter == 0) {
         BeginDrawing();
         {
