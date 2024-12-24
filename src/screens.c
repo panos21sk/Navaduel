@@ -1,6 +1,7 @@
 #include "screens.h"
 #include "ship.h"
 #include "raylib.h"
+#include "raymath.h"
 
 screen current_screen = MAIN;
 Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
@@ -71,10 +72,15 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model)
 
     // Update Camera manually
     // TODO: Find a way to get the camera behind the ship regardless of where its facing
-    UpdateShipCamera(ship1, CAMERA_DISTANCE_VECTOR);
-    UpdateShipCamera(ship2, CAMERA_DISTANCE_VECTOR);
+    UpdateShipCamera(ship1, CAMERA_DISTANCE_VECTOR_TP, settings.first_or_third_person_cam);
+    UpdateShipCamera(ship2, CAMERA_DISTANCE_VECTOR_TP, settings.first_or_third_person_cam);
+    
 
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
+
+    //rotate ships
+    ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0}); //rotate ship by 90deg to match alignment 
+    ship2->model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw, 0}); 
 
     BeginTextureMode(screenShip1);
     {
@@ -82,9 +88,10 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model)
 
         BeginMode3D(camera1);
         {
-            DrawModel(water_model, (Vector3){-100, -1, -100}, 1, BLUE);
-            DrawModel(ship1->model, ship1->camera->position, 1, RED);
-            DrawModel(ship2->model, ship2->camera->position, 1, BLUE);
+
+            DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+            DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
+            DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
         }
         EndMode3D();
 
@@ -99,9 +106,9 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model)
 
         BeginMode3D(camera2);
         {
-            DrawModel(water_model, (Vector3){-100, -1, -100}, 1.0f, BLUE);
-            DrawModel(ship1->model, ship1->camera->position, 1.0f, RED);
-            DrawModel(ship2->model, ship2->camera->position, 1.0f, BLUE);
+            DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+            DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
+            DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
         }
         EndMode3D();
 

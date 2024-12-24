@@ -25,6 +25,7 @@ struct accel_settings {
 typedef struct {
     Camera *camera;
     Vector3 position;
+    float yaw;
     struct accel_settings accel;
     Model model;
     struct movement_buttons movement_buttons;
@@ -38,6 +39,6 @@ extern Camera camera2;
 
 void SetupShips();
 void CheckMovement(Ship *ship);
-void UpdateShipCamera(const Ship *ship, Vector3 distance_vector);
+void UpdateShipCamera(const Ship *ship, Vector3 distance_vector, bool first_person);
 
 #endif //SHIP_H
