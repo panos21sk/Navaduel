@@ -15,7 +15,7 @@ obj/x64/Debug/navaduel/screens.o: ../../src/screens.c \
  /usr/include/bits/fp-logb.h /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
- /usr/include/bits/iscanonical.h
+ /usr/include/bits/iscanonical.h ../external/raylib-master/src/rlgl.h
 /usr/include/stdc-predef.h:
 ../../src/screens.h:
 ../../include/raylib.h:
@@ -47,3 +47,4 @@ obj/x64/Debug/navaduel/screens.o: ../../src/screens.c \
 /usr/include/bits/mathcalls.h:
 /usr/include/bits/mathcalls-narrow.h:
 /usr/include/bits/iscanonical.h:
+../external/raylib-master/src/rlgl.h:
