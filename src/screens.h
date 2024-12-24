@@ -6,6 +6,7 @@
 //#include "stdbool.h" - Dont know whether the inclusion is implicit or even needed for the bool type
 #define WIDTH 1280
 #define HEIGHT 700
+#define GAME_STARTUP_COUNTER 5 // in seconds
 #define CAMERA_DISTANCE_VECTOR_TP (Vector3){0.0f, 25.0f, -50.0f}
 #define CAMERA_DISTANCE_VECTOR_FP (Vector3){0.0f, 15.0f, 25.0f}
 
@@ -15,7 +16,8 @@ typedef enum
     OPTIONS, //options
     GAME, //main game screen
     GAME_OVER, //game over screen - when a ship gets destroyed
-    ABOUT // credits and basic gameplay
+    ABOUT, // credits and basic gameplay
+    GAME_MENU
 } screen;
 
 extern screen current_screen;
@@ -34,5 +36,6 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, Model water_model);
 void DisplayGameOverScreen();
 void DisplayOptionsScreen();
 void DisplayAboutScreen();
+void DisplayGameMenuScreen();
 
 #endif //SCREENS_H

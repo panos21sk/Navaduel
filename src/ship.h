@@ -29,6 +29,7 @@ typedef struct {
     struct accel_settings accel;
     Model model;
     struct movement_buttons movement_buttons;
+    bool can_move;
 } Ship;
 
 extern const struct accel_settings default_accel;

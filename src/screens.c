@@ -2,11 +2,21 @@
 #include "ship.h"
 #include "raylib.h"
 #include "raymath.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int startup_counter = GAME_STARTUP_COUNTER;
 
 screen current_screen = MAIN;
+
 Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
 Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
 Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 140, 160, 40};
+Rectangle about_button = {(float)WIDTH - 165, (float)HEIGHT - 45, 160, 40};
+Rectangle github_jim_button;
+Rectangle github_panos_button;
+
 RenderTexture screenShip1;
 RenderTexture screenShip2;
 
@@ -20,6 +30,8 @@ void InitMainWindow()
     InitWindow(WIDTH, HEIGHT, "NavalDuel");
     // Set Framerate
     SetTargetFPS(60);
+    // So we can use ESC for the game menu
+    SetExitKey(0);
 
     screenShip1 = LoadRenderTexture(WIDTH / 2, HEIGHT);
     screenShip2 = LoadRenderTexture(WIDTH / 2, HEIGHT);
@@ -35,36 +47,41 @@ void DisplayMainScreen()
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
-        DrawText("NAVADUEL", 20, 20, 30, BLUE);
+        DrawText("NAVALDUEL", 20, 20, 30, BLUE);
 
         DrawRectangleRec(play_button, BLACK);
-        DrawText("PLAY", play_button.x + 5, play_button.y + 10, 20, WHITE);
-
         DrawRectangleRec(options_button, BLACK);
-        DrawText("OPTIONS", options_button.x + 5, options_button.y + 10, 20, WHITE);
-
         DrawRectangleRec(exit_button, BLACK);
-        DrawText("EXIT", exit_button.x + 5, exit_button.y + 10, 20, WHITE);
+        DrawRectangleRec(about_button, BLACK);
 
-        if (CheckCollisionPointRec(mouse_point, play_button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            current_screen = GAME;
+        if (CheckCollisionPointRec(mouse_point, play_button)) {
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = GAME;
+            DrawRectangleRec(play_button, RED);
         }
-        if (CheckCollisionPointRec(mouse_point, options_button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            current_screen = OPTIONS;
+        if (CheckCollisionPointRec(mouse_point, options_button)) {
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = OPTIONS;
+            DrawRectangleRec(options_button, RED);
         }
-        if (CheckCollisionPointRec(mouse_point, exit_button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            DeinitMainWindow(); // TODO: Causes SIGSEV: Address Boundary error
+        if (CheckCollisionPointRec(mouse_point, exit_button)) {
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
+            DrawRectangleRec(exit_button, RED);
         }
+        if (CheckCollisionPointRec(mouse_point, about_button)) {
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = ABOUT;
+            DrawRectangleRec(about_button, RED);
+        }
+
+        DrawText("PLAY", (int)play_button.x + 5, (int)play_button.y + 10, 20, WHITE);
+        DrawText("OPTIONS", (int)options_button.x + 5, (int)options_button.y + 10, 20, WHITE);
+        DrawText("EXIT", (int)exit_button.x + 5, (int)exit_button.y + 10, 20, WHITE);
+        DrawText("ABOUT", (int)about_button.x + 5, (int)about_button.y + 10, 20, WHITE);
     }
     EndDrawing();
 }
 
-void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model)
-{
+void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
     DisableCursor();
+
     //! Input Handling:
     // Ship Movement
     CheckMovement(ship1);
@@ -117,16 +134,51 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model)
     }
     EndTextureMode();
 
-    //! Rendering:
-    BeginDrawing();
-    {
-        ClearBackground(RAYWHITE);
+    if (startup_counter > 0) {
+        BeginDrawing();
+        {
+            ClearBackground(RAYWHITE);
 
-        DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-        DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-        DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
+            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
+            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+
+            char *text = malloc(sizeof(char));
+            sprintf(text, "%d", startup_counter);
+            DrawText(text, WIDTH/4, HEIGHT/2, 50, WHITE);
+            DrawText(text, 3*WIDTH/4, HEIGHT/2, 50, WHITE);
+            --startup_counter;
+        }
+        EndDrawing();
+        sleep(1);
+    } else if (startup_counter == 0) {
+        BeginDrawing();
+        {
+            ClearBackground(RAYWHITE);
+
+            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
+            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
+            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+
+            DrawText("Begin!", WIDTH/4-70, HEIGHT/2, 50, WHITE);
+            DrawText("Begin!", 3*WIDTH/4-70, HEIGHT/2, 50, WHITE);
+            ship1->can_move = true;
+            ship2->can_move = true;
+            --startup_counter; //game starts
+        }
+        EndDrawing();
+        sleep(1);
+    } else {
+        BeginDrawing();
+        {
+            ClearBackground(RAYWHITE);
+
+            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
+            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
+            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+        }
+        EndDrawing();
     }
-    EndDrawing();
 }
 
 void DisplayGameOverScreen()
@@ -186,12 +238,17 @@ void DisplayOptionsScreen()
         }
 
         DrawRectangleRec(return_to_main_rec, BLACK);
-        DrawText("RETURN TO MAIN MENU", return_to_main_rec.x + 5, return_to_main_rec.y + 10, 20, WHITE);
-        if(CheckCollisionPointRec(mouse_point, return_to_main_rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            current_screen = MAIN;
+        if(CheckCollisionPointRec(mouse_point, return_to_main_rec)){
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = MAIN;
+            DrawRectangleRec(return_to_main_rec, RED);
         }
+        DrawText("RETURN TO MAIN MENU", (int)return_to_main_rec.x + 5, (int)return_to_main_rec.y + 10, 20, WHITE);
     }
     EndDrawing();
+}
+
+void DisplayAboutScreen() {
+    const Vector2 mouse_point = GetMousePosition();
 }
 
 void DeinitMainWindow()

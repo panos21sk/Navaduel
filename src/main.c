@@ -37,7 +37,12 @@ int main() {
 			}
 			case OPTIONS:
 			{	
-				DisplayOptionsScreen();
+				DisplayOptionsScreen(); //Settings
+				break;
+			}
+			case ABOUT:
+			{
+				DisplayAboutScreen(); //Credits and gameplay
 				break;
 			}
 			default:
