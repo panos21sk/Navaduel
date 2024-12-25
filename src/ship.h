@@ -65,7 +65,7 @@ extern Camera camera1;
 extern Camera camera2;
 
 void SetupShips();
-void DestroyShip(Ship* ship);
+void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball);
