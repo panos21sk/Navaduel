@@ -38,7 +38,7 @@ void SetupShips() {
     ship1.model = LoadModel("resources/models/ship1edited.glb");
     ship1.movement_buttons = btns1;
     ship1.accel = default_accel;
-    ship1.position = (Vector3){0.0f, 10.0f, -50.0f};
+    ship1.position = (Vector3){0.0f, 15.0f, -50.0f};
     ship1.cannon = &cannon1;
     ship1.cannonball = initcannonball;
     ship1.yaw = 0;
@@ -60,7 +60,7 @@ void SetupShips() {
     ship2.model = LoadModel("resources/models/ship2edited.glb");
     ship2.movement_buttons = btns2;
     ship2.accel = default_accel;
-    ship2.position = (Vector3){0.0f, 3.0f, 50.0f};
+    ship2.position = (Vector3){0.0f, 6.8f, 50.0f};
     ship2.cannon = &cannon2;
     ship2.cannonball = initcannonball;
     ship2.yaw = 3.1415;
@@ -199,7 +199,7 @@ void InitializeCannonball(Ship* ship){
                 Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0,1,0}, ship->yaw));
     //see commemts on the transform of cannon rail
     Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
-    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,-ship->cannon->rotation.x}, speed_transform_matrix); //rotation.x increases proportionally to the time space is held
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2}, speed_transform_matrix); 
     ship->cannonball.accel = (Vector3){0, -0.005, 0};
 }
 

@@ -105,7 +105,7 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const 
         BeginMode3D(camera1);
         {
 
-            DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
             //draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
             //TODO: Improve the skybox pls :(
