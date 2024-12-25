@@ -3,10 +3,10 @@
 
 #include "raylib.h"
 #define MAX_ACCEL 1
-#define MAX_TURN 3.1415/9
-#define MAX_TURN_UP 3.1415/2.25
+#define MAX_TURN 3.1415/9.0f
+#define MAX_TURN_UP 3.1415/2.25f
 #define ACCEL_STEP 0.005f
-#define DEACCEL_STEP 0.01f //same with accel_step for now
+#define DEACCEL_STEP 0.01f
 #define MIN_ACCEL 0.01f
 #define MOVEMENT_STEP 1.0f
 
@@ -55,6 +55,8 @@ typedef struct {
     Vector3 camera_distance_vector_fp;
     Vector3 camera_distance_vector_tp;
     bool can_fire;
+    bool can_move;
+    BoundingBox boundary;
 } Ship;
 
 extern const struct accel_settings default_accel;
@@ -64,7 +66,7 @@ extern Camera camera1;
 extern Camera camera2;
 
 void SetupShips();
-void DestroyShip(Ship* ship);
+void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball);

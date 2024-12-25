@@ -32,9 +32,19 @@ int main() {
 				DisplayMainScreen(); //Displays the game's MAIN screen
 				break;
 			}
-			case GAME:
+			case GAMEMODES:
 			{
-				DisplayGameScreen(&ship1, &ship2, water_model, skybox_model); //Starts the game
+				DisplayGamemodesScreen();
+				break;
+			}
+			case GAME_REAL:
+			{
+				DisplayRealTimeGameScreen(&ship1, &ship2, water_model, skybox_model); //Starts the real-time game
+				break;
+			}
+			case GAME_TURN:
+			{
+				DisplayTurnBasedGameScreen(&ship1, &ship2, water_model, skybox_model); //Starts the turn-based game
 				break;
 			}
 			case GAME_OVER:
@@ -44,7 +54,12 @@ int main() {
 			}
 			case OPTIONS:
 			{	
-				DisplayOptionsScreen();
+				DisplayOptionsScreen(); //Settings
+				break;
+			}
+			case ABOUT:
+			{
+				DisplayAboutScreen(); //Credits and gameplay
 				break;
 			}
 			default:
@@ -56,5 +71,6 @@ int main() {
 	UnloadModel(skybox_model);
 	UnloadTexture(water_tex);
 	UnloadTexture(skybox_texture);
+	// TODO: add everything to 1 function
 	return 0;
 }
