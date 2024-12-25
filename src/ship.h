@@ -55,6 +55,7 @@ typedef struct {
     Vector3 camera_distance_vector_fp;
     Vector3 camera_distance_vector_tp;
     bool can_fire;
+    bool can_move;
 } Ship;
 
 extern const struct accel_settings default_accel;
