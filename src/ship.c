@@ -1,5 +1,4 @@
 #include "ship.h"
-#include "screens.h"
 #include "raylib.h"
 #include "raymath.h"
 
@@ -23,7 +22,7 @@ void SetupShips() {
     initcannonball.velocity = Vector3Zero();
     initcannonball.accel = Vector3Zero();
 
-    //cannon for ship1
+    //Cannon for ship1
     cannon1.relative_position = (Vector3){0, -8, 28};
     cannon1.rotation = (Vector3){0,0,0};
     cannon1.stand_model = LoadModel("resources/models/cannon_stand.glb");
@@ -64,13 +63,13 @@ void SetupShips() {
     ship2.position = (Vector3){0.0f, 3.0f, 50.0f};
     ship2.cannon = &cannon2;
     ship2.cannonball = initcannonball;
-    ship2.yaw = 3.1415;
+    ship2.yaw = 3.1415f;
     ship2.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
     ship2.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
     ship2.can_move = false;
 }
 
-void DestroyShip(Ship* ship){
+void DestroyShip(const Ship* ship){
     UnloadModel(ship->model);
     UnloadModel(ship->cannon->rail_model);
     UnloadModel(ship->cannon->stand_model);
@@ -95,31 +94,30 @@ void CheckMovement(Ship *ship) {
         ship->accel.b_coefficient = (ship->accel.b_coefficient < MAX_ACCEL) ? (ship->accel.b_coefficient + ACCEL_STEP) : MAX_ACCEL;
     }
     if(IsKeyDown(ship->movement_buttons.left)) {
-        ship->yaw += MOVEMENT_STEP*ship->accel.l_coefficient*0.02;
+        ship->yaw += MOVEMENT_STEP*ship->accel.l_coefficient*0.02f;
         ship->accel.l_coefficient = (ship->accel.l_coefficient < MAX_ACCEL) ? (ship->accel.l_coefficient + ACCEL_STEP) : MAX_ACCEL;
     }
     if(IsKeyDown(ship->movement_buttons.right)) {
-        ship->yaw += -MOVEMENT_STEP*ship->accel.r_coefficient*0.02;
+        ship->yaw += -MOVEMENT_STEP*ship->accel.r_coefficient*0.02f;
         ship->accel.r_coefficient = (ship->accel.r_coefficient < MAX_ACCEL) ? (ship->accel.r_coefficient + ACCEL_STEP) : MAX_ACCEL;
     }
     if(IsKeyDown(ship->movement_buttons.turn_cannon_left)){
-        ship->cannon->rotation.y = (ship->cannon->rotation.y > -MAX_TURN) ? ship->cannon->rotation.y - MOVEMENT_STEP/10*ship->accel.turn_l_coefficient : -MAX_TURN;
+        ship->cannon->rotation.y = (ship->cannon->rotation.y > -MAX_TURN) ? (ship->cannon->rotation.y - MOVEMENT_STEP/10.0f*ship->accel.turn_l_coefficient) : (float)-MAX_TURN;
         ship->accel.turn_l_coefficient = (ship->accel.l_coefficient < MAX_ACCEL) ? (ship->accel.turn_l_coefficient + ACCEL_STEP) : MAX_ACCEL;
     }
     if(IsKeyDown(ship->movement_buttons.turn_cannon_right)){
-        ship->cannon->rotation.y = (ship->cannon->rotation.y < MAX_TURN) ? ship->cannon->rotation.y + MOVEMENT_STEP/10*ship->accel.turn_r_coefficient : MAX_TURN;
+        ship->cannon->rotation.y = (ship->cannon->rotation.y < MAX_TURN) ? ship->cannon->rotation.y + MOVEMENT_STEP/10.0f*ship->accel.turn_r_coefficient : (float)MAX_TURN;
         ship->accel.turn_r_coefficient = (ship->accel.r_coefficient < MAX_ACCEL) ? (ship->accel.turn_r_coefficient + ACCEL_STEP) : MAX_ACCEL;
     }
     if(IsKeyDown(ship->movement_buttons.fire)){
         if(ship->can_fire && ship->cannon->rotation.x > -MAX_TURN_UP){
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
-            ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? -MAX_TURN_UP : ship->cannon->rotation.x;
+            ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
             ship->accel.fire_coefficient = (ship->accel.fire_coefficient < MAX_ACCEL) 
                                ? ship->accel.fire_coefficient + ACCEL_STEP 
                                : MAX_ACCEL;
-        }
-        else {
-        if(ship->cannon->rotation.x <= 0){ship->cannon->rotation.x += MOVEMENT_STEP/10*ship->accel.fire_coefficient;}
+        } else {
+            if(ship->cannon->rotation.x <= 0) ship->cannon->rotation.x += MOVEMENT_STEP/10*ship->accel.fire_coefficient;
         }
     }
         //Setting all acceleration coefficients back to std
@@ -157,7 +155,6 @@ void CheckMovement(Ship *ship) {
                 ship->accel.r_coefficient -= DEACCEL_STEP;
             }
         }
-    }
     if(IsKeyUp(ship->movement_buttons.turn_cannon_left)){
         if(ship->accel.turn_l_coefficient > MIN_ACCEL) {
             if(ship->cannon->rotation.y > -MAX_TURN){
@@ -199,10 +196,10 @@ void InitializeCannonball(Ship* ship){
     ship->cannonball.position = Vector3Add(
                 ship->position, 
                 Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0,1,0}, ship->yaw));
-    //see commemts on the transform of cannon rail
-    Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
+    //see comments on the transform of cannon rail
+    const Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
     ship->cannonball.velocity = Vector3Transform((Vector3){0,0,-ship->cannon->rotation.x}, speed_transform_matrix); //rotation.x increases proportionally to the time space is held
-    ship->cannonball.accel = (Vector3){0, -0.005, 0};
+    ship->cannonball.accel = (Vector3){0, -0.005f, 0};
 }
 
 void UpdateCannonballState(Cannonball* cannonball){
@@ -212,7 +209,7 @@ void UpdateCannonballState(Cannonball* cannonball){
     }
 }
 
-void UpdateShipCamera(const Ship *ship, bool first_person) {
+void UpdateShipCamera(const Ship *ship, const bool first_person) {
     if(first_person){
         //first person
         ship->camera->position = Vector3Add(ship->position, Vector3RotateByAxisAngle(ship->camera_distance_vector_fp, (Vector3){0, 1, 0}, ship->yaw));
@@ -225,5 +222,4 @@ void UpdateShipCamera(const Ship *ship, bool first_person) {
         ship->camera->target = Vector3Add(ship->position, (Vector3){0, 10, 0});
         ship->camera->up = (Vector3){0,1,0};
     }
-    
 }   

@@ -3,8 +3,8 @@
 
 #include "raylib.h"
 #define MAX_ACCEL 1
-#define MAX_TURN 3.1415/9
-#define MAX_TURN_UP 3.1415/2.25
+#define MAX_TURN 3.1415/9.0f
+#define MAX_TURN_UP 3.1415/2.25f
 #define ACCEL_STEP 0.005f
 #define DEACCEL_STEP 0.01f //same with accel_step for now
 #define MIN_ACCEL 0.01f

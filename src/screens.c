@@ -3,9 +3,8 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "rlgl.h"
-#include "stdio.h" //for snprintf for debugging
+#include <stdio.h> //for snprintf for debugging
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 int startup_counter = GAME_STARTUP_COUNTER;
