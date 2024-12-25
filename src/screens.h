@@ -32,7 +32,7 @@ extern setting settings;
 void InitMainWindow();
 void DeinitMainWindow();
 void DisplayMainScreen();
-void DisplayGameScreen(Ship *ship1, Ship *ship2, Model water_model);
+void DisplayGameScreen(Ship *ship1, Ship *ship2, Model water_model, Model sky_model);
 void DisplayGameOverScreen();
 void DisplayOptionsScreen();
 void DisplayAboutScreen();

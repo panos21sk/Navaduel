@@ -2,6 +2,8 @@
 #include "ship.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "rlgl.h"
+#include "stdio.h" //for snprintf for debugging
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +40,7 @@ void InitMainWindow()
 
     // inital settings
     settings.show_reticle = false;
-    settings.first_or_third_person_cam = false; // false is third person
+    settings.first_or_third_person_cam = true; // false is third person
 }
 
 void DisplayMainScreen()
@@ -79,7 +81,8 @@ void DisplayMainScreen()
     EndDrawing();
 }
 
-void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
+void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const Model sky_model)
+{
     DisableCursor();
 
     //! Input Handling:
@@ -89,15 +92,29 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
 
     // Update Camera manually
     // TODO: Find a way to get the camera behind the ship regardless of where its facing
-    UpdateShipCamera(ship1, CAMERA_DISTANCE_VECTOR_TP, settings.first_or_third_person_cam);
-    UpdateShipCamera(ship2, CAMERA_DISTANCE_VECTOR_TP, settings.first_or_third_person_cam);
-    
+    UpdateShipCamera(ship1, settings.first_or_third_person_cam);
+    UpdateShipCamera(ship2,  settings.first_or_third_person_cam);
 
+    UpdateCannonballState(&ship1->cannonball);
+    UpdateCannonballState(&ship2->cannonball);
+    
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
     //rotate ships
-    ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0}); //rotate ship by 90deg to match alignment 
+    ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0}); 
+    ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415/2, 0}); //adjust for model being offset rotationally by 90deg
+    //rotate cannon
+    //!No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
+    //!Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
+    //Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
+    //Combine transform or rotation around y axis first and then around the cannons new x axis, "i think"
+    Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship1->cannon->rotation.x), MatrixRotateY(ship1-> yaw - 3.1415/2 + ship1->cannon->rotation.y)); 
+    ship1->cannon->rail_model.transform = cannon_transform1;
     ship2->model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw, 0}); 
+    ship2->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw - 3.1415/2, 0});
+    ship2->cannon->rail_model.transform = MatrixRotateXYZ(Vector3Add(ship2->cannon->rotation, (Vector3){0, ship2->yaw - 3.1415/2, 0}));
+    Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2-> yaw - 3.1415/2 + ship2->cannon->rotation.y));
+    ship2->cannon->rail_model.transform = cannon_transform2;
 
     BeginTextureMode(screenShip1);
     {
@@ -107,12 +124,36 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
         {
 
             DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+
+            //draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
+            //TODO: Improve the skybox pls :(
+            rlDisableBackfaceCulling(); 
+            DrawModel(sky_model, (Vector3){ 0.0f, 0.0f, 0.0f }, 1000.0f, WHITE);
+            rlEnableBackfaceCulling();
+
             DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
+            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, 
+                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, 
+                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawSphere(ship1->cannonball.position, 1, BLACK);
+
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
+            DrawModel(ship2->cannon->rail_model, Vector3Add(
+                ship2->position, 
+                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->stand_model, Vector3Add(
+                ship2->position, 
+                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawSphere(ship2->cannonball.position, 1, BLACK);
         }
         EndMode3D();
 
         DrawRectangle(0, 0, GetScreenWidth() / 2, 40, Fade(RAYWHITE, 0.8f));
+        //!DEBUGGING
+        char debug[100];
+        snprintf(debug, sizeof(debug), "%f, %d", ship1->cannonball.position.y, ship1->can_fire);
+        DrawText(debug ,10,30,20, BLACK);
         DrawText("W/S/A/D to move", 10, 10, 20, DARKBLUE);
     }
     EndTextureMode();
@@ -124,8 +165,26 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model) {
         BeginMode3D(camera2);
         {
             DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+
+            rlDisableBackfaceCulling(); 
+            DrawModel(sky_model, (Vector3){ 0.0f, 0.0f, 0.0f }, 1000.0f, WHITE);
+            rlEnableBackfaceCulling();
+
             DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
+            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, 
+                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, 
+                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawSphere(ship1->cannonball.position, 1, BLACK);
+
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
+            DrawModel(ship2->cannon->rail_model, Vector3Add(
+                ship2->position, 
+                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->stand_model, Vector3Add(
+                ship2->position, 
+                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawSphere(ship2->cannonball.position, 1, BLACK);
         }
         EndMode3D();
 
@@ -282,6 +341,8 @@ void DeinitMainWindow()
 {
     UnloadRenderTexture(screenShip1);
     UnloadRenderTexture(screenShip2);
+    DestroyShip(&ship1);
+    DestroyShip(&ship2);
     //! destroy the window and cleanup the OpenGL context
     CloseWindow();
 }

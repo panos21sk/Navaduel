@@ -3,6 +3,8 @@
 
 #include "raylib.h"
 #define MAX_ACCEL 1
+#define MAX_TURN 3.1415/9
+#define MAX_TURN_UP 3.1415/2.25
 #define ACCEL_STEP 0.005f
 #define DEACCEL_STEP 0.01f //same with accel_step for now
 #define MIN_ACCEL 0.01f
@@ -13,6 +15,9 @@ struct movement_buttons {
     int left;
     int forward;
     int backwards;
+    int turn_cannon_left;
+    int turn_cannon_right;
+    int fire;
 };
 
 struct accel_settings {
@@ -20,7 +25,23 @@ struct accel_settings {
     float l_coefficient; //left
     float f_coefficient; //forwards
     float b_coefficient; //backwards
+    float turn_l_coefficient;
+    float turn_r_coefficient;
+    float fire_coefficient;
 };
+
+typedef struct {
+    Vector3 position;
+    Vector3 velocity;
+    Vector3 accel;
+} Cannonball;
+
+typedef struct {
+    Vector3 relative_position;
+    Vector3 rotation;
+    Model stand_model;
+    Model rail_model;
+} Cannon;
 
 typedef struct {
     Camera *camera;
@@ -29,6 +50,11 @@ typedef struct {
     struct accel_settings accel;
     Model model;
     struct movement_buttons movement_buttons;
+    Cannon* cannon;
+    Cannonball cannonball;
+    Vector3 camera_distance_vector_fp;
+    Vector3 camera_distance_vector_tp;
+    bool can_fire;
     bool can_move;
 } Ship;
 
@@ -39,7 +65,10 @@ extern Camera camera1;
 extern Camera camera2;
 
 void SetupShips();
+void DestroyShip(Ship* ship);
 void CheckMovement(Ship *ship);
-void UpdateShipCamera(const Ship *ship, Vector3 distance_vector, bool first_person);
+void InitializeCannonball(Ship* ship);
+void UpdateCannonballState(Cannonball* cannonball);
+void UpdateShipCamera(const Ship *ship, bool first_person);
 
 #endif //SHIP_H
