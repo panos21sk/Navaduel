@@ -9,6 +9,7 @@ Ship ship1;
 Ship ship2;
 Cannon cannon1;
 Cannon cannon2;
+Cannonball initcannonball;
 Camera camera1 = {0};
 Camera camera2 = {0};
 
@@ -16,6 +17,11 @@ void SetupShips() {
     //Variable init
     const struct movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
     const struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
+
+    //Cannonball init
+    initcannonball.position = (Vector3){0,-10,0};
+    initcannonball.velocity = Vector3Zero();
+    initcannonball.accel = Vector3Zero();
 
     //cannon for ship1
     cannon1.relative_position = (Vector3){0, -8, 28};
@@ -34,6 +40,7 @@ void SetupShips() {
     ship1.accel = default_accel;
     ship1.position = (Vector3){0.0f, 10.0f, -50.0f};
     ship1.cannon = &cannon1;
+    ship1.cannonball = initcannonball;
     ship1.yaw = 0;
     ship1.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
     ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 23.0f};
@@ -55,6 +62,7 @@ void SetupShips() {
     ship2.accel = default_accel;
     ship2.position = (Vector3){0.0f, 3.0f, 50.0f};
     ship2.cannon = &cannon2;
+    ship2.cannonball = initcannonball;
     ship2.yaw = 3.1415;
     ship2.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
     ship2.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
@@ -168,9 +176,14 @@ void CheckMovement(Ship *ship) {
             }
         }
     }
+    if(IsKeyReleased(ship->movement_buttons.fire)){
+        if(ship->can_fire){
+            InitializeCannonball(ship);
+            ship->can_fire = false;
+        }
+    }
     if(IsKeyUp(ship->movement_buttons.fire)){
         if(ship->cannon->rotation.x <= 0){
-            ship->can_fire = false;
             ship->cannon->rotation.x += MOVEMENT_STEP/10*ship->accel.fire_coefficient;
         } else {
             ship->can_fire = true;
@@ -179,22 +192,22 @@ void CheckMovement(Ship *ship) {
     }
 }
 
-void CreateCannonball(Ship ship){
-    Cannonball cannonball;
-    cannonball.position = Vector3Add(
-                ship.position, 
-                Vector3RotateByAxisAngle(ship.cannon->relative_position, (Vector3){0,1,0}, ship.yaw));
+//Dynamic
+void InitializeCannonball(Ship* ship){
+    ship->cannonball.position = Vector3Add(
+                ship->position, 
+                Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0,1,0}, ship->yaw));
     //see commemts on the transform of cannon rail
-    Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateZ(ship.cannon->rotation.x), MatrixRotateY(ship.yaw + ship.cannon->rotation.y));
-    cannonball.velocity = Vector3Transform((Vector3){0,0,1}, speed_transform_matrix);
-    cannonball.accel = (Vector3){0, 0.098, 0};
-    if(cannonball.position.y > 0){
-        UpdateCannonballState(&cannonball);
-    }
+    Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,-ship->cannon->rotation.x}, speed_transform_matrix); //rotation.x increases proportionally to the time space is held
+    ship->cannonball.accel = (Vector3){0, -0.005, 0};
 }
 
 void UpdateCannonballState(Cannonball* cannonball){
-
+    if(cannonball->position.y >= -5){
+        cannonball->position = Vector3Add(cannonball->position, cannonball->velocity);
+        cannonball->velocity = Vector3Add(cannonball->velocity, cannonball->accel);
+    }
 }
 
 void UpdateShipCamera(const Ship *ship, bool first_person) {

@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "rlgl.h"
+#include "stdio.h" //for snprintf for debugging
 
 screen current_screen = MAIN;
 Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
@@ -75,8 +76,10 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const 
     // TODO: Find a way to get the camera behind the ship regardless of where its facing
     UpdateShipCamera(ship1, settings.first_or_third_person_cam);
     UpdateShipCamera(ship2,  settings.first_or_third_person_cam);
-    
 
+    UpdateCannonballState(&ship1->cannonball);
+    UpdateCannonballState(&ship2->cannonball);
+    
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
     //rotate ships
@@ -115,6 +118,7 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const 
                 Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
             DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, 
                 Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawSphere(ship1->cannonball.position, 1, BLACK);
 
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
             DrawModel(ship2->cannon->rail_model, Vector3Add(
@@ -123,10 +127,15 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const 
             DrawModel(ship2->cannon->stand_model, Vector3Add(
                 ship2->position, 
                 Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawSphere(ship2->cannonball.position, 1, BLACK);
         }
         EndMode3D();
 
         DrawRectangle(0, 0, GetScreenWidth() / 2, 40, Fade(RAYWHITE, 0.8f));
+        //!DEBUGGING
+        char debug[100];
+        snprintf(debug, sizeof(debug), "%f, %d", ship1->cannonball.position.y, ship1->can_fire);
+        DrawText(debug ,10,30,20, BLACK);
         DrawText("W/S/A/D to move", 10, 10, 20, DARKBLUE);
     }
     EndTextureMode();
@@ -148,6 +157,7 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const 
                 Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
             DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, 
                 Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawSphere(ship1->cannonball.position, 1, BLACK);
 
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
             DrawModel(ship2->cannon->rail_model, Vector3Add(
@@ -156,6 +166,7 @@ void DisplayGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const 
             DrawModel(ship2->cannon->stand_model, Vector3Add(
                 ship2->position, 
                 Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawSphere(ship2->cannonball.position, 1, BLACK);
         }
         EndMode3D();
 

@@ -15,7 +15,14 @@ obj/x64/Debug/navaduel/screens.o: ../../src/screens.c \
  /usr/include/bits/fp-logb.h /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
- /usr/include/bits/iscanonical.h ../external/raylib-master/src/rlgl.h
+ /usr/include/bits/iscanonical.h ../external/raylib-master/src/rlgl.h \
+ /usr/include/stdio.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
+ /usr/include/bits/types/__fpos_t.h /usr/include/bits/types/__mbstate_t.h \
+ /usr/include/bits/types/__fpos64_t.h /usr/include/bits/types/__FILE.h \
+ /usr/include/bits/types/FILE.h /usr/include/bits/types/struct_FILE.h \
+ /usr/include/bits/types/cookie_io_functions_t.h \
+ /usr/include/bits/stdio_lim.h
 /usr/include/stdc-predef.h:
 ../../src/screens.h:
 ../../include/raylib.h:
@@ -48,3 +55,13 @@ obj/x64/Debug/navaduel/screens.o: ../../src/screens.c \
 /usr/include/bits/mathcalls-narrow.h:
 /usr/include/bits/iscanonical.h:
 ../external/raylib-master/src/rlgl.h:
+/usr/include/stdio.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
+/usr/include/bits/types/__fpos_t.h:
+/usr/include/bits/types/__mbstate_t.h:
+/usr/include/bits/types/__fpos64_t.h:
+/usr/include/bits/types/__FILE.h:
+/usr/include/bits/types/FILE.h:
+/usr/include/bits/types/struct_FILE.h:
+/usr/include/bits/types/cookie_io_functions_t.h:
+/usr/include/bits/stdio_lim.h:

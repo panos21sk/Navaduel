@@ -34,7 +34,6 @@ typedef struct {
     Vector3 position;
     Vector3 velocity;
     Vector3 accel;
-    Model cannonball_model;
 } Cannonball;
 
 typedef struct {
@@ -52,6 +51,7 @@ typedef struct {
     Model model;
     struct movement_buttons movement_buttons;
     Cannon* cannon;
+    Cannonball cannonball;
     Vector3 camera_distance_vector_fp;
     Vector3 camera_distance_vector_tp;
     bool can_fire;
@@ -66,7 +66,7 @@ extern Camera camera2;
 void SetupShips();
 void DestroyShip(Ship* ship);
 void CheckMovement(Ship *ship);
-void CreateCannonball(Ship ship); //pass by value since firing a cannonball shouldnt affect the ship
+void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball);
 void UpdateShipCamera(const Ship *ship, bool first_person);
 
