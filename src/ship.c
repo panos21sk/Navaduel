@@ -44,6 +44,7 @@ void SetupShips() {
     ship1.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
     ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 23.0f};
     ship1.can_move = false;
+    ship1.boundary = GetMeshBoundingBox(ship1.model.meshes[0]);
 
     //cannon for ship2
     cannon2.relative_position = (Vector3){0, 1, 7};
@@ -67,6 +68,7 @@ void SetupShips() {
     ship2.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
     ship2.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
     ship2.can_move = false;
+    ship2.boundary = GetMeshBoundingBox(ship2.model.meshes[0]);
 }
 
 void DestroyShip(const Ship* ship){
@@ -120,41 +122,41 @@ void CheckMovement(Ship *ship) {
             if(ship->cannon->rotation.x <= 0) ship->cannon->rotation.x += MOVEMENT_STEP/10*ship->accel.fire_coefficient;
         }
     }
-        //Setting all acceleration coefficients back to std
-        //Realistic ship physics while on water (deacceleration)
-        //Might change the decrement step (more deacceleration than acceleration)
-        if(IsKeyUp(ship->movement_buttons.forward)) {
-            if(ship->accel.f_coefficient > MIN_ACCEL) {
-                ship->position = Vector3Add(ship->position,
-                                        Vector3RotateByAxisAngle(
-                                            (Vector3){0, 0, MOVEMENT_STEP*ship->accel.f_coefficient},
-                                            (Vector3){0, 1, 0},
-                                            ship->yaw));
-                ship->accel.f_coefficient -= DEACCEL_STEP;
-            }
+    //Setting all acceleration coefficients back to std
+    //Realistic ship physics while on water (deacceleration)
+    //Might change the decrement step (more deacceleration than acceleration)
+    if(IsKeyUp(ship->movement_buttons.forward)) {
+        if(ship->accel.f_coefficient > MIN_ACCEL) {
+            ship->position = Vector3Add(ship->position,
+                                    Vector3RotateByAxisAngle(
+                                        (Vector3){0, 0, MOVEMENT_STEP*ship->accel.f_coefficient},
+                                        (Vector3){0, 1, 0},
+                                        ship->yaw));
+            ship->accel.f_coefficient -= DEACCEL_STEP;
         }
-        if(IsKeyUp(ship->movement_buttons.backwards)) {
-            if(ship->accel.b_coefficient > MIN_ACCEL) {
-                ship->position = Vector3Add(ship->position,
-                                        Vector3RotateByAxisAngle(
-                                            (Vector3){0, 0, -MOVEMENT_STEP*ship->accel.b_coefficient},
-                                            (Vector3){0, 1, 0},
-                                            ship->yaw));
-                ship->accel.b_coefficient -= DEACCEL_STEP;
-            }
+    }
+    if(IsKeyUp(ship->movement_buttons.backwards)) {
+        if(ship->accel.b_coefficient > MIN_ACCEL) {
+            ship->position = Vector3Add(ship->position,
+                                    Vector3RotateByAxisAngle(
+                                        (Vector3){0, 0, -MOVEMENT_STEP*ship->accel.b_coefficient},
+                                        (Vector3){0, 1, 0},
+                                        ship->yaw));
+            ship->accel.b_coefficient -= DEACCEL_STEP;
         }
-        if(IsKeyUp(ship->movement_buttons.left)) {
-            if(ship->accel.l_coefficient > MIN_ACCEL) {
-                ship->yaw += MOVEMENT_STEP*ship->accel.l_coefficient*0.02f;
-                ship->accel.l_coefficient -= DEACCEL_STEP;
-            }
+    }
+    if(IsKeyUp(ship->movement_buttons.left)) {
+        if(ship->accel.l_coefficient > MIN_ACCEL) {
+            ship->yaw += MOVEMENT_STEP*ship->accel.l_coefficient*0.02f;
+            ship->accel.l_coefficient -= DEACCEL_STEP;
         }
-        if(IsKeyUp(ship->movement_buttons.right)) {
-            if(ship->accel.r_coefficient > MIN_ACCEL) {
-                ship->yaw += -MOVEMENT_STEP*ship->accel.r_coefficient*0.02f;
-                ship->accel.r_coefficient -= DEACCEL_STEP;
-            }
+    }
+    if(IsKeyUp(ship->movement_buttons.right)) {
+        if(ship->accel.r_coefficient > MIN_ACCEL) {
+            ship->yaw += -MOVEMENT_STEP*ship->accel.r_coefficient*0.02f;
+            ship->accel.r_coefficient -= DEACCEL_STEP;
         }
+    }
     if(IsKeyUp(ship->movement_buttons.turn_cannon_left)){
         if(ship->accel.turn_l_coefficient > MIN_ACCEL) {
             if(ship->cannon->rotation.y > -MAX_TURN){
