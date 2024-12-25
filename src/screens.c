@@ -1,5 +1,6 @@
 #include "screens.h"
 #include "ship.h"
+#include <util.h>
 #include "raylib.h"
 #include "raymath.h"
 #include "rlgl.h"
@@ -16,12 +17,13 @@ screen current_screen = MAIN;
 
 Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
 Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
-Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 140, 160, 40};
+Rectangle controls_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 140, 160, 40};
+Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 220, 160, 40};
 Rectangle about_button = {(float)WIDTH - 165, (float)HEIGHT - 45, 160, 40};
-Rectangle real_time_1v1_button = {(float)WIDTH/2-180, (float)HEIGHT/2-20, 170, 40};
-Rectangle turn_based_1v1_button = {(float)WIDTH/2+10, (float)HEIGHT/2-20, 180, 40};
-Rectangle github_jim_button = {(float)WIDTH/2+90, 210, 160, 40};
-Rectangle github_panos_button = {(float)WIDTH/2+430, 210, 160, 40};
+Rectangle real_time_1v1_button = {(float)WIDTH / 2 - 180, (float)HEIGHT / 2 - 20, 170, 40};
+Rectangle turn_based_1v1_button = {(float)WIDTH / 2 + 10, (float)HEIGHT / 2 - 20, 180, 40};
+Rectangle github_jim_button = {(float)WIDTH / 2 + 90, 210, 160, 40};
+Rectangle github_panos_button = {(float)WIDTH / 2 + 430, 210, 160, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
 
 RenderTexture screenShip1;
@@ -44,112 +46,90 @@ void InitMainWindow()
     screenShip2 = LoadRenderTexture(WIDTH / 2, HEIGHT);
 
     // initial settings
+    //TODO: Read settings off a file instead of initalizing them, here
     settings.show_reticle = false;
     settings.first_or_third_person_cam = true; // false is third person
+    settings.enable_bgm = true;
+    settings.enable_sfx = true;
+    settings.fullscreen = false;
 }
 
-void DisplayMainScreen()
+void DisplayMainScreen(Sound click)
 {
-    mouse_point = GetMousePosition();
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
         DrawText("NAVALDUEL", 20, 20, 30, BLUE);
 
-        DrawRectangleRec(play_button, BLACK);
-        DrawRectangleRec(options_button, BLACK);
-        DrawRectangleRec(exit_button, BLACK);
-        DrawRectangleRec(about_button, BLACK);
+        AddScreenChangeBtn(play_button, "PLAY", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
+        AddScreenChangeBtn(options_button, "OPTIONS", GetMousePosition(), click, &current_screen, OPTIONS, settings.enable_sfx);
+        AddScreenChangeBtn(controls_button, "CONTROLS", GetMousePosition(), click, &current_screen, CONTROLS, settings.enable_sfx);
+        AddScreenChangeBtn(about_button, "ABOUT", GetMousePosition(), click, &current_screen, ABOUT, settings.enable_sfx);
 
-        if (CheckCollisionPointRec(mouse_point, play_button)) {
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = GAMEMODES;
-            DrawRectangleRec(play_button, RED);
-        }
-        if (CheckCollisionPointRec(mouse_point, options_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = OPTIONS;
-            DrawRectangleRec(options_button, RED);
-        }
-        if (CheckCollisionPointRec(mouse_point, exit_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
+        DrawRectangleRec(exit_button, BLACK);
+
+        if (CheckCollisionPointRec(GetMousePosition(), exit_button))
+        {
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                PlaySound(click);
+                CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
+            }
             DrawRectangleRec(exit_button, RED);
         }
-        if (CheckCollisionPointRec(mouse_point, about_button)) {
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = ABOUT;
-            DrawRectangleRec(about_button, RED);
-        }
-
-        DrawText("PLAY", (int)play_button.x + 5, (int)play_button.y + 10, 20, WHITE);
-        DrawText("OPTIONS", (int)options_button.x + 5, (int)options_button.y + 10, 20, WHITE);
         DrawText("EXIT", (int)exit_button.x + 5, (int)exit_button.y + 10, 20, WHITE);
-        DrawText("ABOUT", (int)about_button.x + 5, (int)about_button.y + 10, 20, WHITE);
-    }
-    EndDrawing();
-}
 
-void DisplayGamemodesScreen() {
+        EndDrawing();
+    }
+}
+void DisplayGamemodesScreen(Sound click)
+{
     mouse_point = GetMousePosition();
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
         DrawText("GAMEMODES", 20, 20, 30, BLUE);
 
-        DrawRectangleRec(real_time_1v1_button, BLACK);
-        DrawRectangleRec(turn_based_1v1_button, BLACK);
-        DrawRectangleRec(return_to_main_button, BLACK);
-
-        if(CheckCollisionPointRec(mouse_point, real_time_1v1_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = GAME_REAL;
-            DrawRectangleRec(real_time_1v1_button, RED);
-        }
-        if(CheckCollisionPointRec(mouse_point, turn_based_1v1_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = GAME_TURN;
-            DrawRectangleRec(turn_based_1v1_button, RED);
-        }
-        if(CheckCollisionPointRec(mouse_point, return_to_main_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = MAIN;
-            DrawRectangleRec(return_to_main_button, RED);
-        }
-
-        DrawText("REAL-TIME 1V1", (int)real_time_1v1_button.x + 5, (int)real_time_1v1_button.y + 10, 20, WHITE);
-        DrawText("TURN-BASED 1V1", (int)turn_based_1v1_button.x + 5, (int)turn_based_1v1_button.y + 10, 20, WHITE);
-        DrawText("RETURN TO MAIN MENU", (int)return_to_main_button.x + 5, (int)return_to_main_button.y + 10, 20, WHITE);
+        AddScreenChangeBtn(real_time_1v1_button, "REAL-TIME 1V1", GetMousePosition(), click, &current_screen, GAME_REAL, settings.enable_sfx);
+        AddScreenChangeBtn(turn_based_1v1_button, "TURN-BASED 1V1", GetMousePosition(), click, &current_screen, GAME_TURN, settings.enable_sfx);
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
     EndDrawing();
 }
 
-void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model, Model sky_model)
+void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model, Model sky_model, Sound splash, Sound fire)
 {
     DisableCursor();
 
     //! Input Handling:
     // Ship Movement
-    CheckMovement(ship1);
-    CheckMovement(ship2);
+    CheckMovement(ship1, fire, settings.enable_sfx);
+    CheckMovement(ship2, fire, settings.enable_sfx);
 
     // Update Camera manually
     // TODO: Find a way to get the camera behind the ship regardless of where its facing
     UpdateShipCamera(ship1, settings.first_or_third_person_cam);
     UpdateShipCamera(ship2, settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&ship1->cannonball);
-    UpdateCannonballState(&ship2->cannonball);
-    
+    UpdateCannonballState(&ship1->cannonball, splash, settings.enable_sfx);
+    UpdateCannonballState(&ship2->cannonball, splash, settings.enable_sfx);
+
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
-    //rotate ships
-    ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0}); 
-    ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415f/2, 0}); //adjust for model being offset rotationally by 90deg
-    //rotate cannon
-    //!No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
-    //!Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
-    //Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
-    //Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
-    Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship1->cannon->rotation.x), MatrixRotateY(ship1-> yaw - 3.1415f/2 + ship1->cannon->rotation.y));
+    // rotate ships
+    ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0});
+    ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
+    // rotate cannon
+    //! No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
+    //! Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
+    // Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
+    // Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
+    Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship1->cannon->rotation.x), MatrixRotateY(ship1->yaw - 3.1415f / 2 + ship1->cannon->rotation.y));
     ship1->cannon->rail_model.transform = cannon_transform1;
-    ship2->model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw, 0}); 
-    ship2->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw - 3.1415f/2, 0});
-    ship2->cannon->rail_model.transform = MatrixRotateXYZ(Vector3Add(ship2->cannon->rotation, (Vector3){0, ship2->yaw - 3.1415f/2, 0}));
-    const Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2-> yaw - 3.1415f/2 + ship2->cannon->rotation.y));
+    ship2->model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw, 0});
+    ship2->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw - 3.1415f / 2, 0});
+    ship2->cannon->rail_model.transform = MatrixRotateXYZ(Vector3Add(ship2->cannon->rotation, (Vector3){0, ship2->yaw - 3.1415f / 2, 0}));
+    const Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2->yaw - 3.1415f / 2 + ship2->cannon->rotation.y));
     ship2->cannon->rail_model.transform = cannon_transform2;
 
     ship1->boundary = GetMeshBoundingBox(ship1->model.meshes[0]);
@@ -169,38 +149,30 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
 
             DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
-            //draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
-            //TODO: Improve the skybox pls :(
-            rlDisableBackfaceCulling(); 
-            DrawModel(sky_model, (Vector3){ 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+            // draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
+            // TODO: Improve the skybox pls :(
+            rlDisableBackfaceCulling();
+            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
             rlEnableBackfaceCulling();
 
             DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, 
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, 
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
             DrawSphere(ship1->cannonball.position, 1, BLACK);
 
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(
-                ship2->position, 
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(
-                ship2->position, 
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
             DrawSphere(ship2->cannonball.position, 1, BLACK);
             DrawBoundingBox(ship2->boundary, LIME);
             DrawBoundingBox(sky_bounding_box, BLACK);
         }
         EndMode3D();
 
-        DrawRectangle(0, 0, GetScreenWidth() / 2, 40, Fade(RAYWHITE, 0.8f));
-        //!DEBUGGING
+        //! DEBUGGING
         char debug[100];
         snprintf(debug, sizeof(debug), "%f, %d", ship1->cannonball.position.y, ship1->can_fire);
-        DrawText(debug ,10,30,20, BLACK);
-        DrawText("W/S/A/D to move", 10, 10, 20, DARKBLUE);
+        DrawText(debug, 10, 30, 20, BLACK);
     }
     EndTextureMode();
 
@@ -210,39 +182,30 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
 
         BeginMode3D(camera2);
         {
-            DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
-            rlDisableBackfaceCulling(); 
-            DrawModel(sky_model, (Vector3){ 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+            rlDisableBackfaceCulling();
+            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
             rlEnableBackfaceCulling();
 
-
             DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, 
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, 
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
             DrawSphere(ship1->cannonball.position, 1, BLACK);
 
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(
-                ship2->position, 
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(
-                ship2->position, 
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
             DrawSphere(ship2->cannonball.position, 1, BLACK);
             DrawBoundingBox(sky_bounding_box, BLACK);
         }
         EndMode3D();
-
-        DrawRectangle(0, 0, GetScreenWidth() / 2, 40, Fade(RAYWHITE, 0.8f));
-        DrawText("UP/DOWN/RIGHT/LEFT to move", 10, 10, 20, DARKBLUE);
     }
     EndTextureMode();
 
-    if (startup_counter > 0) {
-        char *text = malloc(sizeof(char)*2); //with null char
+    if (startup_counter > 0)
+    {
+        char *text = malloc(sizeof(char) * 2); // with null char
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -252,14 +215,16 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
 
             sprintf(text, "%d", startup_counter);
-            DrawText(text, WIDTH/4, HEIGHT/2, 50, WHITE);
-            DrawText(text, 3*WIDTH/4, HEIGHT/2, 50, WHITE);
+            DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
+            DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
             --startup_counter;
         }
         EndDrawing();
         sleep(1);
         free(text);
-    } else if (startup_counter == 0) {
+    }
+    else if (startup_counter == 0)
+    {
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -268,15 +233,17 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
             DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
 
-            DrawText("Begin!", WIDTH/4-70, HEIGHT/2, 50, WHITE);
-            DrawText("Begin!", 3*WIDTH/4-70, HEIGHT/2, 50, WHITE);
+            DrawText("Begin!", WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
+            DrawText("Begin!", 3 * WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
             ship1->can_move = true;
             ship2->can_move = true;
-            --startup_counter; //game starts
+            --startup_counter; // game starts
         }
         EndDrawing();
-        sleep(1);
-    } else {
+        sleep(1); //TODO: Find solution without using sleep
+    }
+    else
+    {
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -289,38 +256,38 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
     }
 }
 
-void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const Model sky_model) {
+void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const Model sky_model, Sound splash, Sound fire)
+{
     DisableCursor();
 
     //! Input Handling:
     // Ship Movement
-    CheckMovement(ship1);
-    CheckMovement(ship2);
+    CheckMovement(ship1, fire, settings.enable_sfx);
+    CheckMovement(ship2, fire, settings.enable_sfx);
 
     // Update Camera manually
-    // TODO: Find a way to get the camera behind the ship regardless of where its facing
     UpdateShipCamera(ship1, settings.first_or_third_person_cam);
     UpdateShipCamera(ship2, settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&ship1->cannonball);
-    UpdateCannonballState(&ship2->cannonball);
+    UpdateCannonballState(&ship1->cannonball, splash, settings.enable_sfx);
+    UpdateCannonballState(&ship2->cannonball, splash, settings.enable_sfx);
 
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
-    //rotate ships
+    // rotate ships
     ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0});
-    ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415f/2, 0}); //adjust for model being offset rotationally by 90deg
-    //rotate cannon
-    //!No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
-    //!Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
-    //Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
-    //Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
-    Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship1->cannon->rotation.x), MatrixRotateY(ship1-> yaw - 3.1415f/2 + ship1->cannon->rotation.y));
+    ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
+    // rotate cannon
+    //! No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
+    //! Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
+    // Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
+    // Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
+    Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship1->cannon->rotation.x), MatrixRotateY(ship1->yaw - 3.1415f / 2 + ship1->cannon->rotation.y));
     ship1->cannon->rail_model.transform = cannon_transform1;
     ship2->model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw, 0});
-    ship2->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw - 3.1415f/2, 0});
-    ship2->cannon->rail_model.transform = MatrixRotateXYZ(Vector3Add(ship2->cannon->rotation, (Vector3){0, ship2->yaw - 3.1415f/2, 0}));
-    Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2-> yaw - 3.1415f/2 + ship2->cannon->rotation.y));
+    ship2->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw - 3.1415f / 2, 0});
+    ship2->cannon->rail_model.transform = MatrixRotateXYZ(Vector3Add(ship2->cannon->rotation, (Vector3){0, ship2->yaw - 3.1415f / 2, 0}));
+    Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2->yaw - 3.1415f / 2 + ship2->cannon->rotation.y));
     ship2->cannon->rail_model.transform = cannon_transform2;
 
     BeginTextureMode(screenShip1);
@@ -330,38 +297,30 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_mode
         BeginMode3D(camera1);
         {
 
-            DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
-            //draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
-            //TODO: Improve the skybox pls :(
+            // draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
+            // TODO: Improve the skybox pls :(
             rlDisableBackfaceCulling();
-            DrawModel(sky_model, (Vector3){ 0.0f, 0.0f, 0.0f }, 1000.0f, WHITE);
+            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1000.0f, WHITE);
             rlEnableBackfaceCulling();
 
             DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position,
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position,
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
             DrawSphere(ship1->cannonball.position, 1, BLACK);
 
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(
-                ship2->position,
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(
-                ship2->position,
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
             DrawSphere(ship2->cannonball.position, 1, BLACK);
         }
         EndMode3D();
 
-        DrawRectangle(0, 0, GetScreenWidth() / 2, 40, Fade(RAYWHITE, 0.8f));
-        //!DEBUGGING
+        //! DEBUGGING
         char debug[100];
         snprintf(debug, sizeof(debug), "%f, %d", ship1->cannonball.position.y, ship1->can_fire);
-        DrawText(debug ,10,30,20, BLACK);
-        DrawText("W/S/A/D to move", 10, 10, 20, DARKBLUE);
+        DrawText(debug, 10, 10, 20, BLACK);
     }
     EndTextureMode();
 
@@ -371,37 +330,29 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_mode
 
         BeginMode3D(camera2);
         {
-            DrawModel(water_model, (Vector3){-100, -10, -100}, 10.0f, WHITE);
+            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
             rlDisableBackfaceCulling();
-            DrawModel(sky_model, (Vector3){ 0.0f, 0.0f, 0.0f }, 1000.0f, WHITE);
+            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1000.0f, WHITE);
             rlEnableBackfaceCulling();
 
             DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position,
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position,
-                Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0,1,0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
+            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
             DrawSphere(ship1->cannonball.position, 1, BLACK);
 
             DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(
-                ship2->position,
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(
-                ship2->position,
-                Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0,1,0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
+            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
             DrawSphere(ship2->cannonball.position, 1, BLACK);
         }
         EndMode3D();
-
-        DrawRectangle(0, 0, GetScreenWidth() / 2, 40, Fade(RAYWHITE, 0.8f));
-        DrawText("UP/DOWN/RIGHT/LEFT to move", 10, 10, 20, DARKBLUE);
     }
     EndTextureMode();
 
-    if (startup_counter > 0) {
-        char *text = malloc(sizeof(char)*2); //with null char
+    if (startup_counter > 0)
+    {
+        char *text = malloc(sizeof(char) * 2); // with null char
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -411,14 +362,16 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_mode
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
 
             sprintf(text, "%d", startup_counter);
-            DrawText(text, WIDTH/4, HEIGHT/2, 50, WHITE);
-            DrawText(text, 3*WIDTH/4, HEIGHT/2, 50, WHITE);
+            DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
+            DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
             --startup_counter;
         }
         EndDrawing();
         sleep(1);
         free(text);
-    } else if (startup_counter == 0) {
+    }
+    else if (startup_counter == 0)
+    {
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -427,15 +380,17 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_mode
             DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
 
-            DrawText("Begin!", WIDTH/4-70, HEIGHT/2, 50, WHITE);
-            DrawText("Begin!", 3*WIDTH/4-70, HEIGHT/2, 50, WHITE);
+            DrawText("Begin!", WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
+            DrawText("Begin!", 3 * WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
             ship1->can_move = true;
             ship2->can_move = true;
-            --startup_counter; //game starts
+            --startup_counter; // game starts
         }
         EndDrawing();
         sleep(1);
-    } else {
+    }
+    else
+    {
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -453,98 +408,111 @@ void DisplayGameOverScreen()
     mouse_point = GetMousePosition();
 }
 
-void DisplayOptionsScreen()
+void DisplayControlsScreen(Sound click)
 {
-    mouse_point = GetMousePosition();
-    Color reticle_en; // reticle enabled
-    if (settings.show_reticle)
-        reticle_en = BLUE;
-    else
-        reticle_en = RED;
-    Rectangle reticle_rec = {17, 17, WIDTH - 37, 23};
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
+        DrawText("REAL TIME: ", 5, 5, 20, BLACK);
+        DrawText("Player 1 controls: ", 15, 35, 20, BLACK);
+        DrawText("W/S - Move forward/backward", 25, 65, 20, BLACK);
+        DrawText("A/D - Turn Ship left/right", 25, 95, 20, BLACK);
+        DrawText("Q/E - Turn Cannon left/right", 25, 125, 20, BLACK);
+        DrawText("Space - Fire Cannon", 25, 155, 20, BLACK);
+        DrawText("Player 2 controls: ", 15, 185, 20, BLACK);
+        DrawText("Up arrow/Down arrow - Move forward/backward", 25, 215, 20, BLACK);
+        DrawText("Left arrow/Right arrow - Turn Ship left/right", 25, 245, 20, BLACK);
+        DrawText("Semicolon/Apostrophe - Turn Cannon left/right", 25, 275, 20, BLACK);
+        DrawText("Enter - Fire Cannon", 25, 305, 20, BLACK);
+        DrawText("TURN BASED", 5, 335, 20, BLACK);
+        DrawText("Each Player has the same controls as Player 1 in the Real time mode.", 15, 365, 20, BLACK);
 
-    Color first_person_en; // reticle enabled
-    if (settings.first_or_third_person_cam)
-        first_person_en = BLUE;
-    else
-        first_person_en = RED;
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
+    }
+
+    EndDrawing();
+}
+
+void DisplayOptionsScreen(Sound click, bool* bgm_en)
+{
+    Rectangle reticle_rec = {17, 17, WIDTH - 37, 23};
     Rectangle first_person_rec = {17, 57, WIDTH - 37, 23};
+    Rectangle fullscreen_rec = {17, 97, WIDTH - 37, 23};
+    Rectangle sfx_rec = {17, 137, WIDTH - 37, 23};
+    Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
 
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
 
-        DrawText("TOGGLE RETICLE:", 20, 20, 20, BLACK);
-        DrawRectangle(WIDTH - 40, 20, 20, 20, reticle_en);
-        DrawRectangleLinesEx(reticle_rec, 3, BLACK);
+        AddSetting(&settings.fullscreen, "FULLSCREEN:", fullscreen_rec, click, settings.enable_sfx);
+        AddSetting(&settings.enable_bgm, "ENABLE BACKGROUND MUSIC:", bgm_rec, click, settings.enable_sfx);
+        *bgm_en = (settings.enable_bgm) ? true : false;
+        AddSetting(&settings.enable_sfx, "ENABLE SOUND EFFECTS:", sfx_rec, click, settings.enable_sfx);
+        AddSetting(&settings.show_reticle, "SHOW TARGET RETICLE:", reticle_rec, click, settings.enable_sfx);
+        AddSetting(&settings.first_or_third_person_cam, "FIRST PERSON", first_person_rec, click, settings.enable_sfx);
+        
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
 
-        DrawText("ENABLE FIRST PERSON CAMERA:", 20, 60, 20, BLACK);
-        DrawRectangle(WIDTH - 40, 60, 20, 20, first_person_en);
-        DrawRectangleLinesEx(first_person_rec, 3, BLACK);
-
-        // if rectangle containing settings is clicked, toggle setting
-        if (CheckCollisionPointRec(mouse_point, reticle_rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            if (settings.show_reticle)
-            {
-                settings.show_reticle = false;
-            }
-            else
-                settings.show_reticle = true;
+        if(settings.fullscreen){
+            SetWindowSize(GetScreenWidth(), GetScreenHeight());
+        } else {
+            SetWindowSize(WIDTH, HEIGHT);
         }
-        if (CheckCollisionPointRec(mouse_point, first_person_rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            if (settings.first_or_third_person_cam)
-            {
-                settings.first_or_third_person_cam = false;
-            }
-            else
-                settings.first_or_third_person_cam = true;
-        }
-
-        DrawRectangleRec(return_to_main_button, BLACK);
-        if(CheckCollisionPointRec(mouse_point, return_to_main_button)){
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = MAIN;
-            DrawRectangleRec(return_to_main_button, RED);
-        }
-        DrawText("RETURN TO MAIN MENU", (int)return_to_main_button.x + 5, (int)return_to_main_button.y + 10, 20, WHITE);
     }
     EndDrawing();
 }
 
-void DisplayAboutScreen() {
+void DisplayAboutScreen(Sound click)
+{
     mouse_point = GetMousePosition();
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
 
         DrawText("Gameplay", 10, 10, 100, GREEN);
-        DrawText("Credits", WIDTH/2+10, 10, 100, GREEN);
-        DrawRectangleRec((Rectangle){(float)WIDTH/2-5, 0, 5, HEIGHT}, BLACK);
+        //TODO: Add details about gameplay
+        DrawText("Credits", WIDTH / 2 + 10, 10, 100, GREEN);
+        DrawRectangleRec((Rectangle){(float)WIDTH / 2 - 5, 0, 5, HEIGHT}, BLACK);
 
-        //Credits
-        DrawText("This game was brought to you by:", WIDTH/2+10, 110, 35, BLACK);
-        DrawText("Kakagiannis Dimitrios & Panagiotis Skoulis", WIDTH/2+5, 165, 30, BLUE);
+        // Credits
+        DrawText("This game was brought to you by:", WIDTH / 2 + 10, 110, 35, BLACK);
+        DrawText("Kakagiannis Dimitrios & Panagiotis Skoulis", WIDTH / 2 + 5, 165, 30, BLUE);
         DrawRectangleRec(github_jim_button, BLACK);
         DrawRectangleRec(github_panos_button, BLACK);
-        DrawRectangleRec(return_to_main_button, BLACK);
 
-        if(CheckCollisionPointRec(mouse_point, github_jim_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ; // TODO: Throw the user to the github account page
+        if (CheckCollisionPointRec(mouse_point, github_jim_button))
+        {
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                PlaySound(click);
+                OpenURL("https://github.com/syseditor/");
+            }
             DrawRectangleRec(github_jim_button, RED);
         }
-        if(CheckCollisionPointRec(mouse_point, github_panos_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ; // TODO: Throw the user to the github account page
+        if (CheckCollisionPointRec(mouse_point, github_panos_button))
+        {
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                PlaySound(click);
+                OpenURL("https://github.com/panos21sk/");
+            }
             DrawRectangleRec(github_panos_button, RED);
         }
-        if(CheckCollisionPointRec(mouse_point, return_to_main_button)) {
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) current_screen = MAIN;
+        if (CheckCollisionPointRec(mouse_point, return_to_main_button))
+        {
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                PlaySound(click);
+                current_screen = MAIN;
+            }
             DrawRectangleRec(return_to_main_button, RED);
         }
 
         DrawText("GITHUB", (int)github_jim_button.x + 5, (int)github_jim_button.y + 10, 20, WHITE);
         DrawText("GITHUB", (int)github_panos_button.x + 5, (int)github_panos_button.y + 10, 20, WHITE);
-        DrawText("RETURN TO MAIN MENU", (int)return_to_main_button.x + 5, (int)return_to_main_button.y + 10, 20, WHITE);
+
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
     EndDrawing();
 }
