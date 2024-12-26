@@ -34,6 +34,7 @@ typedef struct {
     Vector3 position;
     Vector3 velocity;
     Vector3 accel;
+    bool has_splashed;
 } Cannonball;
 
 typedef struct {
@@ -67,9 +68,9 @@ extern Camera camera2;
 
 void SetupShips();
 void DestroyShip(const Ship* ship);
-void CheckMovement(Ship *ship);
+void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
-void UpdateCannonballState(Cannonball* cannonball);
+void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
 
 #endif //SHIP_H

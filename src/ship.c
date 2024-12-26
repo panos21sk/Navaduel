@@ -18,9 +18,10 @@ void SetupShips() {
     const struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
 
     //Cannonball init
-    initcannonball.position = (Vector3){0,-10,0};
+    initcannonball.position = (Vector3){0,1000,0};
     initcannonball.velocity = Vector3Zero();
     initcannonball.accel = Vector3Zero();
+    initcannonball.has_splashed = true;
 
     //Cannon for ship1
     cannon1.relative_position = (Vector3){0, -8, 28};
@@ -37,7 +38,7 @@ void SetupShips() {
     ship1.model = LoadModel("resources/models/ship1edited.glb");
     ship1.movement_buttons = btns1;
     ship1.accel = default_accel;
-    ship1.position = (Vector3){0.0f, 10.0f, -50.0f};
+    ship1.position = (Vector3){0.0f, 17.0f, -50.0f};
     ship1.cannon = &cannon1;
     ship1.cannonball = initcannonball;
     ship1.yaw = 0;
@@ -61,7 +62,7 @@ void SetupShips() {
     ship2.model = LoadModel("resources/models/ship2edited.glb");
     ship2.movement_buttons = btns2;
     ship2.accel = default_accel;
-    ship2.position = (Vector3){0.0f, 3.0f, 50.0f};
+    ship2.position = (Vector3){0.0f, 7.5f, 50.0f};
     ship2.cannon = &cannon2;
     ship2.cannonball = initcannonball;
     ship2.yaw = 3.1415f;
@@ -77,7 +78,7 @@ void DestroyShip(const Ship* ship){
     UnloadModel(ship->cannon->stand_model);
 }
 
-void CheckMovement(Ship *ship) {
+void CheckMovement(Ship *ship, Sound fire, bool sfx_en) {
     //Checking axis movement
     if(IsKeyDown(ship->movement_buttons.forward)) {
         ship->position = Vector3Add(ship->position, 
@@ -112,7 +113,7 @@ void CheckMovement(Ship *ship) {
         ship->accel.turn_r_coefficient = (ship->accel.r_coefficient < MAX_ACCEL) ? (ship->accel.turn_r_coefficient + ACCEL_STEP) : MAX_ACCEL;
     }
     if(IsKeyDown(ship->movement_buttons.fire)){
-        if(ship->can_fire && ship->cannon->rotation.x > -MAX_TURN_UP){
+        if(ship->can_fire && ship->cannon->rotation.x > -MAX_TURN_UP && ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999){
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
             ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
             ship->accel.fire_coefficient = (ship->accel.fire_coefficient < MAX_ACCEL) 
@@ -178,8 +179,9 @@ void CheckMovement(Ship *ship) {
         }
     }
     if(IsKeyReleased(ship->movement_buttons.fire)){
-        if(ship->can_fire){
+        if(ship->can_fire && ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999){
             InitializeCannonball(ship);
+            if(sfx_en)PlaySound(fire);
             ship->can_fire = false;
         }
     }
@@ -198,14 +200,21 @@ void InitializeCannonball(Ship* ship){
     ship->cannonball.position = Vector3Add(
                 ship->position, 
                 Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0,1,0}, ship->yaw));
-    //see comments on the transform of cannon rail
-    const Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
-    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,-ship->cannon->rotation.x}, speed_transform_matrix); //rotation.x increases proportionally to the time space is held
-    ship->cannonball.accel = (Vector3){0, -0.005f, 0};
+    //see commemts on the transform of cannon rail
+    Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2}, speed_transform_matrix); 
+    ship->cannonball.accel = (Vector3){0, -0.005, 0};
+    ship->cannonball.has_splashed = false;
 }
 
-void UpdateCannonballState(Cannonball* cannonball){
-    if(cannonball->position.y >= -5){
+void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en){
+    if(cannonball->position.y < 0.0f) {
+        if(!cannonball->has_splashed){
+            if(sfx_en)PlaySound(splash);
+            cannonball->has_splashed = true;
+        }
+    }
+    else{
         cannonball->position = Vector3Add(cannonball->position, cannonball->velocity);
         cannonball->velocity = Vector3Add(cannonball->velocity, cannonball->accel);
     }
