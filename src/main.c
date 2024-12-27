@@ -4,6 +4,7 @@
 #include "ship.h"
 #include "screens.h"
 #include "util.h"
+#include "game.h"
 
 int main() {
 	//! Main window initialization
