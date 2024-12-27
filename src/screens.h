@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "ship.h"
+#include <setjmp.h>
 #ifndef bool
 #include <stdbool.h>
 #endif //bool
@@ -25,9 +26,11 @@ typedef enum
     GAMEMODES // choosing between real-time gameplay and turn-based gameplay
 } screen;
 
-extern int gamemode; // 0 for real-time, 1 for turn-based
+extern screen gamemode; // current gamemode
 extern screen current_screen;
 extern Rectangle play_button;
+extern int winner;
+extern int success_save;
 
 typedef struct {
     bool show_reticle;
@@ -44,7 +47,7 @@ void DisplayMainScreen(Sound click);
 void DisplayGamemodesScreen(Sound click);
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Model water_model, Model sky_model, Sound splash, Sound fire);
 void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Model water_model, Model sky_model, Sound splash, Sound fire);
-void DisplayGameOverScreen();
+void DisplayGameOverScreen(int winnerId, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);
 void DisplayControlsScreen(Sound click);
 void DisplayAboutScreen(Sound click);

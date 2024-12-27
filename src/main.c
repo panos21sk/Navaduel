@@ -1,6 +1,9 @@
+#include <setjmp.h>
+
 #include "raylib.h"
 #include "ship.h"
 #include "screens.h"
+#include "util.h"
 
 int main() {
 	//! Main window initialization
@@ -16,9 +19,6 @@ int main() {
     //pause with StopMusicStream(bgm), resume with ResumeMusicStream(bgm);
 	bool bgm_en;
 	bgm_en = true;
-
-	//! Setup ships-players
-	SetupShips();
 
 	//! Iniatializing Models for rendering
 	const Texture2D water_tex = LoadTexture("resources/sprites/water.png");
@@ -39,6 +39,12 @@ int main() {
 	Sound click = LoadSound("resources/sound/sfx/mouse-click-sound-233951.mp3");
 	Sound fire = LoadSound("resources/sound/sfx/cannon-fired-gamemaster-audio-2-2-00-01.mp3");
 	Sound splash = LoadSound("resources/sound/sfx/water-splash-cannonball-joshua-chivers-1-00-02.mp3");
+
+	// Set-up ships-players
+	{
+		setjmp(jump_point);
+		SetupShips();
+	}
 
 	//! Game loop
 	while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or presses the Close button on the window
@@ -66,9 +72,14 @@ int main() {
 				DisplayTurnBasedGameScreen(&ship1, &ship2, water_model, skybox_model, splash, fire); //Starts the turn-based game
 				break;
 			}
+			case GAME_MENU:
+			{
+				DisplayGameMenuScreen(click);
+				break;
+			}
 			case GAME_OVER:
 			{
-				DisplayGameOverScreen(); //Ends the game (game over)
+				DisplayGameOverScreen(winner, click); //Ends the game (game over)
 				break;
 			}
 			case OPTIONS:

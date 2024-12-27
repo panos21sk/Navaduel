@@ -1,6 +1,6 @@
 #include "screens.h"
 #include "ship.h"
-#include <util.h>
+#include "util.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "rlgl.h"
@@ -9,11 +9,13 @@
 #include <stdlib.h>
 
 int startup_counter = GAME_STARTUP_COUNTER;
-int gamemode;
+int success_save = 0;
+int winner;
 
 Vector2 mouse_point;
 
 screen current_screen = MAIN;
+screen gamemode;
 
 Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
 Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
@@ -24,7 +26,13 @@ Rectangle real_time_1v1_button = {(float)WIDTH / 2 - 180, (float)HEIGHT / 2 - 20
 Rectangle turn_based_1v1_button = {(float)WIDTH / 2 + 10, (float)HEIGHT / 2 - 20, 180, 40};
 Rectangle github_jim_button = {(float)WIDTH / 2 + 90, 210, 160, 40};
 Rectangle github_panos_button = {(float)WIDTH / 2 + 430, 210, 160, 40};
+Rectangle play_again_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
+Rectangle save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 40, 180, 40};
+Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20, 180, 40};
+Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
+//TO BE REMOVED
+Rectangle debug_game_over_menu = {(float)WIDTH-170, (float)HEIGHT/2, 160, 40};
 
 RenderTexture screenShip1;
 RenderTexture screenShip2;
@@ -54,8 +62,10 @@ void InitMainWindow()
     settings.fullscreen = false;
 }
 
-void DisplayMainScreen(Sound click)
+void DisplayMainScreen(const Sound click)
 {
+    startup_counter = GAME_STARTUP_COUNTER;
+    control_index = 0;
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -65,6 +75,7 @@ void DisplayMainScreen(Sound click)
         AddScreenChangeBtn(options_button, "OPTIONS", GetMousePosition(), click, &current_screen, OPTIONS, settings.enable_sfx);
         AddScreenChangeBtn(controls_button, "CONTROLS", GetMousePosition(), click, &current_screen, CONTROLS, settings.enable_sfx);
         AddScreenChangeBtn(about_button, "ABOUT", GetMousePosition(), click, &current_screen, ABOUT, settings.enable_sfx);
+        AddScreenChangeBtn(debug_game_over_menu, "DEBUG GAME-OVER", GetMousePosition(), click, &current_screen, GAME_OVER, settings.enable_sfx);
 
         DrawRectangleRec(exit_button, BLACK);
 
@@ -82,7 +93,8 @@ void DisplayMainScreen(Sound click)
         EndDrawing();
     }
 }
-void DisplayGamemodesScreen(Sound click)
+
+void DisplayGamemodesScreen(const Sound click)
 {
     mouse_point = GetMousePosition();
     BeginDrawing();
@@ -99,7 +111,9 @@ void DisplayGamemodesScreen(Sound click)
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model, Model sky_model, Sound splash, Sound fire)
 {
-    DisableCursor();
+    if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
+
+    HideCursor();
 
     //! Input Handling:
     // Ship Movement
@@ -258,7 +272,9 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
 
 void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const Model sky_model, Sound splash, Sound fire)
 {
-    DisableCursor();
+    if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
+
+    HideCursor();
 
     //! Input Handling:
     // Ship Movement
@@ -403,12 +419,67 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_mode
     }
 }
 
-void DisplayGameOverScreen()
+void DisplayGameOverScreen(const int winnerId, const Sound click)
 {
     mouse_point = GetMousePosition();
+    //SetupShips(); //Resets ships' state //IN-DEBUG MODE->COMMENTED
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
+
+        DrawText("THE GAME IS OVER", WIDTH/2, 20, 30, BLUE);
+        AddScreenChangeBtn(play_again_button, "PLAY AGAIN", mouse_point, click, &current_screen, GAMEMODES, settings.enable_sfx);
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
+
+        char *winnerstr = malloc(sizeof(char)*strlen("The winner is Player N!")+1);
+        strcpy(winnerstr, "The winner is ");
+        if(winnerId == 1) strcat(winnerstr, "Player 1!");
+        else strcat(winnerstr, "Player 2!");
+        DrawText(winnerstr, WIDTH/2, 40, 25, LIME);
+        free(winnerstr);
+    }
+    EndDrawing();
 }
 
-void DisplayControlsScreen(Sound click)
+void DisplayGameMenuScreen(const Sound click) {
+    if(IsKeyPressed(KEY_ESCAPE)) {
+        current_screen = gamemode;
+        success_save = 0;
+    }
+
+    mouse_point = GetMousePosition();
+    ShowCursor();
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE); //prior to change
+
+        AddScreenChangeBtn(continue_game_button, "CONTINUE GAME", mouse_point, click, &current_screen, gamemode, settings.enable_sfx);
+        AddScreenChangeBtn(exit_no_save_button, "EXIT", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
+
+        //Manually build the save button
+        {
+            DrawRectangleRec(save_button, BLACK);
+            if (CheckCollisionPointRec(mouse_point, save_button))
+            {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                {
+                    // Saving ships' state (might change to JSON format)
+
+                    FILE *stateFile = fopen("game.gmst", "w"); // gmst stands for game state, doesn't exist as a file extension
+                    fprintf(stateFile, "Hello world!");
+                    success_save = !fclose(stateFile);
+                    //TODO: INSERT USEFUL INFO TO THE FILE T-T
+                }
+                DrawRectangleRec(save_button, RED);
+            }
+            DrawText("SAVE GAME", (int)save_button.x + 5, (int)save_button.y + 10, 20, WHITE);
+            if(success_save) DrawText("Game state saved successfully", WIDTH / 2 - 170, HEIGHT-30, 20, GREEN);
+        }
+    }
+    EndDrawing();
+}
+
+void DisplayControlsScreen(const Sound click)
 {
     BeginDrawing();
     {
@@ -433,7 +504,7 @@ void DisplayControlsScreen(Sound click)
     EndDrawing();
 }
 
-void DisplayOptionsScreen(Sound click, bool* bgm_en)
+void DisplayOptionsScreen(const Sound click, bool* bgm_en)
 {
     Rectangle reticle_rec = {17, 17, WIDTH - 37, 23};
     Rectangle first_person_rec = {17, 57, WIDTH - 37, 23};
@@ -463,7 +534,7 @@ void DisplayOptionsScreen(Sound click, bool* bgm_en)
     EndDrawing();
 }
 
-void DisplayAboutScreen(Sound click)
+void DisplayAboutScreen(const Sound click)
 {
     mouse_point = GetMousePosition();
     BeginDrawing();

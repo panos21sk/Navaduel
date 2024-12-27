@@ -29,6 +29,7 @@ void SetupShips() {
     cannon1.stand_model = LoadModel("resources/models/cannon_stand.glb");
     cannon1.rail_model = LoadModel("resources/models/cannon_rail.glb");
     //Ship 1
+    ship1.id = 1;
     ship1.camera = &camera1;
     ship1.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position
     ship1.camera->target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
@@ -53,6 +54,7 @@ void SetupShips() {
     cannon2.stand_model = LoadModel("resources/models/cannon_stand.glb");
     cannon2.rail_model = LoadModel("resources/models/cannon_rail.glb");
     //Ship 2
+    ship2.id = 2;
     ship2.camera = &camera2;
     ship2.camera->position = (Vector3){25.0f, 25.0f, 0.0f};// Camera position
     ship2.camera->target = (Vector3){0.0f, 0.0f, 0.0f};	// Camera looking at point
@@ -78,7 +80,7 @@ void DestroyShip(const Ship* ship){
     UnloadModel(ship->cannon->stand_model);
 }
 
-void CheckMovement(Ship *ship, Sound fire, bool sfx_en) {
+void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en) {
     //Checking axis movement
     if(IsKeyDown(ship->movement_buttons.forward)) {
         ship->position = Vector3Add(ship->position, 
@@ -113,7 +115,7 @@ void CheckMovement(Ship *ship, Sound fire, bool sfx_en) {
         ship->accel.turn_r_coefficient = (ship->accel.r_coefficient < MAX_ACCEL) ? (ship->accel.turn_r_coefficient + ACCEL_STEP) : MAX_ACCEL;
     }
     if(IsKeyDown(ship->movement_buttons.fire)){
-        if(ship->can_fire && ship->cannon->rotation.x > -MAX_TURN_UP && ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999){
+        if(ship->can_fire && ship->cannon->rotation.x > -MAX_TURN_UP && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999)){
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
             ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
             ship->accel.fire_coefficient = (ship->accel.fire_coefficient < MAX_ACCEL) 
@@ -179,7 +181,7 @@ void CheckMovement(Ship *ship, Sound fire, bool sfx_en) {
         }
     }
     if(IsKeyReleased(ship->movement_buttons.fire)){
-        if(ship->can_fire && ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999){
+        if(ship->can_fire && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999)){
             InitializeCannonball(ship);
             if(sfx_en)PlaySound(fire);
             ship->can_fire = false;
