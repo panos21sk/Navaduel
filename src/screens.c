@@ -9,13 +9,15 @@
 #include <stdlib.h>
 
 int success_save = 0;
+int success_load = 0;
 
 Vector2 mouse_point;
 
 screen current_screen = MAIN;
 screen gamemode;
 
-Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
+Rectangle play_new_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 100, 160, 40};
+Rectangle play_load_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
 Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
 Rectangle controls_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 140, 160, 40};
 Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 220, 160, 40};
@@ -69,27 +71,53 @@ void DisplayMainScreen(const Sound click)
         ClearBackground(RAYWHITE);
         DrawText("NAVALDUEL", 20, 20, 30, BLUE);
 
-        AddScreenChangeBtn(play_button, "PLAY", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
+        AddScreenChangeBtn(play_new_button, "NEW GAME", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
         AddScreenChangeBtn(options_button, "OPTIONS", GetMousePosition(), click, &current_screen, OPTIONS, settings.enable_sfx);
         AddScreenChangeBtn(controls_button, "CONTROLS", GetMousePosition(), click, &current_screen, CONTROLS, settings.enable_sfx);
         AddScreenChangeBtn(about_button, "ABOUT", GetMousePosition(), click, &current_screen, ABOUT, settings.enable_sfx);
         AddScreenChangeBtn(debug_game_over_menu, "DEBUG GAME-OVER", GetMousePosition(), click, &current_screen, GAME_OVER, settings.enable_sfx);
 
-        DrawRectangleRec(exit_button, BLACK);
-
-        if (CheckCollisionPointRec(GetMousePosition(), exit_button))
+        // LOAD GAME BUTTON
         {
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-            {
-                PlaySound(click);
-                CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
-            }
-            DrawRectangleRec(exit_button, RED);
-        }
-        DrawText("EXIT", (int)exit_button.x + 5, (int)exit_button.y + 10, 20, WHITE);
+            DrawRectangleRec(play_load_button, BLACK);
 
-        EndDrawing();
+            if (CheckCollisionPointRec(GetMousePosition(), play_load_button))
+            {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                {
+                    PlaySound(click);
+
+                    // TESTING
+                    const int size = sizeof(char)*strlen("Hello world!")+1;
+                    char *info = malloc(size);
+                    FILE *stateFile = fopen("game.gmst", "r");
+                    fgets(info, size, stateFile);
+                    success_load = !fclose(stateFile);
+                    printf("%s", info);
+                    free(info);
+                }
+                DrawRectangleRec(play_load_button, RED);
+            }
+            DrawText("LOAD GAME", (int)play_load_button.x + 5, (int)play_load_button.y + 10, 20, WHITE);
+        }
+
+        // EXIT BUTTON
+        {
+            DrawRectangleRec(exit_button, BLACK);
+
+            if (CheckCollisionPointRec(GetMousePosition(), exit_button))
+            {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                {
+                    PlaySound(click);
+                    CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
+                }
+                DrawRectangleRec(exit_button, RED);
+            }
+            DrawText("EXIT", (int)exit_button.x + 5, (int)exit_button.y + 10, 20, WHITE);
+        }
     }
+    EndDrawing();
 }
 
 void DisplayGamemodesScreen(const Sound click)
@@ -151,8 +179,9 @@ void DisplayGameMenuScreen(const Sound click) {
             {
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                 {
-                    // Saving ships' state (might change to JSON format)
+                    PlaySound(click);
 
+                    // Saving ships' state (might change to JSON format)
                     FILE *stateFile = fopen("game.gmst", "w"); // gmst stands for game state, doesn't exist as a file extension
                     fprintf(stateFile, "Hello world!");
                     success_save = !fclose(stateFile);

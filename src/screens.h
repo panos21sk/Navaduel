@@ -25,6 +25,7 @@ typedef enum
 } screen;
 
 extern int success_save;
+extern int success_load;
 extern screen gamemode; // current gamemode
 extern screen current_screen;
 extern Rectangle play_button;
