@@ -46,6 +46,7 @@ typedef struct {
 } Cannon;
 
 typedef struct {
+    int id;
     Camera *camera;
     Vector3 position;
     float yaw;

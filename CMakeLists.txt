@@ -27,9 +27,11 @@ endif()
 add_executable(${PROJECT_NAME} src/main.c
         src/ship.h
         src/ship.c
-        src/settings.h
         src/screens.c
-        src/screens.h)
+        src/screens.h
+        src/util.c
+        src/game.c
+        src/game.h)
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib)
 

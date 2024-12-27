@@ -1,21 +1,23 @@
 #include "screens.h"
 #include "ship.h"
-#include <util.h>
+#include "util.h"
 #include "raylib.h"
-#include "raymath.h"
+#include "game.h"
 #include "rlgl.h"
 #include <stdio.h> //for snprintf for debugging
 #include <unistd.h>
 #include <stdlib.h>
 
-int startup_counter = GAME_STARTUP_COUNTER;
-int gamemode;
+int success_save = 0;
+int success_load = 0;
 
 Vector2 mouse_point;
 
 screen current_screen = MAIN;
+screen gamemode;
 
-Rectangle play_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
+Rectangle play_new_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 100, 160, 40};
+Rectangle play_load_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
 Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
 Rectangle controls_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 140, 160, 40};
 Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 220, 160, 40};
@@ -24,7 +26,13 @@ Rectangle real_time_1v1_button = {(float)WIDTH / 2 - 180, (float)HEIGHT / 2 - 20
 Rectangle turn_based_1v1_button = {(float)WIDTH / 2 + 10, (float)HEIGHT / 2 - 20, 180, 40};
 Rectangle github_jim_button = {(float)WIDTH / 2 + 90, 210, 160, 40};
 Rectangle github_panos_button = {(float)WIDTH / 2 + 430, 210, 160, 40};
+Rectangle play_again_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
+Rectangle save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 40, 180, 40};
+Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20, 180, 40};
+Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
+//TO BE REMOVED
+Rectangle debug_game_over_menu = {(float)WIDTH-170, (float)HEIGHT/2, 160, 40};
 
 RenderTexture screenShip1;
 RenderTexture screenShip2;
@@ -54,35 +62,65 @@ void InitMainWindow()
     settings.fullscreen = false;
 }
 
-void DisplayMainScreen(Sound click)
+void DisplayMainScreen(const Sound click)
 {
+    startup_counter = GAME_STARTUP_COUNTER;
+    control_index = 0;
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
         DrawText("NAVALDUEL", 20, 20, 30, BLUE);
 
-        AddScreenChangeBtn(play_button, "PLAY", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
+        AddScreenChangeBtn(play_new_button, "NEW GAME", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
         AddScreenChangeBtn(options_button, "OPTIONS", GetMousePosition(), click, &current_screen, OPTIONS, settings.enable_sfx);
         AddScreenChangeBtn(controls_button, "CONTROLS", GetMousePosition(), click, &current_screen, CONTROLS, settings.enable_sfx);
         AddScreenChangeBtn(about_button, "ABOUT", GetMousePosition(), click, &current_screen, ABOUT, settings.enable_sfx);
+        AddScreenChangeBtn(debug_game_over_menu, "DEBUG GAME-OVER", GetMousePosition(), click, &current_screen, GAME_OVER, settings.enable_sfx);
 
-        DrawRectangleRec(exit_button, BLACK);
-
-        if (CheckCollisionPointRec(GetMousePosition(), exit_button))
+        // LOAD GAME BUTTON
         {
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-            {
-                PlaySound(click);
-                CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
-            }
-            DrawRectangleRec(exit_button, RED);
-        }
-        DrawText("EXIT", (int)exit_button.x + 5, (int)exit_button.y + 10, 20, WHITE);
+            DrawRectangleRec(play_load_button, BLACK);
 
-        EndDrawing();
+            if (CheckCollisionPointRec(GetMousePosition(), play_load_button))
+            {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                {
+                    PlaySound(click);
+
+                    // TESTING
+                    const int size = sizeof(char)*strlen("Hello world!")+1;
+                    char *info = malloc(size);
+                    FILE *stateFile = fopen("game.gmst", "r");
+                    fgets(info, size, stateFile);
+                    success_load = !fclose(stateFile);
+                    printf("%s", info);
+                    free(info);
+                }
+                DrawRectangleRec(play_load_button, RED);
+            }
+            DrawText("LOAD GAME", (int)play_load_button.x + 5, (int)play_load_button.y + 10, 20, WHITE);
+        }
+
+        // EXIT BUTTON
+        {
+            DrawRectangleRec(exit_button, BLACK);
+
+            if (CheckCollisionPointRec(GetMousePosition(), exit_button))
+            {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                {
+                    PlaySound(click);
+                    CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
+                }
+                DrawRectangleRec(exit_button, RED);
+            }
+            DrawText("EXIT", (int)exit_button.x + 5, (int)exit_button.y + 10, 20, WHITE);
+        }
     }
+    EndDrawing();
 }
-void DisplayGamemodesScreen(Sound click)
+
+void DisplayGamemodesScreen(const Sound click)
 {
     mouse_point = GetMousePosition();
     BeginDrawing();
@@ -97,318 +135,68 @@ void DisplayGamemodesScreen(Sound click)
     EndDrawing();
 }
 
-void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model, Model sky_model, Sound splash, Sound fire)
-{
-    DisableCursor();
-
-    //! Input Handling:
-    // Ship Movement
-    CheckMovement(ship1, fire, settings.enable_sfx);
-    CheckMovement(ship2, fire, settings.enable_sfx);
-
-    // Update Camera manually
-    // TODO: Find a way to get the camera behind the ship regardless of where its facing
-    UpdateShipCamera(ship1, settings.first_or_third_person_cam);
-    UpdateShipCamera(ship2, settings.first_or_third_person_cam);
-
-    UpdateCannonballState(&ship1->cannonball, splash, settings.enable_sfx);
-    UpdateCannonballState(&ship2->cannonball, splash, settings.enable_sfx);
-
-    const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
-
-    // rotate ships
-    ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0});
-    ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
-    // rotate cannon
-    //! No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
-    //! Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
-    // Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
-    // Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
-    Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship1->cannon->rotation.x), MatrixRotateY(ship1->yaw - 3.1415f / 2 + ship1->cannon->rotation.y));
-    ship1->cannon->rail_model.transform = cannon_transform1;
-    ship2->model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw, 0});
-    ship2->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw - 3.1415f / 2, 0});
-    ship2->cannon->rail_model.transform = MatrixRotateXYZ(Vector3Add(ship2->cannon->rotation, (Vector3){0, ship2->yaw - 3.1415f / 2, 0}));
-    const Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2->yaw - 3.1415f / 2 + ship2->cannon->rotation.y));
-    ship2->cannon->rail_model.transform = cannon_transform2;
-
-    ship1->hitbox = GetMeshBoundingBox(ship1->model.meshes[0]);
-    ship2->hitbox = GetMeshBoundingBox(ship2->model.meshes[0]);
-
-    sky_model.transform = MatrixMultiply(sky_model.transform, MatrixScale(1000.0f, 1000.0f, 1000.0f));
-    BoundingBox sky_bounding_box = GetMeshBoundingBox(sky_model.meshes[0]);
-    sky_bounding_box.min = Vector3Scale(sky_bounding_box.min, 1000.0f);
-    sky_bounding_box.max = Vector3Scale(sky_bounding_box.max, 1000.0f);
-
-    BeginTextureMode(screenShip1);
-    {
-        ClearBackground(RAYWHITE);
-
-        BeginMode3D(camera1);
-        {
-
-            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
-
-            // draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
-            // TODO: Improve the skybox pls :(
-            rlDisableBackfaceCulling();
-            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
-            rlEnableBackfaceCulling();
-
-            DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawSphere(ship1->cannonball.position, 1, BLACK);
-
-            DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawSphere(ship2->cannonball.position, 1, BLACK);
-            DrawBoundingBox(ship2->hitbox, LIME);
-            DrawBoundingBox(sky_bounding_box, BLACK);
-        }
-        EndMode3D();
-
-        //! DEBUGGING
-        char debug[100];
-        snprintf(debug, sizeof(debug), "%f, %d", ship1->cannonball.position.y, ship1->can_fire);
-        DrawText(debug, 10, 30, 20, BLACK);
-    }
-    EndTextureMode();
-
-    BeginTextureMode(screenShip2);
-    {
-        ClearBackground(RAYWHITE);
-
-        BeginMode3D(camera2);
-        {
-            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
-
-            rlDisableBackfaceCulling();
-            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
-            rlEnableBackfaceCulling();
-
-            DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawSphere(ship1->cannonball.position, 1, BLACK);
-
-            DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawSphere(ship2->cannonball.position, 1, BLACK);
-            DrawBoundingBox(sky_bounding_box, BLACK);
-        }
-        EndMode3D();
-    }
-    EndTextureMode();
-
-    if (startup_counter > 0)
-    {
-        char *text = malloc(sizeof(char) * 2); // with null char
-        BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
-
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
-
-            sprintf(text, "%d", startup_counter);
-            DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            --startup_counter;
-        }
-        EndDrawing();
-        sleep(1);
-        free(text);
-    }
-    else if (startup_counter == 0)
-    {
-        BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
-
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
-
-            DrawText("Begin!", WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
-            DrawText("Begin!", 3 * WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
-            ship1->can_move = true;
-            ship2->can_move = true;
-            --startup_counter; // game starts
-        }
-        EndDrawing();
-        sleep(1); //TODO: Find solution without using sleep
-    }
-    else
-    {
-        BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
-
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
-        }
-        EndDrawing();
-    }
-}
-
-void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, const Model water_model, const Model sky_model, Sound splash, Sound fire)
-{
-    DisableCursor();
-
-    //! Input Handling:
-    // Ship Movement
-    CheckMovement(ship1, fire, settings.enable_sfx);
-    CheckMovement(ship2, fire, settings.enable_sfx);
-
-    // Update Camera manually
-    UpdateShipCamera(ship1, settings.first_or_third_person_cam);
-    UpdateShipCamera(ship2, settings.first_or_third_person_cam);
-
-    UpdateCannonballState(&ship1->cannonball, splash, settings.enable_sfx);
-    UpdateCannonballState(&ship2->cannonball, splash, settings.enable_sfx);
-
-    const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
-
-    // rotate ships
-    ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0});
-    ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
-    // rotate cannon
-    //! No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
-    //! Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
-    // Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
-    // Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
-    Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship1->cannon->rotation.x), MatrixRotateY(ship1->yaw - 3.1415f / 2 + ship1->cannon->rotation.y));
-    ship1->cannon->rail_model.transform = cannon_transform1;
-    ship2->model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw, 0});
-    ship2->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship2->yaw - 3.1415f / 2, 0});
-    ship2->cannon->rail_model.transform = MatrixRotateXYZ(Vector3Add(ship2->cannon->rotation, (Vector3){0, ship2->yaw - 3.1415f / 2, 0}));
-    Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2->yaw - 3.1415f / 2 + ship2->cannon->rotation.y));
-    ship2->cannon->rail_model.transform = cannon_transform2;
-
-    BeginTextureMode(screenShip1);
-    {
-        ClearBackground(RAYWHITE);
-
-        BeginMode3D(camera1);
-        {
-
-            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
-
-            // draw skybox - need to temporarily disable backface culling because textures need to be shown from inside
-            // TODO: Improve the skybox pls :(
-            rlDisableBackfaceCulling();
-            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1000.0f, WHITE);
-            rlEnableBackfaceCulling();
-
-            DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawSphere(ship1->cannonball.position, 1, BLACK);
-
-            DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawSphere(ship2->cannonball.position, 1, BLACK);
-        }
-        EndMode3D();
-
-        //! DEBUGGING
-        char debug[100];
-        snprintf(debug, sizeof(debug), "%f, %d", ship1->cannonball.position.y, ship1->can_fire);
-        DrawText(debug, 10, 10, 20, BLACK);
-    }
-    EndTextureMode();
-
-    BeginTextureMode(screenShip2);
-    {
-        ClearBackground(RAYWHITE);
-
-        BeginMode3D(camera2);
-        {
-            DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
-
-            rlDisableBackfaceCulling();
-            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1000.0f, WHITE);
-            rlEnableBackfaceCulling();
-
-            DrawModel(ship1->model, ship1->position, 1.0f, WHITE);
-            DrawModel(ship1->cannon->rail_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawModel(ship1->cannon->stand_model, Vector3Add(ship1->position, Vector3RotateByAxisAngle(ship1->cannon->relative_position, (Vector3){0, 1, 0}, ship1->yaw)), 5.0f, WHITE);
-            DrawSphere(ship1->cannonball.position, 1, BLACK);
-
-            DrawModel(ship2->model, ship2->position, 1.0f, WHITE);
-            DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
-            DrawSphere(ship2->cannonball.position, 1, BLACK);
-        }
-        EndMode3D();
-    }
-    EndTextureMode();
-
-    if (startup_counter > 0)
-    {
-        char *text = malloc(sizeof(char) * 2); // with null char
-        BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
-
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
-
-            sprintf(text, "%d", startup_counter);
-            DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            --startup_counter;
-        }
-        EndDrawing();
-        sleep(1);
-        free(text);
-    }
-    else if (startup_counter == 0)
-    {
-        BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
-
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
-
-            DrawText("Begin!", WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
-            DrawText("Begin!", 3 * WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
-            ship1->can_move = true;
-            ship2->can_move = true;
-            --startup_counter; // game starts
-        }
-        EndDrawing();
-        sleep(1);
-    }
-    else
-    {
-        BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
-
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
-        }
-        EndDrawing();
-    }
-}
-
-void DisplayGameOverScreen()
+void DisplayGameOverScreen(const int winnerId, const Sound click)
 {
     mouse_point = GetMousePosition();
+    //SetupShips(); //Resets ships' state //IN-DEBUG MODE->COMMENTED
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
+
+        DrawText("THE GAME IS OVER", WIDTH/2, 20, 30, BLUE);
+        AddScreenChangeBtn(play_again_button, "PLAY AGAIN", mouse_point, click, &current_screen, GAMEMODES, settings.enable_sfx);
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
+
+        char *winnerstr = malloc(sizeof(char)*strlen("The winner is Player N!")+1);
+        strcpy(winnerstr, "The winner is ");
+        if(winnerId == 1) strcat(winnerstr, "Player 1!");
+        else strcat(winnerstr, "Player 2!");
+        DrawText(winnerstr, WIDTH/2, 40, 25, LIME);
+        free(winnerstr);
+    }
+    EndDrawing();
 }
 
-void DisplayControlsScreen(Sound click)
+void DisplayGameMenuScreen(const Sound click) {
+    if(IsKeyPressed(KEY_ESCAPE)) {
+        current_screen = gamemode;
+        success_save = 0;
+    }
+
+    mouse_point = GetMousePosition();
+    ShowCursor();
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE); //prior to change
+
+        AddScreenChangeBtn(continue_game_button, "CONTINUE GAME", mouse_point, click, &current_screen, gamemode, settings.enable_sfx);
+        AddScreenChangeBtn(exit_no_save_button, "EXIT", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
+
+        //Manually build the save button
+        {
+            DrawRectangleRec(save_button, BLACK);
+            if (CheckCollisionPointRec(mouse_point, save_button))
+            {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                {
+                    PlaySound(click);
+
+                    // Saving ships' state (might change to JSON format)
+                    FILE *stateFile = fopen("game.gmst", "w"); // gmst stands for game state, doesn't exist as a file extension
+                    fprintf(stateFile, "Hello world!");
+                    success_save = !fclose(stateFile);
+                    //TODO: INSERT USEFUL INFO TO THE FILE T-T
+                }
+                DrawRectangleRec(save_button, RED);
+            }
+            DrawText("SAVE GAME", (int)save_button.x + 5, (int)save_button.y + 10, 20, WHITE);
+            if(success_save) DrawText("Game state saved successfully", WIDTH / 2 - 170, HEIGHT-30, 20, GREEN);
+        }
+    }
+    EndDrawing();
+}
+
+void DisplayControlsScreen(const Sound click)
 {
     BeginDrawing();
     {
@@ -429,11 +217,10 @@ void DisplayControlsScreen(Sound click)
 
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
-
     EndDrawing();
 }
 
-void DisplayOptionsScreen(Sound click, bool* bgm_en)
+void DisplayOptionsScreen(const Sound click, bool* bgm_en)
 {
     Rectangle reticle_rec = {17, 17, WIDTH - 37, 23};
     Rectangle first_person_rec = {17, 57, WIDTH - 37, 23};
@@ -477,7 +264,7 @@ void DisplayOptionsScreen(Sound click, bool* bgm_en)
     }
 }
 
-void DisplayAboutScreen(Sound click)
+void DisplayAboutScreen(const Sound click)
 {
     mouse_point = GetMousePosition();
     BeginDrawing();
