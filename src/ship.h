@@ -46,19 +46,19 @@ typedef struct {
 
 typedef struct {
     int id;
-    Camera *camera;
-    Vector3 position;
     float yaw;
     struct accel_settings accel;
-    Model model;
     struct movement_buttons movement_buttons;
-    Cannon* cannon;
-    Cannonball cannonball;
+    Vector3 position;
     Vector3 camera_distance_vector_fp;
     Vector3 camera_distance_vector_tp;
+    Camera *camera;
+    Model model;
+    Cannon* cannon;
+    Cannonball cannonball;
+    BoundingBox boundary;
     bool can_fire;
     bool can_move;
-    BoundingBox boundary;
 } Ship;
 
 extern const struct accel_settings default_accel;

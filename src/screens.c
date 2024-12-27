@@ -37,8 +37,6 @@ Rectangle debug_game_over_menu = {(float)WIDTH-170, (float)HEIGHT/2, 160, 40};
 RenderTexture screenShip1;
 RenderTexture screenShip2;
 
-setting settings;
-
 void InitMainWindow()
 {
     // Tell the window to use vsync and work on high DPI displays
@@ -52,14 +50,6 @@ void InitMainWindow()
 
     screenShip1 = LoadRenderTexture(WIDTH / 2, HEIGHT);
     screenShip2 = LoadRenderTexture(WIDTH / 2, HEIGHT);
-
-    // initial settings
-    //TODO: Read settings off a file instead of initalizing them, here
-    settings.show_reticle = false;
-    settings.first_or_third_person_cam = true; // false is third person
-    settings.enable_bgm = true;
-    settings.enable_sfx = true;
-    settings.fullscreen = false;
 }
 
 void DisplayMainScreen(const Sound click)

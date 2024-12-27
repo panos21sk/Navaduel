@@ -4,6 +4,7 @@
 #include "game.h"
 #include "ship.h"
 #include "screens.h"
+#include "util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
