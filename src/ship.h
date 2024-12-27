@@ -2,6 +2,7 @@
 #define SHIP_H
 
 #include "raylib.h"
+#include "screens.h"
 #define MAX_ACCEL 1
 #define MAX_TURN 3.1415/9.0f
 #define MAX_TURN_UP 3.1415/2.25f
@@ -35,7 +36,7 @@ typedef struct {
     Vector3 velocity;
     Vector3 accel;
     bool has_splashed;
-    BoundingBox hitbox;
+    bool has_hit_enemy;
 } Cannonball;
 
 typedef struct {
@@ -59,7 +60,9 @@ typedef struct {
     Vector3 camera_distance_vector_tp;
     bool can_fire;
     bool can_move;
-    BoundingBox hitbox;
+    float sphere_hitbox_radius;
+    int current_health;
+    int initial_health;
 } Ship;
 
 extern const struct accel_settings default_accel;
@@ -74,5 +77,7 @@ void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion);
+void* EndGame(void* arg);
 
 #endif //SHIP_H

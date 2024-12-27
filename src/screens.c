@@ -7,6 +7,7 @@
 #include <stdio.h> //for snprintf for debugging
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
 int success_save = 0;
 int success_load = 0;
