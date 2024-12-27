@@ -6,8 +6,9 @@
 #ifndef bool
 #include <stdbool.h>
 #endif //bool
-#define WIDTH 1280
-#define HEIGHT 700
+#define DISPLAY GetCurrentMonitor()
+#define WIDTH 1600
+#define HEIGHT 900
 #define GAME_STARTUP_COUNTER 3 // in seconds
 #define CAMERA_DISTANCE_VECTOR_TP (Vector3){0.0f, 25.0f, -50.0f}
 #define CAMERA_DISTANCE_VECTOR_FP (Vector3){0.0f, 15.0f, 25.0f}

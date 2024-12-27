@@ -1,6 +1,7 @@
 #include "ship.h"
 #include "raylib.h"
 #include "raymath.h"
+//#include "stdlib.h" for pseudorandomness
 
 const struct accel_settings default_accel = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
 
@@ -22,6 +23,10 @@ void SetupShips() {
     initcannonball.velocity = Vector3Zero();
     initcannonball.accel = Vector3Zero();
     initcannonball.has_splashed = true;
+    initcannonball.hitbox = (BoundingBox){(Vector3){initcannonball.position.x - 1, initcannonball.position.y - 1, initcannonball.position.z - 1}, 
+                                            //cannonball radius is 1
+                                          (Vector3){initcannonball.position.x + 1, initcannonball.position.y + 1, initcannonball.position.z + 1}
+                                        };
 
     //Cannon for ship1
     cannon1.relative_position = (Vector3){0, -8, 28};
@@ -45,7 +50,7 @@ void SetupShips() {
     ship1.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
     ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 23.0f};
     ship1.can_move = false;
-    ship1.boundary = GetMeshBoundingBox(ship1.model.meshes[0]);
+    ship1.hitbox = GetMeshBoundingBox(ship1.model.meshes[0]);
 
     //cannon for ship2
     cannon2.relative_position = (Vector3){0, 1, 7};
@@ -69,7 +74,7 @@ void SetupShips() {
     ship2.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
     ship2.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
     ship2.can_move = false;
-    ship2.boundary = GetMeshBoundingBox(ship2.model.meshes[0]);
+    ship2.hitbox = GetMeshBoundingBox(ship2.model.meshes[0]);
 }
 
 void DestroyShip(const Ship* ship){

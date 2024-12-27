@@ -132,8 +132,8 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
     const Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2->yaw - 3.1415f / 2 + ship2->cannon->rotation.y));
     ship2->cannon->rail_model.transform = cannon_transform2;
 
-    ship1->boundary = GetMeshBoundingBox(ship1->model.meshes[0]);
-    ship2->boundary = GetMeshBoundingBox(ship2->model.meshes[0]);
+    ship1->hitbox = GetMeshBoundingBox(ship1->model.meshes[0]);
+    ship2->hitbox = GetMeshBoundingBox(ship2->model.meshes[0]);
 
     sky_model.transform = MatrixMultiply(sky_model.transform, MatrixScale(1000.0f, 1000.0f, 1000.0f));
     BoundingBox sky_bounding_box = GetMeshBoundingBox(sky_model.meshes[0]);
@@ -164,7 +164,7 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, const Model water_model
             DrawModel(ship2->cannon->rail_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
             DrawModel(ship2->cannon->stand_model, Vector3Add(ship2->position, Vector3RotateByAxisAngle(ship2->cannon->relative_position, (Vector3){0, 1, 0}, ship2->yaw)), 5.0f, WHITE);
             DrawSphere(ship2->cannonball.position, 1, BLACK);
-            DrawBoundingBox(ship2->boundary, LIME);
+            DrawBoundingBox(ship2->hitbox, LIME);
             DrawBoundingBox(sky_bounding_box, BLACK);
         }
         EndMode3D();
@@ -441,6 +441,8 @@ void DisplayOptionsScreen(Sound click, bool* bgm_en)
     Rectangle sfx_rec = {17, 137, WIDTH - 37, 23};
     Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
 
+    bool tmp = settings.fullscreen; 
+
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -453,14 +455,26 @@ void DisplayOptionsScreen(Sound click, bool* bgm_en)
         AddSetting(&settings.first_or_third_person_cam, "FIRST PERSON", first_person_rec, click, settings.enable_sfx);
         
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
-
-        if(settings.fullscreen){
-            SetWindowSize(GetScreenWidth(), GetScreenHeight());
-        } else {
-            SetWindowSize(WIDTH, HEIGHT);
-        }
     }
     EndDrawing();
+
+    //detect toggle in fullscreen boolean
+    if(settings.fullscreen != tmp){
+        //TODO: If time allows it, find a way to remove dependency from WIDTH, HEIGHT preprocessor definitions, to fullscreen into our monitors res instead
+        //TODO: of what is already defined
+        // int display = GetCurrentMonitor();
+        // if (IsWindowFullscreen())
+        //     {
+        //         // if we are full screen, then go back to the windowed size
+        //         SetWindowSize(WIDTH, HEIGHT);
+        //     }
+        //     else
+        //     {
+        //         // if we are not full screen, set the window size to match the monitor we are on
+        //         SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+        //     }
+        ToggleFullscreen();
+    }
 }
 
 void DisplayAboutScreen(Sound click)

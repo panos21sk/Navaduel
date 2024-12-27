@@ -35,6 +35,7 @@ typedef struct {
     Vector3 velocity;
     Vector3 accel;
     bool has_splashed;
+    BoundingBox hitbox;
 } Cannonball;
 
 typedef struct {
@@ -57,7 +58,7 @@ typedef struct {
     Vector3 camera_distance_vector_tp;
     bool can_fire;
     bool can_move;
-    BoundingBox boundary;
+    BoundingBox hitbox;
 } Ship;
 
 extern const struct accel_settings default_accel;
