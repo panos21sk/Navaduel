@@ -10,6 +10,9 @@ int main() {
 	//! Main window initialization
 	InitMainWindow();
 
+	//! Load game settings
+	LoadSettings();
+
 	//! Initalize Audio and start bgm
 	InitAudioDevice();
 	//start bgm

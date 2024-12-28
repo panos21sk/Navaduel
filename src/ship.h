@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "cJSON.h"
 #define MAX_ACCEL 1
 #define MAX_TURN 3.1415/9.0f
 #define MAX_TURN_UP 3.1415/2.25f
@@ -72,6 +73,7 @@ extern Camera camera1;
 extern Camera camera2;
 
 void SetupShips();
+void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);

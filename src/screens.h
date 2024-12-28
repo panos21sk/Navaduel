@@ -2,6 +2,7 @@
 #define SCREENS_H
 
 #include "raylib.h"
+#include "cJSON.h"
 #ifndef bool
 #include <stdbool.h>
 #endif //bool
@@ -32,15 +33,6 @@ extern screen current_screen;
 extern Rectangle play_button;
 extern RenderTexture screenShip1;
 extern RenderTexture screenShip2;
-
-typedef struct {
-    bool show_reticle;
-    bool first_or_third_person_cam;
-    bool fullscreen;
-    bool enable_sfx;
-    bool enable_bgm;
-} setting;
-extern setting settings;
 
 void InitMainWindow();
 void DeinitMainWindow();
