@@ -5,11 +5,11 @@
 Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, Vector2 opp_corner_bound){
     Island island_instance;
     SetRandomSeed(time(NULL)); //seed is unix time
-    island_instance.radius = GetRandomValue(0, MAX_ISLAND_RADIUS);
+    island_instance.radius = (float)GetRandomValue(0, MAX_ISLAND_RADIUS);
     island_instance.center_pos = (Vector3){
-        GetRandomValue(corner_bound.x, opp_corner_bound.x),
-        -GetRandomValue(island_instance.radius / 8, island_instance.radius / 1.2), //island should hover a bit under the water, depending on radius
-        GetRandomValue(corner_bound.y, opp_corner_bound.y)
+        (float)GetRandomValue((int)corner_bound.x, (int)opp_corner_bound.x),
+        (float)-GetRandomValue((int)island_instance.radius / 8, (int)(island_instance.radius / 1.2)), //island should hover a bit under the water, depending on radius
+        (float)GetRandomValue((int)corner_bound.y, (int)opp_corner_bound.y)
     };
     island_instance.sand_tex = sand_tex;
     island_instance.palm_tree = palm_tree;

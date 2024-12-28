@@ -202,9 +202,9 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
                 DrawModel(island_list[i].island_sphere, island_list[i].center_pos, 1, WHITE);
                 DrawModel(island_list[i].palm_tree, Vector3Add(
                     island_list[i].center_pos,
-                    (Vector3){  GetRandomValue(-island_list[i].radius/2, -island_list[i].radius/2), 
-                                GetRandomValue(0, island_list[i].radius/1.7/*sqrt2 approx*/), 
-                                GetRandomValue(-island_list[i].radius/2, -island_list[i].radius/2)}),
+                    (Vector3){  (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2),
+                                (float)GetRandomValue(0, (int)(island_list[i].radius/1.7/*sqrt2 approx*/)), 
+                                (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2)}),
                     1, WHITE);
             }
 
