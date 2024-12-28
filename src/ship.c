@@ -1,4 +1,5 @@
 #include "ship.h"
+#include "game.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "screens.h"
@@ -86,13 +87,8 @@ void SetupShips()
 }
 
 void LoadShip(Ship *ship, const cJSON *shipState) {
-    const struct movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
-    const struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
-
     const cJSON *id = cJSON_GetArrayItem(shipState, 0);
-    ship->id = id->valueint;
-    ship->movement_buttons = id->valueint == 1 ? btns1 : btns2;
-    ship->camera = id->valueint == 1 ? &camera1 : &camera2;
+    ship = id->valueint == 1 ? &ship1 : &ship2;
 
     const cJSON *yaw = cJSON_GetArrayItem(shipState, 1);
     ship->yaw = (float)yaw->valuedouble;
@@ -111,6 +107,9 @@ void LoadShip(Ship *ship, const cJSON *shipState) {
     const float rz = (float)cJSON_GetArrayItem(cannon_rel_pos, 2)->valuedouble;
     cannon->relative_position = (Vector3){rx, ry, rz};
     ship->cannon = cannon;
+
+    const cJSON *health = cJSON_GetArrayItem(shipState, 4);
+    ship->current_health = health->valueint;
 
     initcannonball.position = (Vector3){0,1000,0};
     initcannonball.velocity = Vector3Zero();
@@ -345,6 +344,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
             player_ship->cannonball.has_hit_enemy = true;
             if (enemy_ship->current_health <= 0)
             {
+                winner = player_ship->id;
                 pthread_t wait_before_end;
                 pthread_create(&wait_before_end, NULL, EndGame, state);
                 pthread_detach(wait_before_end);

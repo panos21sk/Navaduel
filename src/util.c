@@ -3,6 +3,7 @@
 #include "screens.h"
 #include "util.h"
 #include "ship.h"
+#include "game.h"
 #include "cJSON.h"
 #include <setjmp.h>
 #include <stdlib.h>
@@ -51,6 +52,13 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                             ++control_index;
                             longjmp(jump_point, 0);
                         }
+                    }
+                }
+                if(*current_screen == GAME_OVER) {
+                    while(control_index < 1) {
+                        ++control_index;
+                        startup_counter = GAME_STARTUP_COUNTER;
+                        longjmp(jump_point, 0);
                     }
                 }
                 if(sfx_en) PlaySound(click);
@@ -107,6 +115,10 @@ cJSON *create_ship_json(const Ship ship) {
     cJSON_AddItemToArray(cannon_rel_pos, cJSON_CreateNumber(ship.cannon->relative_position.y));
     cJSON_AddItemToArray(cannon_rel_pos, cJSON_CreateNumber(ship.cannon->relative_position.z));
     cJSON_AddItemToArray(array, cannon_rel_pos);
+
+    cJSON *health = cJSON_CreateNumber(ship.current_health);
+    if(health == NULL) goto fail;
+    cJSON_AddItemToArray(array, health);
 
     return array;
 
