@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include "raylib.h"
+#include "ship.h"
 #include <setjmp.h>
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
@@ -21,5 +22,6 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
 void AddSetting(bool* setting, const char* setting_name, Rectangle rec, Sound click, bool sfx_en);
 void LoadSettings();
 static int parseHandler(void* user, const char* section, const char* name, const char* value);
+cJSON *create_ship_json(Ship ship);
 
 #endif //UTIL_H
