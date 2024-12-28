@@ -2,7 +2,7 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
  /usr/include/stdc-predef.h ../../include/raylib.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h \
- ../external/raylib-master/src/raymath.h /usr/include/math.h \
+ ../../include/raymath.h /usr/include/math.h \
  /usr/include/bits/libc-header-start.h /usr/include/features.h \
  /usr/include/features-time64.h /usr/include/bits/wordsize.h \
  /usr/include/bits/timesize.h /usr/include/sys/cdefs.h \
@@ -15,9 +15,11 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
  /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
- /usr/include/bits/iscanonical.h ../external/raylib-master/src/rlgl.h \
- ../../src/game.h ../../src/ship.h ../../src/screens.h \
- /usr/include/stdio.h \
+ /usr/include/bits/iscanonical.h ../../include/rlgl.h ../../src/game.h \
+ ../../src/ship.h ../../src/screens.h ../../src/util.h \
+ /usr/include/setjmp.h /usr/include/bits/setjmp.h \
+ /usr/include/bits/types/struct___jmp_buf_tag.h \
+ /usr/include/bits/types/__sigset_t.h /usr/include/stdio.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
  /usr/include/bits/types/__fpos_t.h /usr/include/bits/types/__mbstate_t.h \
  /usr/include/bits/types/__fpos64_t.h /usr/include/bits/types/__FILE.h \
@@ -33,7 +35,6 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
  /usr/include/bits/endianness.h /usr/include/bits/byteswap.h \
  /usr/include/bits/uintn-identity.h /usr/include/sys/select.h \
  /usr/include/bits/select.h /usr/include/bits/types/sigset_t.h \
- /usr/include/bits/types/__sigset_t.h \
  /usr/include/bits/types/struct_timeval.h \
  /usr/include/bits/types/struct_timespec.h \
  /usr/include/bits/pthreadtypes.h /usr/include/bits/thread-shared-types.h \
@@ -44,12 +45,15 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
  /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
  /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
  /usr/include/bits/getopt_core.h /usr/include/bits/unistd_ext.h \
- /usr/include/linux/close_range.h
+ /usr/include/linux/close_range.h /usr/include/time.h \
+ /usr/include/bits/time.h /usr/include/bits/timex.h \
+ /usr/include/bits/types/struct_tm.h \
+ /usr/include/bits/types/struct_itimerspec.h
 /usr/include/stdc-predef.h:
 ../../include/raylib.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h:
-../external/raylib-master/src/raymath.h:
+../../include/raymath.h:
 /usr/include/math.h:
 /usr/include/bits/libc-header-start.h:
 /usr/include/features.h:
@@ -74,10 +78,15 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
 /usr/include/bits/mathcalls.h:
 /usr/include/bits/mathcalls-narrow.h:
 /usr/include/bits/iscanonical.h:
-../external/raylib-master/src/rlgl.h:
+../../include/rlgl.h:
 ../../src/game.h:
 ../../src/ship.h:
 ../../src/screens.h:
+../../src/util.h:
+/usr/include/setjmp.h:
+/usr/include/bits/setjmp.h:
+/usr/include/bits/types/struct___jmp_buf_tag.h:
+/usr/include/bits/types/__sigset_t.h:
 /usr/include/stdio.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
 /usr/include/bits/types/__fpos_t.h:
@@ -107,7 +116,6 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
 /usr/include/sys/select.h:
 /usr/include/bits/select.h:
 /usr/include/bits/types/sigset_t.h:
-/usr/include/bits/types/__sigset_t.h:
 /usr/include/bits/types/struct_timeval.h:
 /usr/include/bits/types/struct_timespec.h:
 /usr/include/bits/pthreadtypes.h:
@@ -126,3 +134,8 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
 /usr/include/bits/getopt_core.h:
 /usr/include/bits/unistd_ext.h:
 /usr/include/linux/close_range.h:
+/usr/include/time.h:
+/usr/include/bits/time.h:
+/usr/include/bits/timex.h:
+/usr/include/bits/types/struct_tm.h:
+/usr/include/bits/types/struct_itimerspec.h:

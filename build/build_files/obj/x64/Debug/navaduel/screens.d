@@ -10,7 +10,7 @@ obj/x64/Debug/navaduel/screens.o: ../../src/screens.c \
  /usr/include/bits/setjmp.h \
  /usr/include/bits/types/struct___jmp_buf_tag.h \
  /usr/include/bits/types/__sigset_t.h ../../src/game.h \
- ../external/raylib-master/src/rlgl.h /usr/include/stdio.h \
+ ../../include/rlgl.h /usr/include/stdio.h \
  /usr/include/bits/libc-header-start.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
@@ -62,7 +62,7 @@ obj/x64/Debug/navaduel/screens.o: ../../src/screens.c \
 /usr/include/bits/types/struct___jmp_buf_tag.h:
 /usr/include/bits/types/__sigset_t.h:
 ../../src/game.h:
-../external/raylib-master/src/rlgl.h:
+../../include/rlgl.h:
 /usr/include/stdio.h:
 /usr/include/bits/libc-header-start.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
