@@ -1,0 +1,21 @@
+/usr/bin/ffmpeg -hide_banner -y -y -r 20 -start_number 0 -start_number_range 1 -i /home/panos/Documents/pGames/navaduel/resources/sprites/splashgif%04d.png -i /home/panos/Documents/pGames/navaduel/resources/sprites/KritaTempPalettegen_%06d.png -lavfi [0:v][1:v]paletteuse=dither=sierra2_4a:diff_mode=none -f gif -loop 0 -gifflags +transdiff /home/panos/Documents/pGames/navaduel/resources/sprites/splashgif.gif
+=====================================================
+Input #0, image2, from '/home/panos/Documents/pGames/navaduel/resources/sprites/splashgif%04d.png':
+  Duration: 00:00:00.60, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: png, rgba(pc, gbr/unknown/unknown), 128x128 [SAR 39:39 DAR 1:1], 25 fps, 25 tbr, 25 tbn
+Input #1, image2, from '/home/panos/Documents/pGames/navaduel/resources/sprites/KritaTempPalettegen_%06d.png':
+  Duration: 00:00:00.04, start: 0.000000, bitrate: N/A
+  Stream #1:0: Video: png, rgba(pc, gbr/unknown/unknown), 16x16 [SAR 1:1 DAR 1:1], 25 fps, 25 tbr, 25 tbn
+Stream mapping:
+  Stream #0:0 (png) -> paletteuse
+  Stream #1:0 (png) -> paletteuse
+  paletteuse:default -> Stream #0:0 (gif)
+Press [q] to stop, [?] for help
+Output #0, gif, to '/home/panos/Documents/pGames/navaduel/resources/sprites/splashgif.gif':
+  Metadata:
+    encoder         : Lavf61.7.100
+  Stream #0:0: Video: gif, pal8(pc, gbr/unknown/unknown, progressive), 128x128 [SAR 1:1 DAR 1:1], q=2-31, 200 kb/s, 20 fps, 100 tbn
+      Metadata:
+        encoder         : Lavc61.19.100 gif
+[out#0/gif @ 0x63fbb1009a00] video:10KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.199581%
+frame=   15 fps=0.0 q=-0.0 Lsize=      10KiB time=00:00:00.75 bitrate= 107.1kbits/s speed=64.8x    

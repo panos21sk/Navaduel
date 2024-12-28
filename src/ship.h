@@ -2,6 +2,7 @@
 #define SHIP_H
 
 #include "raylib.h"
+#include "screens.h"
 #include "cJSON.h"
 #define MAX_ACCEL 1
 #define MAX_TURN 3.1415/9.0f
@@ -36,6 +37,7 @@ typedef struct {
     Vector3 velocity;
     Vector3 accel;
     bool has_splashed;
+    bool has_hit_enemy;
 } Cannonball;
 
 typedef struct {
@@ -46,20 +48,22 @@ typedef struct {
 } Cannon;
 
 typedef struct {
-    int id; //to be saved .
-    float yaw; //to be saved
-    struct accel_settings accel; //NOT to be saved (default values to MIN_ACCEL)
-    struct movement_buttons movement_buttons; //NOT to be saved (default values to settings->TODO) .
-    Vector3 position; //to be saved
-    Vector3 camera_distance_vector_fp; //NOT to be saved (default values to CAMERA_DISTANCE_VECTOR_FP)
-    Vector3 camera_distance_vector_tp; //NOT to be saved (default values to CAMERA_DISTANCE_VECTOR_TP)
-    Camera *camera; //NOT to be saved (default settings)
-    Model model; //NOT to be saved (depends on the ID) .
-    Cannon* cannon; //to be saved (state only)
-    Cannonball cannonball; //NOT to be saved (std)
-    BoundingBox boundary; //NOT to be saved (derived)
-    bool can_fire; //NOT to be saved (default to false)
-    bool can_move; //NOT to be saved (default to false)
+    int id;
+    Camera *camera;
+    Vector3 position;
+    float yaw;
+    struct accel_settings accel;
+    Model model;
+    struct movement_buttons movement_buttons;
+    Cannon* cannon;
+    Cannonball cannonball;
+    Vector3 camera_distance_vector_fp;
+    Vector3 camera_distance_vector_tp;
+    bool can_fire;
+    bool can_move;
+    float sphere_hitbox_radius;
+    int current_health;
+    int initial_health;
 } Ship;
 
 extern const struct accel_settings default_accel;
@@ -75,5 +79,7 @@ void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion);
+void* EndGame(void* arg);
 
 #endif //SHIP_H

@@ -8,6 +8,7 @@
 #include <stdio.h> //for snprintf for debugging
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
 int success_save = 0;
 int success_load = 1;
@@ -252,6 +253,8 @@ void DisplayOptionsScreen(const Sound click, bool* bgm_en)
     Rectangle sfx_rec = {17, 137, WIDTH - 37, 23};
     Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
 
+    bool tmp = settings.fullscreen; 
+
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -264,14 +267,26 @@ void DisplayOptionsScreen(const Sound click, bool* bgm_en)
         AddSetting(&settings.first_or_third_person_cam, "FIRST PERSON", first_person_rec, click, settings.enable_sfx);
         
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
-
-        if(settings.fullscreen){
-            SetWindowSize(GetScreenWidth(), GetScreenHeight());
-        } else {
-            SetWindowSize(WIDTH, HEIGHT);
-        }
     }
     EndDrawing();
+
+    //detect toggle in fullscreen boolean
+    if(settings.fullscreen != tmp){
+        //TODO: If time allows it, find a way to remove dependency from WIDTH, HEIGHT preprocessor definitions, to fullscreen into our monitors res instead
+        //TODO: of what is already defined
+        // int display = GetCurrentMonitor();
+        // if (IsWindowFullscreen())
+        //     {
+        //         // if we are full screen, then go back to the windowed size
+        //         SetWindowSize(WIDTH, HEIGHT);
+        //     }
+        //     else
+        //     {
+        //         // if we are not full screen, set the window size to match the monitor we are on
+        //         SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+        //     }
+        ToggleFullscreen();
+    }
 }
 
 void DisplayAboutScreen(const Sound click)

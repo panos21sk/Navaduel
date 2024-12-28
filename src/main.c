@@ -43,6 +43,10 @@ int main() {
 	Sound click = LoadSound("resources/sound/sfx/mouse-click-sound-233951.mp3");
 	Sound fire = LoadSound("resources/sound/sfx/cannon-fired-gamemaster-audio-2-2-00-01.mp3");
 	Sound splash = LoadSound("resources/sound/sfx/water-splash-cannonball-joshua-chivers-1-00-02.mp3");
+	Sound explosion = LoadSound("resources/sound/sfx/mixkit-sea-mine-explosion-1184.mp3");
+
+	Texture2D heart_full = LoadTexture("resources/sprites/heart_full.png");
+	Texture2D heart_empty = LoadTexture("resources/sprites/heart_empty.png");
 
 	// Set-up ships-players
 	{
@@ -68,12 +72,12 @@ int main() {
 			}
 			case GAME_REAL:
 			{
-				DisplayRealTimeGameScreen(&ship1, &ship2, water_model, skybox_model, splash, fire); //Starts the real-time game
+				DisplayRealTimeGameScreen(&ship1, &ship2, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
 			{
-				DisplayTurnBasedGameScreen(&ship1, &ship2, water_model, skybox_model, splash, fire); //Starts the turn-based game
+				DisplayTurnBasedGameScreen(&ship1, &ship2, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:
@@ -113,6 +117,8 @@ int main() {
 	UnloadSound(click);
 	UnloadSound(fire);
 	UnloadSound(splash);
+	UnloadTexture(heart_full);
+	UnloadTexture(heart_empty);
 	UnloadMusicStream(bgm);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function
