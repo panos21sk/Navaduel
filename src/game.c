@@ -12,6 +12,7 @@
 
 int startup_counter = GAME_STARTUP_COUNTER;
 int winner;
+bool is_loaded = false;
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, 
         const Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)

@@ -89,10 +89,8 @@ void DisplayMainScreen(const Sound click)
                         fread(buffer, 1, sizeof(buffer), stateFile);
                         cJSON *jsonstate = cJSON_Parse(buffer);
                         if(jsonstate == NULL) {
-                            const char *error_ptr = cJSON_GetErrorPtr();
-                            if (error_ptr != NULL) {
-                                printf("Error: %s\n", error_ptr);
-                            }
+                            puts("No saved game state");
+                            success_load = 0;
                             return;
                         }
 
@@ -103,13 +101,23 @@ void DisplayMainScreen(const Sound click)
                         LoadShip(&ship1, ship1State);
                         LoadShip(&ship2, ship2State);
                         success_load = !fclose(stateFile);
-                        if(success_load) current_screen = gamemode;
+                        if(success_load) {
+                            is_loaded = true;
+                            current_screen = gamemode;
+                        }
                     }
-                    else DrawText("No saved game state", WIDTH / 2 - 120, HEIGHT-30, 20, RED);
+                    else goto escape;
                 }
                 DrawRectangleRec(play_load_button, RED);
             }
             DrawText("LOAD GAME", (int)play_load_button.x + 5, (int)play_load_button.y + 10, 20, WHITE);
+            {
+                escape:
+                    if (!success_load) {
+                        DrawText("No saved game state", WIDTH / 2 - 120, HEIGHT-30, 20, RED);
+                        success_load = 1;
+                    }
+            }
         }
 
         // EXIT BUTTON
@@ -134,6 +142,7 @@ void DisplayMainScreen(const Sound click)
 void DisplayGamemodesScreen(const Sound click)
 {
     mouse_point = GetMousePosition();
+    control_index = 0;
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -162,7 +171,8 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
         char *winnerstr = malloc(sizeof(char)*strlen("The winner is Player N!")+1);
         strcpy(winnerstr, "The winner is ");
         if(winnerId == 1) strcat(winnerstr, "Player 1!");
-        else strcat(winnerstr, "Player 2!");
+        else if(winnerId == 2) strcat(winnerstr, "Player 2!");
+        else strcat(winnerstr, "no one!");
         DrawText(winnerstr, WIDTH/2, 40, 25, LIME);
         free(winnerstr);
     }

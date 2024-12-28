@@ -354,6 +354,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
 
     //End game if players crash into each other
     if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, enemy_ship->position, enemy_ship->sphere_hitbox_radius)){
+        winner = 0; //NO ONE
         PlaySound(explosion);
         pthread_t wait_before_end;
         pthread_create(&wait_before_end, NULL, EndGame, state);

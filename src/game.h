@@ -6,6 +6,7 @@
 
 extern int winner;
 extern int startup_counter;
+extern bool is_loaded;
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, 
         Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty);

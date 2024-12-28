@@ -56,6 +56,10 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                 }
                 if(*current_screen == GAME_OVER) {
                     while(control_index < 1) {
+                        if(is_loaded) {
+                            fclose(fopen("game.json", "w"));
+                            is_loaded = false;
+                        }
                         ++control_index;
                         startup_counter = GAME_STARTUP_COUNTER;
                         longjmp(jump_point, 0);
