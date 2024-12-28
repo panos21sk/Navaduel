@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "obstacles.h"
 #include "cJSON.h"
 #define MAX_ACCEL 1
 #define MAX_TURN 3.1415/9.0f
@@ -80,18 +81,7 @@ void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
-
-#ifndef GAME_H
-    typedef struct {
-        float radius;
-        Vector3 cetner_pos; 
-        Texture2D sand_tex;
-        //https://sketchfab.com/3d-models/low-poly-palm-tree-58f448209beb43659e95ca0e1ad59ac2
-        Model palm_tree;
-        Model island_sphere;
-    } Island;
-#endif // GAME_H
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, void* island_list);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Island* island_list);
 void* EndGame(void* arg);
 
 #endif // SHIP_H

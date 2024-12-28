@@ -364,7 +364,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
 
     //End game if a player hits and island
     for(int i = 0; i < sizeof(island_list)/sizeof(island_list[0]); i++){
-        if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, island_list[i].cetner_pos, island_list[i].radius)){
+        if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, island_list[i].center_pos, island_list[i].radius)){
             PlaySound(explosion);
             pthread_t wait_before_end;
             pthread_create(&wait_before_end, NULL, EndGame, state);

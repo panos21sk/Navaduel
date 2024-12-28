@@ -199,9 +199,9 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             DrawSphere(ship2.cannonball.position, 1, BLACK);
 
             for(int i = 0; i < sizeof(island_list)/sizeof(island_list[0]); i++){
-                DrawModel(island_list[i].island_sphere, island_list[i].cetner_pos, 1, WHITE);
+                DrawModel(island_list[i].island_sphere, island_list[i].center_pos, 1, WHITE);
                 DrawModel(island_list[i].palm_tree, Vector3Add(
-                    island_list[i].cetner_pos, 
+                    island_list[i].center_pos,
                     (Vector3){  GetRandomValue(-island_list[i].radius/2, -island_list[i].radius/2), 
                                 GetRandomValue(0, island_list[i].radius/1.7/*sqrt2 approx*/), 
                                 GetRandomValue(-island_list[i].radius/2, -island_list[i].radius/2)}),
@@ -244,30 +244,4 @@ void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Island* island_
 
     CheckHit(ship1, ship2, &current_screen, explosion, island_list);
     CheckHit(ship2, ship1, &current_screen, explosion, island_list);
-}
-
-Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, Vector2 opp_corner_bound){
-    Island island_instance;
-    SetRandomSeed(time(NULL)); //seed is unix time
-    island_instance.radius = GetRandomValue(0, MAX_ISLAND_RADIUS);
-    island_instance.cetner_pos = (Vector3){
-        GetRandomValue(corner_bound.x, opp_corner_bound.x),
-        -GetRandomValue(island_instance.radius / 8, island_instance.radius / 1.2), //island should hover a bit under the water, depending on radius
-        GetRandomValue(corner_bound.y, opp_corner_bound.y)
-    };
-    island_instance.sand_tex = sand_tex;
-    island_instance.palm_tree = palm_tree;
-    island_instance.island_sphere = LoadModelFromMesh(GenMeshSphere(island_instance.radius, 1, 1));
-    island_instance.island_sphere.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = sand_tex; 
-    return island_instance;
-}
-
-Island* CreateAllIslands(Texture2D sand_tex, Model toppings, Vector2 corner_bound, Vector2 opp_corner_bound){
-    SetRandomSeed(time(NULL)); 
-    const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
-    static Island island_list[MAX_ISLANDS];
-    for(int i = 0; i < island_count; i++){
-        island_list[i] = CreateIsland(sand_tex, toppings, corner_bound, opp_corner_bound);
-    }
-    return island_list;
 }

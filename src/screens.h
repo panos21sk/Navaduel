@@ -2,7 +2,6 @@
 #define SCREENS_H
 
 #include "raylib.h"
-#include "cJSON.h"
 #ifndef bool
 #include <stdbool.h>
 #endif //bool
