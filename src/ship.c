@@ -1,6 +1,7 @@
 #include "ship.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "cJSON.h"
 
 const struct accel_settings default_accel = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
 
@@ -72,6 +73,42 @@ void SetupShips() {
     ship2.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
     ship2.can_move = false;
     ship2.boundary = GetMeshBoundingBox(ship2.model.meshes[0]);
+}
+
+void LoadShip(Ship *ship, const cJSON *shipState) {
+    const struct movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
+    const struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
+
+    const cJSON *id = cJSON_GetArrayItem(shipState, 0);
+    ship->id = id->valueint;
+    ship->movement_buttons = id->valueint == 1 ? btns1 : btns2;
+    ship->camera = id->valueint == 1 ? &camera1 : &camera2;
+
+    const cJSON *yaw = cJSON_GetArrayItem(shipState, 1);
+    ship->yaw = (float)yaw->valuedouble;
+
+    const cJSON *positionState = cJSON_GetArrayItem(shipState, 2);
+    const float x = (float)cJSON_GetArrayItem(positionState, 0)->valuedouble;
+    const float y = (float)cJSON_GetArrayItem(positionState, 1)->valuedouble;
+    const float z = (float)cJSON_GetArrayItem(positionState, 2)->valuedouble;
+    const Vector3 position = {x, y, z};
+    ship->position = position;
+
+    const cJSON *cannon_rel_pos = cJSON_GetArrayItem(shipState, 3);
+    Cannon *cannon = id->valueint == 1 ? &cannon1 : &cannon2;
+    const float rx = (float)cJSON_GetArrayItem(cannon_rel_pos, 0)->valuedouble;
+    const float ry = (float)cJSON_GetArrayItem(cannon_rel_pos, 1)->valuedouble;
+    const float rz = (float)cJSON_GetArrayItem(cannon_rel_pos, 2)->valuedouble;
+    cannon->relative_position = (Vector3){rx, ry, rz};
+    ship->cannon = cannon;
+
+    initcannonball.position = (Vector3){0,1000,0};
+    initcannonball.velocity = Vector3Zero();
+    initcannonball.accel = Vector3Zero();
+    initcannonball.has_splashed = true;
+    ship->cannonball = initcannonball;
+
+    ship->can_move = false;
 }
 
 void DestroyShip(const Ship* ship){
@@ -204,7 +241,7 @@ void InitializeCannonball(Ship* ship){
                 Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0,1,0}, ship->yaw));
     //see commemts on the transform of cannon rail
     Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
-    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2}, speed_transform_matrix); 
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2f}, speed_transform_matrix);
     ship->cannonball.accel = (Vector3){0, -0.005, 0};
     ship->cannonball.has_splashed = false;
 }

@@ -2,6 +2,7 @@
 #define SHIP_H
 
 #include "raylib.h"
+#include "cJSON.h"
 #define MAX_ACCEL 1
 #define MAX_TURN 3.1415/9.0f
 #define MAX_TURN_UP 3.1415/2.25f
@@ -45,20 +46,20 @@ typedef struct {
 } Cannon;
 
 typedef struct {
-    int id;
-    float yaw;
-    struct accel_settings accel;
-    struct movement_buttons movement_buttons;
-    Vector3 position;
-    Vector3 camera_distance_vector_fp;
-    Vector3 camera_distance_vector_tp;
-    Camera *camera;
-    Model model;
-    Cannon* cannon;
-    Cannonball cannonball;
-    BoundingBox boundary;
-    bool can_fire;
-    bool can_move;
+    int id; //to be saved .
+    float yaw; //to be saved
+    struct accel_settings accel; //NOT to be saved (default values to MIN_ACCEL)
+    struct movement_buttons movement_buttons; //NOT to be saved (default values to settings->TODO) .
+    Vector3 position; //to be saved
+    Vector3 camera_distance_vector_fp; //NOT to be saved (default values to CAMERA_DISTANCE_VECTOR_FP)
+    Vector3 camera_distance_vector_tp; //NOT to be saved (default values to CAMERA_DISTANCE_VECTOR_TP)
+    Camera *camera; //NOT to be saved (default settings)
+    Model model; //NOT to be saved (depends on the ID) .
+    Cannon* cannon; //to be saved (state only)
+    Cannonball cannonball; //NOT to be saved (std)
+    BoundingBox boundary; //NOT to be saved (derived)
+    bool can_fire; //NOT to be saved (default to false)
+    bool can_move; //NOT to be saved (default to false)
 } Ship;
 
 extern const struct accel_settings default_accel;
@@ -68,6 +69,7 @@ extern Camera camera1;
 extern Camera camera2;
 
 void SetupShips();
+void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);

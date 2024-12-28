@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include "screens.h"
 #include "util.h"
+#include "ship.h"
+#include "cJSON.h"
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,4 +80,39 @@ void LoadSettings() {
 
     if(ini_parse("config.ini", parseHandler, &settings) < 0) printf("\n\nSettings were not loaded\n\n");
     else printf("\n\nSettings were loaded\n\n");
+}
+
+cJSON *create_ship_json(const Ship ship) {
+    cJSON *array = cJSON_CreateArray();
+    if(array == NULL) goto fail;
+
+    cJSON *id = cJSON_CreateNumber(ship.id);
+    if(id == NULL) goto fail;
+    cJSON_AddItemToArray(array, id);
+
+    cJSON *yaw = cJSON_CreateNumber(ship.yaw);
+    if(yaw == NULL) goto fail;
+    cJSON_AddItemToArray(array, yaw);
+
+    cJSON *position = cJSON_CreateArray();
+    if(position == NULL) goto fail;
+    cJSON_AddItemToArray(position, cJSON_CreateNumber(ship.position.x));
+    cJSON_AddItemToArray(position, cJSON_CreateNumber(ship.position.y));
+    cJSON_AddItemToArray(position, cJSON_CreateNumber(ship.position.z));
+    cJSON_AddItemToArray(array, position);
+
+    cJSON *cannon_rel_pos = cJSON_CreateArray();
+    if(cannon_rel_pos == NULL) goto fail;
+    cJSON_AddItemToArray(cannon_rel_pos, cJSON_CreateNumber(ship.cannon->relative_position.x));
+    cJSON_AddItemToArray(cannon_rel_pos, cJSON_CreateNumber(ship.cannon->relative_position.y));
+    cJSON_AddItemToArray(cannon_rel_pos, cJSON_CreateNumber(ship.cannon->relative_position.z));
+    cJSON_AddItemToArray(array, cannon_rel_pos);
+
+    return array;
+
+    fail:
+    {
+        cJSON_Delete(array);
+        return NULL;
+    }
 }
