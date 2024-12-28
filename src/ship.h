@@ -47,7 +47,7 @@ typedef struct {
 } Cannon;
 
 typedef struct {
-    int id;
+    int id; //so far unused, will be in use when scaling to make players
     float yaw;
     struct accel_settings accel;
     struct movement_buttons movement_buttons;
@@ -78,7 +78,18 @@ void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion);
+
+#ifndef GAME_H
+    typedef struct {
+        float radius;
+        Vector3 cetner_pos; 
+        Texture2D sand_tex;
+        //https://sketchfab.com/3d-models/low-poly-palm-tree-58f448209beb43659e95ca0e1ad59ac2
+        Model palm_tree;
+        Model island_sphere;
+    } Island;
+#endif // GAME_H
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, void* island_list);
 void* EndGame(void* arg);
 
-#endif //SHIP_H
+#endif // SHIP_H
