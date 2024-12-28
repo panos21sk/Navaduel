@@ -48,11 +48,16 @@ int main() {
 	Texture2D heart_full = LoadTexture("resources/sprites/heart_full.png");
 	Texture2D heart_empty = LoadTexture("resources/sprites/heart_empty.png");
 
+	Texture2D sand_tex = LoadTexture("resources/sprites/8_BIT_Sand.png");
+	Model palm_tree = LoadModel("resources/models/low_poly_palm_tree.glb");
+
 	// Set-up ships-players
 	{
 		setjmp(jump_point);
 		SetupShips();
 	}
+
+	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}); //hardcoded bounds initially
 
 	//! Game loop
 	while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or presses the Close button on the window
@@ -71,13 +76,13 @@ int main() {
 				break;
 			}
 			case GAME_REAL:
-			{
-				DisplayRealTimeGameScreen(&ship1, &ship2, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
+			{	
+				DisplayRealTimeGameScreen(&ship1, &ship2, island_list, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
 			{
-				DisplayTurnBasedGameScreen(&ship1, &ship2, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
+				DisplayTurnBasedGameScreen(&ship1, &ship2, island_list, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:
