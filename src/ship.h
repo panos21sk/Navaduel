@@ -11,6 +11,10 @@
 #define MIN_ACCEL 0.01f
 #define MOVEMENT_STEP 1.0f
 
+#define MAX_ISLAND_RADIUS 10
+#define MAX_ISLANDS 7
+#define MIN_ISLANDS 2
+
 struct movement_buttons {
     int right;
     int left;
@@ -79,17 +83,18 @@ void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
 
-#ifndef GAME_H
-    typedef struct {
+void* EndGame(void* arg);
+
+typedef struct {
         float radius;
         Vector3 cetner_pos; 
         Texture2D sand_tex;
         //https://sketchfab.com/3d-models/low-poly-palm-tree-58f448209beb43659e95ca0e1ad59ac2
         Model palm_tree;
         Model island_sphere;
-    } Island;
-#endif // GAME_H
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, void* island_list);
-void* EndGame(void* arg);
+} Island;
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Island* island_list);
+Island CreateIsland(Texture2D sand_tex, Model toppings, Vector2 corner_bound, Vector2 opp_corner_bound);
+Island* CreateAllIslands(Texture2D sand_tex, Model toppings, Vector2 corner_bound, Vector2 opp_corner_bound);
 
 #endif // SHIP_H
