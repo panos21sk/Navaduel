@@ -191,7 +191,7 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             DrawModel(water_model, (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
             rlDisableBackfaceCulling();
-            DrawModel(sky_model, (Vector3){0.0f, 0.0f, 0.0f}, 1000.0f, WHITE);
+            DrawModel(sky_model, (Vector3){0.0f, 350.0f, 0.0f}, 1000.0f, WHITE);
             rlEnableBackfaceCulling();
 
             DrawModel(ship1.model, ship1.position, 1.0f, WHITE);
