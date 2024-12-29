@@ -5,7 +5,7 @@
 #include "ship.h"
 #include "obstacles.h"
 
-#define MAX_ISLAND_RADIUS 10
+#define MAX_ISLAND_RADIUS 20
 #define MAX_ISLANDS 7
 #define MIN_ISLANDS 2
 

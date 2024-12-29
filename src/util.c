@@ -133,10 +133,3 @@ cJSON *create_ship_json(const Ship ship) {
         return NULL;
     }
 }
-
-int GenRandomNumBounded(int min, int max){
-    srand(time(NULL));
-    srand(rand());
-    int random = rand() % (max - min + 1) + min;
-    return random;
-}

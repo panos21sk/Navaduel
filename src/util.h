@@ -23,6 +23,5 @@ void AddSetting(bool* setting, const char* setting_name, Rectangle rec, Sound cl
 void LoadSettings();
 static int parseHandler(void* user, const char* section, const char* name, const char* value);
 cJSON *create_ship_json(Ship ship);
-int GenRandomNumBounded(int min, int max);
 
 #endif //UTIL_H

@@ -202,11 +202,7 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             for(int i = 0; i < island_count; i++){
                 DrawModel(island_list[i].island_sphere, island_list[i].center_pos, 1, WHITE);
                 DrawModel(island_list[i].palm_tree, Vector3Add(
-                    island_list[i].center_pos, (Vector3){0, island_list[i].radius, 0}),
-                    // (Vector3){  (float)GenRandomNumBounded((int)-island_list[i].radius/2, (int)-island_list[i].radius/2),
-                    //             (float)GenRandomNumBounded(0, (int)(island_list[i].radius/1.7/*sqrt2 approx*/)), 
-                    //             (float)GenRandomNumBounded((int)-island_list[i].radius/2, (int)-island_list[i].radius/2)}),
-                    1, WHITE);
+                    island_list[i].center_pos, (Vector3){0, island_list[i].radius, 0}), 1, WHITE);
             }
 
             //Debugging
@@ -229,6 +225,7 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
     for(int i = 0; i < island_count; i++){
         DrawText(TextFormat("%d", island_list[i].radius), 25*i, HEIGHT - 50, 20, LIME);
     }
+    DrawText(TextFormat("%d", GetRandomValue(5, 15)), 5, HEIGHT - 65, 20, MAROON); 
     EndTextureMode();
 }
 

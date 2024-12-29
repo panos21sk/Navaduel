@@ -6,15 +6,15 @@
 
 Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, Vector2 opp_corner_bound){
     Island island_instance;
-    island_instance.radius = GenRandomNumBounded(MAX_ISLAND_RADIUS, MAX_ISLAND_RADIUS / 5);
+    island_instance.radius = GetRandomValue(MAX_ISLAND_RADIUS / 4, MAX_ISLAND_RADIUS);
     island_instance.center_pos = (Vector3){
-        GenRandomNumBounded(corner_bound.x, opp_corner_bound.x),
-        -GenRandomNumBounded(0, (int)(island_instance.radius / 1.5)), //island should hover a bit under the water, depending on radius
-        GenRandomNumBounded(corner_bound.y, opp_corner_bound.y)
+        GetRandomValue(corner_bound.x, opp_corner_bound.x),
+        0,
+        GetRandomValue(corner_bound.y, opp_corner_bound.y)
     };
     island_instance.sand_tex = sand_tex;
     island_instance.palm_tree = palm_tree;
-    Mesh sphere_mesh = GenMeshSphere(island_instance.radius, 32, 32);
+    Mesh sphere_mesh = GenMeshSphere(island_instance.radius, 128, 128);
     island_instance.island_sphere = LoadModelFromMesh(sphere_mesh);
     island_instance.island_sphere.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = sand_tex;
     return island_instance;

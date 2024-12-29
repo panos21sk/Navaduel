@@ -57,7 +57,7 @@ int main() {
 		SetupShips();
 	}
 
-	const int island_count = GenRandomNumBounded(MIN_ISLANDS, MAX_ISLANDS);
+	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
 	const Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
 
 	//! Game loop
