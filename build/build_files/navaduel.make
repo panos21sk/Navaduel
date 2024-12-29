@@ -175,17 +175,21 @@ endif
 GENERATED :=
 OBJECTS :=
 
+GENERATED += $(OBJDIR)/cJSON.o
 GENERATED += $(OBJDIR)/game.o
 GENERATED += $(OBJDIR)/ini.o
 GENERATED += $(OBJDIR)/main.o
+GENERATED += $(OBJDIR)/obstacles.o
 GENERATED += $(OBJDIR)/screens.o
 GENERATED += $(OBJDIR)/ship.o
 GENERATED += $(OBJDIR)/util.o
-OBJECTS += $(OBJDIR)/ship.o
+OBJECTS += $(OBJDIR)/cJSON.o
 OBJECTS += $(OBJDIR)/game.o
 OBJECTS += $(OBJDIR)/ini.o
 OBJECTS += $(OBJDIR)/main.o
+OBJECTS += $(OBJDIR)/obstacles.o
 OBJECTS += $(OBJDIR)/screens.o
+OBJECTS += $(OBJDIR)/ship.o
 OBJECTS += $(OBJDIR)/util.o
 
 # Rules
@@ -250,6 +254,9 @@ endif
 # File Rules
 # #############################################
 
+$(OBJDIR)/cJSON.o: ../../src/cJSON.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/game.o: ../../src/game.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -257,6 +264,9 @@ $(OBJDIR)/ini.o: ../../src/ini.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: ../../src/main.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/obstacles.o: ../../src/obstacles.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/screens.o: ../../src/screens.c

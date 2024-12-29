@@ -32,7 +32,7 @@ void SetupShips()
     initcannonball.has_hit_enemy = true;
 
     // Cannon for ship1
-    cannon1.relative_position = (Vector3){0, -8, 28};
+    cannon1.relative_position = (Vector3){0, -8, 20};
     cannon1.rotation = (Vector3){0, 0, 0};
     cannon1.stand_model = LoadModel("resources/models/cannon_stand.glb");
     cannon1.rail_model = LoadModel("resources/models/cannon_rail.glb");
@@ -52,7 +52,7 @@ void SetupShips()
     ship1.cannonball = initcannonball;
     ship1.yaw = 0;
     ship1.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
-    ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 23.0f};
+    ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 16.0f};
     ship1.can_move = false;
     ship1.sphere_hitbox_radius = 15;
     ship1.initial_health = 5;
@@ -331,8 +331,15 @@ void UpdateShipCamera(const Ship *ship, const bool first_person)
     }
 }
 
+void *EndGame(void *arg)
+{
+    screen *state = (screen *)arg;
+    usleep(1000000); // in microsec
+    *state = GAME_OVER;
+}
+
 //TODO: Make function return int specifying player id of winner
-void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Island* island_list)
+void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Island* island_list, int island_count, bool sfx_en)
 {
     // adding small delay before stopping game to improve game feel. Maybe add game end animation by passing in here a pointer to the game state and changing it
     // to game_end = true for example, and then render in another way
@@ -341,7 +348,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
         if (player_ship->cannonball.has_hit_enemy == false)
         {
             enemy_ship->current_health -= 1;
-            PlaySound(explosion);
+            if(sfx_en)PlaySound(explosion);
             player_ship->cannonball.has_hit_enemy = true;
             if (enemy_ship->current_health <= 0)
             {
@@ -356,26 +363,20 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
     //End game if players crash into each other
     if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, enemy_ship->position, enemy_ship->sphere_hitbox_radius)){
         winner = 0; //NO ONE
-        PlaySound(explosion);
+        if(sfx_en)PlaySound(explosion);
         pthread_t wait_before_end;
         pthread_create(&wait_before_end, NULL, EndGame, state);
         pthread_detach(wait_before_end);
     }
 
     //End game if a player hits and island
-    for(int i = 0; i < sizeof(island_list)/sizeof(island_list[0]); i++){
+    for(int i = 0; i < island_count; i++){
         if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, island_list[i].center_pos, island_list[i].radius)){
-            PlaySound(explosion);
+            winner = enemy_ship->id;
+            if(sfx_en)PlaySound(explosion);
             pthread_t wait_before_end;
             pthread_create(&wait_before_end, NULL, EndGame, state);
             pthread_detach(wait_before_end);
         }
     }
-}
-
-void *EndGame(void *arg)
-{
-    screen *state = (screen *)arg;
-    usleep(1000000); // in microsec
-    *state = GAME_OVER;
 }

@@ -2,7 +2,9 @@ obj/x64/Debug/navaduel/ship.o: ../../src/ship.c \
  /usr/include/stdc-predef.h ../../src/ship.h ../../include/raylib.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h \
- ../../src/screens.h ../../include/raymath.h /usr/include/math.h \
+ ../../src/screens.h ../../src/obstacles.h ../../include/cJSON.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
+ ../../src/game.h ../../include/raymath.h /usr/include/math.h \
  /usr/include/bits/libc-header-start.h /usr/include/features.h \
  /usr/include/features-time64.h /usr/include/bits/wordsize.h \
  /usr/include/bits/timesize.h /usr/include/sys/cdefs.h \
@@ -16,9 +18,7 @@ obj/x64/Debug/navaduel/ship.o: ../../src/ship.c \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
  /usr/include/bits/iscanonical.h /usr/include/pthread.h \
- /usr/include/sched.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
- /usr/include/bits/types/time_t.h \
+ /usr/include/sched.h /usr/include/bits/types/time_t.h \
  /usr/include/bits/types/struct_timespec.h /usr/include/bits/endian.h \
  /usr/include/bits/endianness.h /usr/include/bits/sched.h \
  /usr/include/bits/types/struct_sched_param.h /usr/include/bits/cpu-set.h \
@@ -45,6 +45,10 @@ obj/x64/Debug/navaduel/ship.o: ../../src/ship.c \
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h:
 ../../src/screens.h:
+../../src/obstacles.h:
+../../include/cJSON.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
+../../src/game.h:
 ../../include/raymath.h:
 /usr/include/math.h:
 /usr/include/bits/libc-header-start.h:
@@ -72,7 +76,6 @@ obj/x64/Debug/navaduel/ship.o: ../../src/ship.c \
 /usr/include/bits/iscanonical.h:
 /usr/include/pthread.h:
 /usr/include/sched.h:
-/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
 /usr/include/bits/types/time_t.h:
 /usr/include/bits/types/struct_timespec.h:
 /usr/include/bits/endian.h:

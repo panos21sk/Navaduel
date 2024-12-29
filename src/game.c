@@ -5,6 +5,7 @@
 #include "ship.h"
 #include "screens.h"
 #include "util.h"
+#include "obstacles.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@ int startup_counter = GAME_STARTUP_COUNTER;
 int winner;
 bool is_loaded = false;
 
-void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list,
+void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list, int island_count,
         const Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
@@ -37,10 +38,10 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list,
 
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
-    Update_Variables(ship1, ship2, explosion, island_list);
+    Update_Variables(ship1, ship2, explosion, island_list, island_count);
 
-    DrawGameState(*ship1, *ship2, camera1, screenShip1, island_list, water_model, sky_model, *ship1, heart_full, heart_empty);
-    DrawGameState(*ship1, *ship2, camera2, screenShip2, island_list, water_model, sky_model, *ship2, heart_full, heart_empty);
+    DrawGameState(*ship1, *ship2, camera1, screenShip1, island_list, island_count, water_model, sky_model, *ship1, heart_full, heart_empty);
+    DrawGameState(*ship1, *ship2, camera2, screenShip2, island_list, island_count, water_model, sky_model, *ship2, heart_full, heart_empty);
 
     if (startup_counter > 0)
     {
@@ -95,7 +96,7 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list,
     }
 }
 
-void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Island* island_list,
+void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Island* island_list, int island_count,
         const Model water_model, const Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
@@ -116,10 +117,10 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Island* island_list,
 
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
-    Update_Variables(ship1, ship2, explosion, island_list);
+    Update_Variables(ship1, ship2, explosion, island_list, island_count);
 
-    DrawGameState(*ship1, *ship2, camera1, screenShip1, island_list, water_model, sky_model, *ship1, heart_full, heart_empty);
-    DrawGameState(*ship1, *ship2, camera2, screenShip2, island_list, water_model, sky_model, *ship2, heart_full, heart_empty);
+    DrawGameState(*ship1, *ship2, camera1, screenShip1, island_list, island_count, water_model, sky_model, *ship1, heart_full, heart_empty);
+    DrawGameState(*ship1, *ship2, camera2, screenShip2, island_list, island_count,water_model, sky_model, *ship2, heart_full, heart_empty);
 
     if (startup_counter > 0)
     {
@@ -174,7 +175,7 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Island* island_list,
     }
 }
 
-void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenShip, Island* island_list,
+void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenShip, Island* island_list, int island_count,
                     Model water_model, Model sky_model, Ship current_player_ship, Texture2D heart_full, Texture2D heart_empty){
     BeginTextureMode(screenShip);
     {
@@ -198,19 +199,13 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             DrawModel(ship2.cannon->stand_model, Vector3Add(ship2.position, Vector3RotateByAxisAngle(ship2.cannon->relative_position, (Vector3){0, 1, 0}, ship2.yaw)), 5.0f, WHITE);
             DrawSphere(ship2.cannonball.position, 1, BLACK);
 
-            for(int i = 0; i < sizeof(island_list)/sizeof(island_list[0]); i++){
+            for(int i = 0; i < island_count; i++){
                 DrawModel(island_list[i].island_sphere, island_list[i].center_pos, 1, WHITE);
                 DrawModel(island_list[i].palm_tree, Vector3Add(
-                    island_list[i].center_pos,
-                    (Vector3){  (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2),
-                                (float)GetRandomValue(0, (int)(island_list[i].radius/1.7/*sqrt2 approx*/)), 
-                                (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2)}),
-                    1, WHITE);
+                    island_list[i].center_pos, (Vector3){0, island_list[i].radius, 0}), 1, WHITE);
             }
 
             //Debugging
-            DrawSphereWires(ship1.position, ship1.sphere_hitbox_radius, 12, 12, GREEN);
-            DrawSphereWires(ship2.position, ship2.sphere_hitbox_radius, 12, 12, LIME);
         }
         EndMode3D();
     }
@@ -222,10 +217,19 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             DrawTexture(heart_empty, 5 + 55 * i, 5, WHITE); //hearts empty in those indices
         }
     } 
+
+    //Debugging text
+    DrawText(TextFormat("%d", 
+    island_count),
+    5, HEIGHT - 25, 20, LIME);
+    for(int i = 0; i < island_count; i++){
+        DrawText(TextFormat("%d", island_list[i].radius), 25*i, HEIGHT - 50, 20, LIME);
+    }
+    DrawText(TextFormat("%d", GetRandomValue(5, 15)), 5, HEIGHT - 65, 20, MAROON); 
     EndTextureMode();
 }
 
-void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Island* island_list){
+void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Island* island_list, int island_count){
     // rotate ships
     ship1->model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw, 0});
     ship1->cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship1->yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
@@ -242,6 +246,6 @@ void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Island* island_
     Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2->yaw - 3.1415f / 2 + ship2->cannon->rotation.y));
     ship2->cannon->rail_model.transform = cannon_transform2;
 
-    CheckHit(ship1, ship2, &current_screen, explosion, island_list);
-    CheckHit(ship2, ship1, &current_screen, explosion, island_list);
+    CheckHit(ship1, ship2, &current_screen, explosion, island_list, island_count, settings.enable_sfx);
+    CheckHit(ship2, ship1, &current_screen, explosion, island_list, island_count, settings.enable_sfx);
 }
