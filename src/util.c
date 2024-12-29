@@ -19,7 +19,7 @@ bool strtobool(const char *input) {
     return false;
 }
 
-char *booltochar(const bool input) {
+char *booltostr(const bool input) {
     if(input) return "true";
     else return "false";
 }
@@ -107,9 +107,9 @@ void LoadSettings() {
 void UpdateSettingsConfig(const setting settings) {
     FILE *config = fopen("config.ini", "w");
     fprintf(config,"[settings] ; Game settings\nshow_reticle = %s\nfirst_or_third_person_cam = %s ; true = first person, false = third person\nfullscreen = %s\nenable_sfx = %s\nenable_bgm = %s\nshow_fps = %s",
-        booltochar(settings.show_reticle), booltochar(settings.first_or_third_person_cam),
-        booltochar(settings.fullscreen), booltochar(settings.enable_sfx), booltochar(settings.enable_bgm),
-        booltochar(settings.show_fps));
+        booltostr(settings.show_reticle), booltostr(settings.first_or_third_person_cam),
+        booltostr(settings.fullscreen), booltostr(settings.enable_sfx), booltostr(settings.enable_bgm),
+        booltostr(settings.show_fps));
     fclose(config);
 }
 
