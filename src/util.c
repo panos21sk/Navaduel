@@ -19,6 +19,11 @@ bool strtobool(const char *input) {
     return false;
 }
 
+char *booltochar(const bool input) {
+    if(input) return "true";
+    else return "false";
+}
+
 static int parseHandler(void* user, const char* section, const char* name, const char* value) {
     setting* settings = user;
 
@@ -32,6 +37,8 @@ static int parseHandler(void* user, const char* section, const char* name, const
         settings->enable_bgm = strtobool(value);
     } else if (MATCH("settings", "fullscreen")) {
         settings->fullscreen = strtobool(value);
+    } else if (MATCH("settings", "show_fps")) {
+        settings->show_fps = strtobool(value);
     } else {
         return 0;  /* unknown section/name, error */
     }
@@ -78,6 +85,7 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     if (CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         if(sfx_en) PlaySound(click);
         *setting = !(*setting);
+        UpdateSettingsConfig(settings);
     }
     DrawRectangleLinesEx(rec, 3, BLACK);
     DrawText(setting_name, (int)rec.x + 3, (int)rec.y + 3, 20, BLACK);
@@ -94,6 +102,15 @@ void LoadSettings() {
 
     if(ini_parse("config.ini", parseHandler, &settings) < 0) printf("\n\nSettings were not loaded\n\n");
     else printf("\n\nSettings were loaded\n\n");
+}
+
+void UpdateSettingsConfig(const setting settings) {
+    FILE *config = fopen("config.ini", "w");
+    fprintf(config,"[settings] ; Game settings\nshow_reticle = %s\nfirst_or_third_person_cam = %s ; true = first person, false = third person\nfullscreen = %s\nenable_sfx = %s\nenable_bgm = %s\nshow_fps = %s",
+        booltochar(settings.show_reticle), booltochar(settings.first_or_third_person_cam),
+        booltochar(settings.fullscreen), booltochar(settings.enable_sfx), booltochar(settings.enable_bgm),
+        booltochar(settings.show_fps));
+    fclose(config);
 }
 
 cJSON *create_ship_json(const Ship ship) {
