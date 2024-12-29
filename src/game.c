@@ -249,6 +249,6 @@ void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Island* island_
     Matrix cannon_transform2 = MatrixMultiply(MatrixRotateZ(-ship2->cannon->rotation.x), MatrixRotateY(ship2->yaw - 3.1415f / 2 + ship2->cannon->rotation.y));
     ship2->cannon->rail_model.transform = cannon_transform2;
 
-    CheckHit(ship1, ship2, &current_screen, explosion, island_list, island_count);
-    CheckHit(ship2, ship1, &current_screen, explosion, island_list, island_count);
+    CheckHit(ship1, ship2, &current_screen, explosion, island_list, island_count, settings.enable_sfx);
+    CheckHit(ship2, ship1, &current_screen, explosion, island_list, island_count, settings.enable_sfx);
 }
