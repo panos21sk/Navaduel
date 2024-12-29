@@ -15,6 +15,7 @@
 int startup_counter = GAME_STARTUP_COUNTER;
 int winner;
 bool is_loaded = false;
+BoundingBox game_bounds;
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list, int island_count,
         const Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)
@@ -22,6 +23,10 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list, in
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
     HideCursor();
+
+    //! Checks collision with bounds (skybox)
+    CheckCollisionWithBounds(ship1, game_bounds);
+    CheckCollisionWithBounds(ship2, game_bounds);
 
     //! Input Handling:
     // Ship Movement
@@ -204,29 +209,31 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
                 DrawModel(island_list[i].palm_tree, Vector3Add(
                     island_list[i].center_pos, (Vector3){0, island_list[i].radius, 0}), 1, WHITE);
             }
-
-            //Debugging
         }
         EndMode3D();
-    }
-    //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts 
-    for(int i = 0; i < current_player_ship.initial_health; i++){
-        if(i < current_player_ship.current_health){
-            DrawTexture(heart_full, 5 + 55*i, 5, WHITE); //each heart is anchored 55px from the prev, and img width is 48px. 
-        } else {
-            DrawTexture(heart_empty, 5 + 55 * i, 5, WHITE); //hearts empty in those indices
+
+        //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
+        for(int i = 0; i < current_player_ship.initial_health; i++){
+            if(i < current_player_ship.current_health){
+                DrawTexture(heart_full, 5 + 55*i, 5, WHITE); //each heart is anchored 55px from the prev, and img width is 48px.
+            } else {
+                DrawTexture(heart_empty, 5 + 55 * i, 5, WHITE); //hearts empty in those indices
+            }
         }
-    } 
+    }
+    EndTextureMode();
+
 
     //Debugging text
+    /*
     DrawText(TextFormat("%d", 
     island_count),
     5, HEIGHT - 25, 20, LIME);
     for(int i = 0; i < island_count; i++){
         DrawText(TextFormat("%d", island_list[i].radius), 25*i, HEIGHT - 50, 20, LIME);
-    }
-    DrawText(TextFormat("%d", GetRandomValue(5, 15)), 5, HEIGHT - 65, 20, MAROON); 
-    EndTextureMode();
+
+    DrawText(TextFormat("%d", GetRandomValue(5, 15)), 5, HEIGHT - 65, 20, MAROON);
+    */
 }
 
 void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Island* island_list, int island_count){

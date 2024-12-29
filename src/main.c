@@ -6,6 +6,7 @@
 #include "screens.h"
 #include "util.h"
 #include "game.h"
+#include "raymath.h"
 
 int main() {
 	//! Main window initialization
@@ -58,6 +59,13 @@ int main() {
 	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
 	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
 
+	//Recalculate SkyBox bounds
+	{
+		game_bounds = GetMeshBoundingBox(skybox_model.meshes[0]);
+		game_bounds.min = Vector3Scale(game_bounds.min, 900.0f);
+		game_bounds.max = Vector3Scale(game_bounds.max, 900.0f);
+	}
+
 	// Reset ships-players
 	{
 		setjmp(reset_point);
@@ -65,7 +73,7 @@ int main() {
 	}
 
 	//! Game loop
-	while (!exit_window) // run the loop until the user presses ESCAPE or presses the Close button on the window
+	while (!exit_window)
 	{
 		if(WindowShouldClose()) exit_window = true;
 		if(bgm_en) UpdateMusicStream(bgm);
@@ -130,6 +138,8 @@ int main() {
 	UnloadSound(splash);
 	UnloadTexture(heart_full);
 	UnloadTexture(heart_empty);
+	UnloadTexture(sand_tex);
+	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function

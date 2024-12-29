@@ -12,6 +12,7 @@
 extern int winner;
 extern int startup_counter;
 extern bool is_loaded;
+extern BoundingBox game_bounds;
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list, int island_count,
         Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty);
