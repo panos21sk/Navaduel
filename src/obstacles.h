@@ -3,6 +3,10 @@
 
 #include "raylib.h"
 
+#define MAX_ISLAND_RADIUS 24
+#define MAX_ISLANDS 15
+#define MIN_ISLANDS 5
+
 typedef struct {
     int radius;
     Vector3 center_pos;

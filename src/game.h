@@ -5,10 +5,6 @@
 #include "ship.h"
 #include "obstacles.h"
 
-#define MAX_ISLAND_RADIUS 20
-#define MAX_ISLANDS 7
-#define MIN_ISLANDS 2
-
 extern int winner;
 extern int startup_counter;
 extern bool is_loaded;
