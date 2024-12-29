@@ -339,7 +339,7 @@ void *EndGame(void *arg)
 }
 
 //TODO: Make function return int specifying player id of winner
-void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Island* island_list)
+void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Island* island_list, int island_count)
 {
     // adding small delay before stopping game to improve game feel. Maybe add game end animation by passing in here a pointer to the game state and changing it
     // to game_end = true for example, and then render in another way
@@ -370,7 +370,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
     }
 
     //End game if a player hits and island
-    for(int i = 0; i < sizeof(island_list)/sizeof(island_list[0]); i++){
+    for(int i = 0; i < island_count; i++){
         if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, island_list[i].center_pos, island_list[i].radius)){
             PlaySound(explosion);
             pthread_t wait_before_end;

@@ -86,6 +86,6 @@ void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
 void* EndGame(void* arg);
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Island* island_list);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Island* island_list, int island_count);
 
 #endif // SHIP_H

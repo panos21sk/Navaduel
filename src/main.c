@@ -78,12 +78,12 @@ int main() {
 			}
 			case GAME_REAL:
 			{	
-				DisplayRealTimeGameScreen(&ship1, &ship2, island_list, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
+				DisplayRealTimeGameScreen(&ship1, &ship2, island_list, island_count, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
 			{
-				DisplayTurnBasedGameScreen(&ship1, &ship2, island_list, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
+				DisplayTurnBasedGameScreen(&ship1, &ship2, island_list, island_count, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:
