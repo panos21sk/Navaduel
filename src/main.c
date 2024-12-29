@@ -11,6 +11,9 @@ int main() {
 	//! Main window initialization
 	InitMainWindow();
 
+	//! Set-up ships-players
+	SetupShips();
+
 	//! Load game settings
 	LoadSettings();
 
@@ -52,14 +55,14 @@ int main() {
 	Texture2D sand_tex = LoadTexture("resources/sprites/8_BIT_Sand.png");
 	Model palm_tree = LoadModel("resources/models/low_poly_palm_tree.glb");
 
-	// Set-up ships-players
-	{
-		setjmp(jump_point);
-		SetupShips();
-	}
-
 	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
 	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
+
+	// Reset ships-players
+	{
+		setjmp(jump_point);
+		ResetShipsState();
+	}
 
 	//! Game loop
 	while (!exit_window) // run the loop until the user presses ESCAPE or presses the Close button on the window

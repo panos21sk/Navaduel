@@ -35,9 +35,6 @@ Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20
 Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
 
-//FOR DEBUGGING REASONS
-Rectangle debug_gameover_button = {WIDTH-200, (float)HEIGHT/2, 200, 40};
-
 RenderTexture screenShip1;
 RenderTexture screenShip2;
 
@@ -69,8 +66,6 @@ void DisplayMainScreen(const Sound click)
         AddScreenChangeBtn(options_button, "OPTIONS", GetMousePosition(), click, &current_screen, OPTIONS, settings.enable_sfx);
         AddScreenChangeBtn(controls_button, "CONTROLS", GetMousePosition(), click, &current_screen, CONTROLS, settings.enable_sfx);
         AddScreenChangeBtn(about_button, "ABOUT", GetMousePosition(), click, &current_screen, ABOUT, settings.enable_sfx);
-        //FOR DEBUGGING REASONS
-        AddScreenChangeBtn(debug_gameover_button, "DEBUG GAMEOVER", GetMousePosition(), click, &current_screen, GAME_OVER, settings.enable_sfx);
 
         // LOAD GAME BUTTON
         {
@@ -121,7 +116,7 @@ void DisplayMainScreen(const Sound click)
             {
                 escape:
                     if (!success_load) {
-                        DrawText("No saved game state", WIDTH / 2 - 120, HEIGHT-30, 20, RED);
+                        DrawText("No saved game state", WIDTH / 2 - 105, HEIGHT-30, 20, RED);
                     }
             }
         }
@@ -166,7 +161,6 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
 {
     mouse_point = GetMousePosition();
     ShowCursor();
-    //SetupShips(); //Resets ships' state //IN-DEBUG MODE->COMMENTED
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);

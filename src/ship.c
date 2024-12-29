@@ -86,6 +86,35 @@ void SetupShips()
     ship2.current_health = 3;
 }
 
+void ResetShipsState() {
+    // Cannonball init
+    initcannonball.position = (Vector3){0, 1000, 0};
+    initcannonball.velocity = Vector3Zero();
+    initcannonball.accel = Vector3Zero();
+    initcannonball.has_splashed = true;
+    initcannonball.has_hit_enemy = true;
+
+    cannon1.relative_position = (Vector3){0, -8, 20};
+
+    ship1.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position
+    ship1.accel = default_accel;
+    ship1.position = (Vector3){0.0f, 17.0f, -50.0f};
+    ship1.cannonball = initcannonball;
+    ship1.yaw = 0;
+    ship1.can_move = false;
+    ship1.current_health = ship1.initial_health;
+
+    cannon2.relative_position = (Vector3){0, 1, 7};
+
+    ship2.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position
+    ship2.accel = default_accel;
+    ship2.position = (Vector3){0.0f, 7.5f, 50.0f};
+    ship2.cannonball = initcannonball;
+    ship2.yaw = 3.1415f;
+    ship2.can_move = false;
+    ship2.current_health = ship2.initial_health;
+}
+
 void LoadShip(Ship *ship, const cJSON *shipState) {
     const cJSON *id = cJSON_GetArrayItem(shipState, 0);
     ship = id->valueint == 1 ? &ship1 : &ship2;

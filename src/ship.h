@@ -78,6 +78,7 @@ extern Camera camera1;
 extern Camera camera2;
 
 void SetupShips();
+void ResetShipsState();
 void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);

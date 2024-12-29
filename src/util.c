@@ -16,7 +16,7 @@ setting settings;
 
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
-    else return false;
+    return false;
 }
 
 static int parseHandler(void* user, const char* section, const char* name, const char* value) {
@@ -32,7 +32,6 @@ static int parseHandler(void* user, const char* section, const char* name, const
         settings->enable_bgm = strtobool(value);
     } else if (MATCH("settings", "fullscreen")) {
         settings->fullscreen = strtobool(value);
-
     } else {
         return 0;  /* unknown section/name, error */
     }
@@ -46,6 +45,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
                 if(*current_screen == GAMEMODES && scr != MAIN) gamemode = scr; //saves selected gamemode
+                if(*current_screen != MAIN) success_load = 1;
                 if(*current_screen == GAME_MENU) {
                     success_save = 0;
                     if(scr == MAIN) {
