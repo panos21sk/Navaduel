@@ -4,5 +4,6 @@ bin/
 .idea
 cmake-build-debug
 src/ini.c
+src/cJSON.c
 game.json
 main.exe
