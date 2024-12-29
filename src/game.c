@@ -5,6 +5,7 @@
 #include "ship.h"
 #include "screens.h"
 #include "util.h"
+#include "obstacles.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -202,14 +203,14 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
                 DrawModel(island_list[i].island_sphere, island_list[i].center_pos, 1, WHITE);
                 DrawModel(island_list[i].palm_tree, Vector3Add(
                     island_list[i].center_pos,
-                    (Vector3){  (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2),
-                                (float)GetRandomValue(0, (int)(island_list[i].radius/1.7/*sqrt2 approx*/)), 
-                                (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2)}),
+                    (Vector3){  (float)GenRandomNumBounded((int)-island_list[i].radius/2, (int)-island_list[i].radius/2),
+                                (float)GenRandomNumBounded(0, (int)(island_list[i].radius/1.7/*sqrt2 approx*/)), 
+                                (float)GenRandomNumBounded((int)-island_list[i].radius/2, (int)-island_list[i].radius/2)}),
                     1, WHITE);
             }
 
             //Debugging
-            DrawSphereWires(island_list[0].cetner_pos, island_list[0].radius, 12, 12, YELLOW);
+            DrawSphereWires(island_list[0].center_pos, island_list[0].radius, 12, 12, YELLOW);
         }
         EndMode3D();
     }
@@ -221,6 +222,11 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             DrawTexture(heart_empty, 5 + 55 * i, 5, WHITE); //hearts empty in those indices
         }
     } 
+
+    //Debugging text
+    DrawText(TextFormat("%d, %d, %d", 
+    sizeof(island_list)/sizeof(island_list[0]), sizeof(island_list), sizeof(island_list[0])),
+    5, HEIGHT - 25, 20, LIME);
     EndTextureMode();
 }
 

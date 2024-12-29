@@ -8,7 +8,10 @@ obj/x64/Debug/navaduel/main.o: ../../src/main.c \
  /usr/include/bits/types/__sigset_t.h ../../include/raylib.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h \
- ../../src/ship.h ../../src/screens.h ../../src/util.h ../../src/game.h
+ ../../src/ship.h ../../src/screens.h ../../src/obstacles.h \
+ ../../include/cJSON.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
+ ../../src/util.h ../../src/game.h
 /usr/include/stdc-predef.h:
 /usr/include/setjmp.h:
 /usr/include/features.h:
@@ -27,5 +30,8 @@ obj/x64/Debug/navaduel/main.o: ../../src/main.c \
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h:
 ../../src/ship.h:
 ../../src/screens.h:
+../../src/obstacles.h:
+../../include/cJSON.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
 ../../src/util.h:
 ../../src/game.h:

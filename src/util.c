@@ -7,6 +7,7 @@
 #include "cJSON.h"
 #include <setjmp.h>
 #include <stdlib.h>
+#include <time.h> //for srand
 #include <string.h>
 
 int control_index = 0;
@@ -131,4 +132,10 @@ cJSON *create_ship_json(const Ship ship) {
         cJSON_Delete(array);
         return NULL;
     }
+}
+
+int GenRandomNumBounded(int min, int max){
+    srand(time(NULL));
+    int random = rand() % (max - min + 1) + min;
+    return random;
 }

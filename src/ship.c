@@ -32,7 +32,7 @@ void SetupShips()
     initcannonball.has_hit_enemy = true;
 
     // Cannon for ship1
-    cannon1.relative_position = (Vector3){0, -8, 28};
+    cannon1.relative_position = (Vector3){0, -8, 20};
     cannon1.rotation = (Vector3){0, 0, 0};
     cannon1.stand_model = LoadModel("resources/models/cannon_stand.glb");
     cannon1.rail_model = LoadModel("resources/models/cannon_rail.glb");
@@ -52,7 +52,7 @@ void SetupShips()
     ship1.cannonball = initcannonball;
     ship1.yaw = 0;
     ship1.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
-    ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 23.0f};
+    ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 16.0f};
     ship1.can_move = false;
     ship1.sphere_hitbox_radius = 15;
     ship1.initial_health = 5;
@@ -336,33 +336,6 @@ void *EndGame(void *arg)
     screen *state = (screen *)arg;
     usleep(1000000); // in microsec
     *state = GAME_OVER;
-}
-
-
-Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, Vector2 opp_corner_bound){
-    Island island_instance;
-    SetRandomSeed(time(NULL)); //seed is unix time
-    island_instance.radius = GetRandomValue(0, MAX_ISLAND_RADIUS);
-    island_instance.cetner_pos = (Vector3){
-        GetRandomValue(corner_bound.x, opp_corner_bound.x),
-        -GetRandomValue(island_instance.radius / 8, island_instance.radius / 1.2), //island should hover a bit under the water, depending on radius
-        GetRandomValue(corner_bound.y, opp_corner_bound.y)
-    };
-    island_instance.sand_tex = sand_tex;
-    island_instance.palm_tree = palm_tree;
-    island_instance.island_sphere = LoadModelFromMesh(GenMeshSphere(island_instance.radius, 1, 1));
-    island_instance.island_sphere.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = sand_tex; 
-    return island_instance;
-}
-
-Island* CreateAllIslands(Texture2D sand_tex, Model toppings, Vector2 corner_bound, Vector2 opp_corner_bound){
-    SetRandomSeed(time(NULL)); 
-    const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
-    static Island island_list[MAX_ISLANDS];
-    for(int i = 0; i < island_count; i++){
-        island_list[i] = CreateIsland(sand_tex, toppings, corner_bound, opp_corner_bound);
-    }
-    return island_list;
 }
 
 //TODO: Make function return int specifying player id of winner

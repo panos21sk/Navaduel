@@ -4,7 +4,7 @@
 #include "raylib.h"
 
 typedef struct {
-    float radius;
+    int radius;
     Vector3 center_pos;
     Texture2D sand_tex;
     //https://sketchfab.com/3d-models/low-poly-palm-tree-58f448209beb43659e95ca0e1ad59ac2
