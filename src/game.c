@@ -212,6 +212,8 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
         }
         EndMode3D();
 
+        if(settings.show_fps) DrawFPS(WIDTH/2-100, HEIGHT-30);
+
         //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
         for(int i = 0; i < current_player_ship.initial_health; i++){
             if(i < current_player_ship.current_health){

@@ -11,6 +11,8 @@
 #include "cJSON.h"
 
 const struct accel_settings default_accel = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
+struct accel_settings bounds_accel;
+
 
 Ship ship1;
 Ship ship2;
@@ -420,7 +422,14 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
 }
 
 void CheckCollisionWithBounds(Ship *ship, const BoundingBox bound) {
-    const struct accel_settings bounds_accel =  {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, ship->accel.turn_l_coefficient, ship->accel.turn_r_coefficient, ship->accel.fire_coefficient};
+    bounds_accel.b_coefficient = MIN_ACCEL;
+    bounds_accel.f_coefficient = MIN_ACCEL;
+    bounds_accel.l_coefficient = MIN_ACCEL;
+    bounds_accel.r_coefficient = MIN_ACCEL;
+    bounds_accel.fire_coefficient = ship->accel.fire_coefficient;
+    bounds_accel.turn_l_coefficient = ship->accel.turn_l_coefficient;
+    bounds_accel.turn_r_coefficient = ship->accel.turn_r_coefficient;
+
     if(!CheckCollisionBoxSphere(bound, ship->position, ship->sphere_hitbox_radius)) {
         ship->position = ship->prev_position; //movable pos
         ship->accel = bounds_accel;

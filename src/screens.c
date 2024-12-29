@@ -116,7 +116,7 @@ void DisplayMainScreen(const Sound click)
             {
                 escape:
                     if (!success_load) {
-                        DrawText("No saved game state", WIDTH / 2 - 105, HEIGHT-30, 20, RED);
+                        DrawText("No saved game state", WIDTH / 2 - 107, HEIGHT-30, 20, RED);
                     }
             }
         }
