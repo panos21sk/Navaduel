@@ -60,7 +60,7 @@ int main() {
 
 	// Reset ships-players
 	{
-		setjmp(jump_point);
+		setjmp(reset_point);
 		ResetShipsState();
 	}
 

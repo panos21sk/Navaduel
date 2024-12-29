@@ -11,7 +11,7 @@
 #include <string.h>
 
 int control_index = 0;
-jmp_buf jump_point;
+jmp_buf reset_point;
 setting settings;
 
 bool strtobool(const char *input) {
@@ -21,9 +21,10 @@ bool strtobool(const char *input) {
 
 char *booltostr(const bool input) {
     if(input) return "true";
-    else return "false";
+    return "false";
 }
 
+//Reference: https://github.com/benhoyt/inih
 static int parseHandler(void* user, const char* section, const char* name, const char* value) {
     setting* settings = user;
 
@@ -58,7 +59,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                     if(scr == MAIN) {
                         while(control_index < 1) {
                             ++control_index;
-                            longjmp(jump_point, 0);
+                            longjmp(reset_point, 0);
                         }
                     }
                 }
@@ -70,7 +71,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                         }
                         ++control_index;
                         startup_counter = GAME_STARTUP_COUNTER;
-                        longjmp(jump_point, 0);
+                        longjmp(reset_point, 0);
                     }
                 }
                 if(sfx_en) PlaySound(click);

@@ -34,8 +34,6 @@ Rectangle save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 40, 180, 40
 Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20, 180, 40};
 Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
-//FOR DEBUGGING REASONS
-Rectangle save_settings_button = {WIDTH-200, (float)HEIGHT/2, 180, 40};
 
 RenderTexture screenShip1;
 RenderTexture screenShip2;
@@ -138,15 +136,6 @@ void DisplayMainScreen(const Sound click)
                 DrawRectangleRec(exit_button, RED);
             }
             DrawText("EXIT", (int)exit_button.x + 5, (int)exit_button.y + 10, 20, WHITE);
-        }
-
-        //FOR DEBUGGING REASONS, SAVE SETTINGS BUTTON
-        {
-            DrawRectangleRec(save_settings_button, BLACK);
-            if(CheckCollisionPointRec(GetMousePosition(), save_settings_button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                UpdateSettingsConfig(settings);
-            }
-            DrawText("SAVE SETTINGS", (int)save_settings_button.x + 5, (int)save_settings_button.y + 10, 20, WHITE);
         }
     }
     EndDrawing();
