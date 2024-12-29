@@ -13,6 +13,7 @@
 
 int startup_counter = GAME_STARTUP_COUNTER;
 int winner;
+bool is_loaded = false;
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Island* island_list,
         const Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)
@@ -198,12 +199,12 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             DrawSphere(ship2.cannonball.position, 1, BLACK);
 
             for(int i = 0; i < sizeof(island_list)/sizeof(island_list[0]); i++){
-                DrawModel(island_list[i].island_sphere, island_list[i].cetner_pos, 1, WHITE);
+                DrawModel(island_list[i].island_sphere, island_list[i].center_pos, 1, WHITE);
                 DrawModel(island_list[i].palm_tree, Vector3Add(
-                    island_list[i].cetner_pos, 
-                    (Vector3){  GetRandomValue(-island_list[i].radius/2, -island_list[i].radius/2), 
-                                GetRandomValue(0, island_list[i].radius/1.7/*sqrt2 approx*/), 
-                                GetRandomValue(-island_list[i].radius/2, -island_list[i].radius/2)}),
+                    island_list[i].center_pos,
+                    (Vector3){  (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2),
+                                (float)GetRandomValue(0, (int)(island_list[i].radius/1.7/*sqrt2 approx*/)), 
+                                (float)GetRandomValue((int)-island_list[i].radius/2, (int)-island_list[i].radius/2)}),
                     1, WHITE);
             }
 
@@ -243,4 +244,3 @@ void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Island* island_
     CheckHit(ship1, ship2, &current_screen, explosion, island_list);
     CheckHit(ship2, ship1, &current_screen, explosion, island_list);
 }
-

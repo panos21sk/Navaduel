@@ -4,13 +4,13 @@
 #include "raylib.h"
 #include "game.h"
 #include "rlgl.h"
+#include "cJSON.h"
 #include <stdio.h> //for snprintf for debugging
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 
 int success_save = 0;
-int success_load = 0;
+int success_load = 1;
 
 Vector2 mouse_point;
 
@@ -32,8 +32,6 @@ Rectangle save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 40, 180, 40
 Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20, 180, 40};
 Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
-//TO BE REMOVED
-Rectangle debug_game_over_menu = {(float)WIDTH-170, (float)HEIGHT/2, 160, 40};
 
 RenderTexture screenShip1;
 RenderTexture screenShip2;
@@ -66,7 +64,6 @@ void DisplayMainScreen(const Sound click)
         AddScreenChangeBtn(options_button, "OPTIONS", GetMousePosition(), click, &current_screen, OPTIONS, settings.enable_sfx);
         AddScreenChangeBtn(controls_button, "CONTROLS", GetMousePosition(), click, &current_screen, CONTROLS, settings.enable_sfx);
         AddScreenChangeBtn(about_button, "ABOUT", GetMousePosition(), click, &current_screen, ABOUT, settings.enable_sfx);
-        AddScreenChangeBtn(debug_game_over_menu, "DEBUG GAME-OVER", GetMousePosition(), click, &current_screen, GAME_OVER, settings.enable_sfx);
 
         // LOAD GAME BUTTON
         {
@@ -78,18 +75,49 @@ void DisplayMainScreen(const Sound click)
                 {
                     PlaySound(click);
 
-                    // TESTING
-                    const int size = sizeof(char)*strlen("Hello world!")+1;
-                    char *info = malloc(size);
-                    FILE *stateFile = fopen("game.gmst", "r");
-                    fgets(info, size, stateFile);
-                    success_load = !fclose(stateFile);
-                    printf("%s", info);
-                    free(info);
+                    //TODO: (In the future) Let the user choose their desired game state
+                    if(success_load == 1) {
+                        //init
+                        FILE *stateFile = fopen("game.json", "r");
+                        if(stateFile == NULL) {
+                            printf("An error occurred");
+                            success_load = 0;
+                            return;
+                        }
+
+                        char buffer[1024];
+                        fread(buffer, 1, sizeof(buffer), stateFile);
+                        cJSON *jsonstate = cJSON_Parse(buffer);
+                        if(jsonstate == NULL) {
+                            puts("No saved game state");
+                            success_load = 0;
+                            return;
+                        }
+
+                        cJSON *ship1State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship1");
+                        cJSON *ship2State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship2");
+                        cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
+                        gamemode = strcmp(gamemodeSt->valuestring, "GAME_REAL") == 0 ? GAME_REAL : GAME_TURN;
+                        LoadShip(&ship1, ship1State);
+                        LoadShip(&ship2, ship2State);
+                        success_load = !fclose(stateFile);
+                        if(success_load) {
+                            is_loaded = true;
+                            current_screen = gamemode;
+                        }
+                    }
+                    else goto escape;
                 }
                 DrawRectangleRec(play_load_button, RED);
             }
             DrawText("LOAD GAME", (int)play_load_button.x + 5, (int)play_load_button.y + 10, 20, WHITE);
+            {
+                escape:
+                    if (!success_load) {
+                        DrawText("No saved game state", WIDTH / 2 - 120, HEIGHT-30, 20, RED);
+                        success_load = 1;
+                    }
+            }
         }
 
         // EXIT BUTTON
@@ -114,6 +142,7 @@ void DisplayMainScreen(const Sound click)
 void DisplayGamemodesScreen(const Sound click)
 {
     mouse_point = GetMousePosition();
+    control_index = 0;
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -129,6 +158,7 @@ void DisplayGamemodesScreen(const Sound click)
 void DisplayGameOverScreen(const int winnerId, const Sound click)
 {
     mouse_point = GetMousePosition();
+    ShowCursor();
     //SetupShips(); //Resets ships' state //IN-DEBUG MODE->COMMENTED
     BeginDrawing();
     {
@@ -141,7 +171,8 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
         char *winnerstr = malloc(sizeof(char)*strlen("The winner is Player N!")+1);
         strcpy(winnerstr, "The winner is ");
         if(winnerId == 1) strcat(winnerstr, "Player 1!");
-        else strcat(winnerstr, "Player 2!");
+        else if(winnerId == 2) strcat(winnerstr, "Player 2!");
+        else strcat(winnerstr, "no one!");
         DrawText(winnerstr, WIDTH/2, 40, 25, LIME);
         free(winnerstr);
     }
@@ -172,11 +203,21 @@ void DisplayGameMenuScreen(const Sound click) {
                 {
                     PlaySound(click);
 
-                    // Saving ships' state (might change to JSON format)
-                    FILE *stateFile = fopen("game.gmst", "w"); // gmst stands for game state, doesn't exist as a file extension
-                    fprintf(stateFile, "Hello world!");
+                    // Saving ships' state
+                    cJSON *jsonship1 = create_ship_json(ship1);
+                    cJSON *jsonship2 = create_ship_json(ship2);
+                    cJSON *jsonfinal = cJSON_CreateObject();
+                    cJSON *gamemodeSt = cJSON_CreateString(gamemode == GAME_REAL ? "GAME_REAL" : "GAME_TURN");
+
+                    cJSON_AddItemToObject(jsonfinal, "ship1", jsonship1);
+                    cJSON_AddItemToObject(jsonfinal, "ship2", jsonship2);
+                    cJSON_AddItemToObject(jsonfinal, "gamemode", gamemodeSt);
+
+                    const char *jsonstring = cJSON_Print(jsonfinal);
+                    FILE *stateFile = fopen("game.json", "w");
+                    fprintf(stateFile, "%s", jsonstring);
+
                     success_save = !fclose(stateFile);
-                    //TODO: INSERT USEFUL INFO TO THE FILE T-T
                 }
                 DrawRectangleRec(save_button, RED);
             }

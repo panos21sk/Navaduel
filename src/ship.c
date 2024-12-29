@@ -1,10 +1,12 @@
 #include "ship.h"
+#include "game.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "screens.h"
 #include "pthread.h"
 #include "unistd.h"
 // #include "stdlib.h" for pseudorandomness
+#include "cJSON.h"
 
 const struct accel_settings default_accel = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
 
@@ -84,8 +86,41 @@ void SetupShips()
     ship2.current_health = 3;
 }
 
-void DestroyShip(const Ship *ship)
-{
+void LoadShip(Ship *ship, const cJSON *shipState) {
+    const cJSON *id = cJSON_GetArrayItem(shipState, 0);
+    ship = id->valueint == 1 ? &ship1 : &ship2;
+
+    const cJSON *yaw = cJSON_GetArrayItem(shipState, 1);
+    ship->yaw = (float)yaw->valuedouble;
+
+    const cJSON *positionState = cJSON_GetArrayItem(shipState, 2);
+    const float x = (float)cJSON_GetArrayItem(positionState, 0)->valuedouble;
+    const float y = (float)cJSON_GetArrayItem(positionState, 1)->valuedouble;
+    const float z = (float)cJSON_GetArrayItem(positionState, 2)->valuedouble;
+    const Vector3 position = {x, y, z};
+    ship->position = position;
+
+    const cJSON *cannon_rel_pos = cJSON_GetArrayItem(shipState, 3);
+    Cannon *cannon = id->valueint == 1 ? &cannon1 : &cannon2;
+    const float rx = (float)cJSON_GetArrayItem(cannon_rel_pos, 0)->valuedouble;
+    const float ry = (float)cJSON_GetArrayItem(cannon_rel_pos, 1)->valuedouble;
+    const float rz = (float)cJSON_GetArrayItem(cannon_rel_pos, 2)->valuedouble;
+    cannon->relative_position = (Vector3){rx, ry, rz};
+    ship->cannon = cannon;
+
+    const cJSON *health = cJSON_GetArrayItem(shipState, 4);
+    ship->current_health = health->valueint;
+
+    initcannonball.position = (Vector3){0,1000,0};
+    initcannonball.velocity = Vector3Zero();
+    initcannonball.accel = Vector3Zero();
+    initcannonball.has_splashed = true;
+    ship->cannonball = initcannonball;
+
+    ship->can_move = false;
+}
+
+void DestroyShip(const Ship* ship){
     UnloadModel(ship->model);
     UnloadModel(ship->cannon->rail_model);
     UnloadModel(ship->cannon->stand_model);
@@ -253,7 +288,7 @@ void InitializeCannonball(Ship *ship)
         Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0, 1, 0}, ship->yaw));
     // see commemts on the transform of cannon rail
     Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
-    ship->cannonball.velocity = Vector3Transform((Vector3){0, 0, 1.2}, speed_transform_matrix);
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2f}, speed_transform_matrix);
     ship->cannonball.accel = (Vector3){0, -0.005, 0};
     ship->cannonball.has_splashed = false;
     ship->cannonball.has_hit_enemy = false;
@@ -344,6 +379,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
             player_ship->cannonball.has_hit_enemy = true;
             if (enemy_ship->current_health <= 0)
             {
+                winner = player_ship->id;
                 pthread_t wait_before_end;
                 pthread_create(&wait_before_end, NULL, EndGame, state);
                 pthread_detach(wait_before_end);
@@ -353,6 +389,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
 
     //End game if players crash into each other
     if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, enemy_ship->position, enemy_ship->sphere_hitbox_radius)){
+        winner = 0; //NO ONE
         PlaySound(explosion);
         pthread_t wait_before_end;
         pthread_create(&wait_before_end, NULL, EndGame, state);
@@ -361,7 +398,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
 
     //End game if a player hits and island
     for(int i = 0; i < sizeof(island_list)/sizeof(island_list[0]); i++){
-        if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, island_list[i].cetner_pos, island_list[i].radius)){
+        if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, island_list[i].center_pos, island_list[i].radius)){
             PlaySound(explosion);
             pthread_t wait_before_end;
             pthread_create(&wait_before_end, NULL, EndGame, state);

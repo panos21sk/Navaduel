@@ -32,6 +32,8 @@ add_executable(${PROJECT_NAME} src/main.c
         src/util.c
         src/game.c
         src/game.h
+        src/obstacles.c
+        src/obstacles.h
 )
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib)
