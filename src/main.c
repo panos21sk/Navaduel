@@ -57,7 +57,8 @@ int main() {
 		SetupShips();
 	}
 
-	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}); //hardcoded bounds initially
+	const int island_count = GenRandomNumBounded(MIN_ISLANDS, MAX_ISLANDS);
+	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
 
 	//! Game loop
 	while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or presses the Close button on the window

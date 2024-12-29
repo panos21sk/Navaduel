@@ -20,8 +20,7 @@ Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, V
     return island_instance;
 }
 
-Island* CreateAllIslands(Texture2D sand_tex, Model toppings, Vector2 corner_bound, Vector2 opp_corner_bound){
-    const int island_count = GenRandomNumBounded(MIN_ISLANDS, MAX_ISLANDS);
+Island* CreateAllIslands(Texture2D sand_tex, Model toppings, Vector2 corner_bound, Vector2 opp_corner_bound, int island_count){
     static Island island_list[MAX_ISLANDS];
     for(int i = 0; i < island_count; i++){
         island_list[i] = CreateIsland(sand_tex, toppings, corner_bound, opp_corner_bound);
