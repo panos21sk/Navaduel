@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+bool exit_window = false;
+
 int success_save = 0;
 int success_load = 1;
 
@@ -32,6 +34,9 @@ Rectangle save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 40, 180, 40
 Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20, 180, 40};
 Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
+
+//FOR DEBUGGING REASONS
+Rectangle debug_gameover_button = {WIDTH-200, (float)HEIGHT/2, 200, 40};
 
 RenderTexture screenShip1;
 RenderTexture screenShip2;
@@ -64,6 +69,8 @@ void DisplayMainScreen(const Sound click)
         AddScreenChangeBtn(options_button, "OPTIONS", GetMousePosition(), click, &current_screen, OPTIONS, settings.enable_sfx);
         AddScreenChangeBtn(controls_button, "CONTROLS", GetMousePosition(), click, &current_screen, CONTROLS, settings.enable_sfx);
         AddScreenChangeBtn(about_button, "ABOUT", GetMousePosition(), click, &current_screen, ABOUT, settings.enable_sfx);
+        //FOR DEBUGGING REASONS
+        AddScreenChangeBtn(debug_gameover_button, "DEBUG GAMEOVER", GetMousePosition(), click, &current_screen, GAME_OVER, settings.enable_sfx);
 
         // LOAD GAME BUTTON
         {
@@ -115,7 +122,6 @@ void DisplayMainScreen(const Sound click)
                 escape:
                     if (!success_load) {
                         DrawText("No saved game state", WIDTH / 2 - 120, HEIGHT-30, 20, RED);
-                        success_load = 1;
                     }
             }
         }
@@ -129,7 +135,8 @@ void DisplayMainScreen(const Sound click)
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                 {
                     PlaySound(click);
-                    CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
+                    exit_window = true;
+                    return;
                 }
                 DrawRectangleRec(exit_button, RED);
             }
@@ -164,7 +171,7 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
     {
         ClearBackground(RAYWHITE);
 
-        DrawText("THE GAME IS OVER", WIDTH/2, 20, 30, BLUE);
+        DrawText("THE GAME IS OVER", WIDTH/2-175, 20, 35, BLUE);
         AddScreenChangeBtn(play_again_button, "PLAY AGAIN", mouse_point, click, &current_screen, GAMEMODES, settings.enable_sfx);
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
 
@@ -173,7 +180,7 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
         if(winnerId == 1) strcat(winnerstr, "Player 1!");
         else if(winnerId == 2) strcat(winnerstr, "Player 2!");
         else strcat(winnerstr, "no one!");
-        DrawText(winnerstr, WIDTH/2, 40, 25, LIME);
+        DrawText(winnerstr, WIDTH/2-170, 70, 30, LIME);
         free(winnerstr);
     }
     EndDrawing();

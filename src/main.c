@@ -1,4 +1,5 @@
 #include <setjmp.h>
+#include <stdlib.h>
 
 #include "raylib.h"
 #include "ship.h"
@@ -58,11 +59,12 @@ int main() {
 	}
 
 	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
-	const Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
+	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
 
 	//! Game loop
-	while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or presses the Close button on the window
-	{	
+	while (!exit_window) // run the loop until the user presses ESCAPE or presses the Close button on the window
+	{
+		if(WindowShouldClose()) exit_window = true;
 		if(bgm_en) UpdateMusicStream(bgm);
 		//rendering begin
 		switch (current_screen) {

@@ -90,6 +90,7 @@ void LoadSettings() {
     settings.first_or_third_person_cam = NULL;
     settings.fullscreen = NULL;
     settings.show_reticle = NULL;
+    settings.show_fps = NULL;
 
     if(ini_parse("config.ini", parseHandler, &settings) < 0) printf("\n\nSettings were not loaded\n\n");
     else printf("\n\nSettings were loaded\n\n");

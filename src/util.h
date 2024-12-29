@@ -12,6 +12,7 @@ typedef struct {
     bool fullscreen;
     bool enable_sfx;
     bool enable_bgm;
+    bool show_fps;
 } setting;
 
 extern int control_index;

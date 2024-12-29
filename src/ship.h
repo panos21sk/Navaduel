@@ -13,7 +13,6 @@
 #define MIN_ACCEL 0.01f
 #define MOVEMENT_STEP 1.0f
 
-#define MAX_ISLAND_RADIUS 10
 #define MAX_ISLANDS 7
 #define MIN_ISLANDS 2
 
