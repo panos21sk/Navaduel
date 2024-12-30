@@ -13,6 +13,8 @@ extern int startup_counter;
 extern int dice_state;
 extern int move_time;
 extern int fire_time;
+extern Ship *current_turn;
+extern Ship *next_turn;
 extern bool is_loaded;
 extern BoundingBox game_bounds;
 

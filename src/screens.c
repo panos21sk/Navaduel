@@ -216,11 +216,24 @@ void DisplayGameMenuScreen(const Sound click) {
                     cJSON_AddItemToObject(jsonfinal, "ship2", jsonship2);
                     cJSON_AddItemToObject(jsonfinal, "gamemode", gamemodeSt);
 
+                    if(gamemode == GAME_TURN) {
+                        cJSON *move_t = cJSON_CreateNumber(move_time);
+                        cJSON *fire_t = cJSON_CreateNumber(fire_time);
+                        cJSON *c_turn = cJSON_CreateNumber(current_turn->id);
+                        cJSON *n_turn = cJSON_CreateNumber(next_turn->id);
+
+                        cJSON_AddItemToObject(jsonfinal, "move_time", move_t);
+                        cJSON_AddItemToObject(jsonfinal, "fire_time", fire_t);
+                        cJSON_AddItemToObject(jsonfinal, "current_turn", c_turn);
+                        cJSON_AddItemToObject(jsonfinal, "next_turn", n_turn);
+                    }
+
                     const char *jsonstring = cJSON_Print(jsonfinal);
                     FILE *stateFile = fopen("game.json", "w");
                     fprintf(stateFile, "%s", jsonstring);
 
                     success_save = !fclose(stateFile);
+                    cJSON_Delete(jsonfinal);
                 }
                 DrawRectangleRec(save_button, RED);
             }
