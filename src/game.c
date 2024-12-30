@@ -11,19 +11,39 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <pthread.h>
 
+/* Game independant variables */
 int startup_counter = GAME_STARTUP_COUNTER;
+bool is_loaded = false;
+int winner;
+BoundingBox game_bounds;
+int allow_next_loop = 1; //controls loops, DO NOT DELETE IN ANY CASE (the program will hang up)
+
+/* Turn-based gameplay declarations */
 // move_time and fire_time are external -> to be saved in every game state
 int move_time = MOVEMENT_TIME;
 int fire_time = FIRE_TIME;
-int winner;
 Ship *current_turn;
 Ship *next_turn;
-bool is_loaded = false;
-BoundingBox game_bounds;
-
 int dice_state = 1; //dice = choosing randomly a player for turn-based gameplay
+int reset_state = 0;
+void *DecreaseTime(void *arg);
 
+/**
+ * @brief Description to-do
+ * @param ship1
+ * @param ship2
+ * @param obstacles
+ * @param water_model
+ * @param sky_model
+ * @param splash
+ * @param fire
+ * @param explosion
+ * @param heart_full
+ * @param heart_empty
+ * @returns void
+ */
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
         const Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)
 {
@@ -108,6 +128,21 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
     }
 }
 
+/**
+ * @brief Description to-do
+ *
+ * @param ship1
+ * @param ship2
+ * @param obstacles
+ * @param water_model
+ * @param sky_model
+ * @param splash
+ * @param fire
+ * @param explosion
+ * @param heart_full
+ * @param heart_empty
+ * @returns void
+ */
 void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
         const Model water_model, const Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)
 {
@@ -117,7 +152,17 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
         srand(time(0));
         int number = rand()%10;
         current_turn = isEvenNumber(number) ? ship2 : ship1;
+        next_turn = isEvenNumber(number) ? ship1 : ship2;
         dice_state = 0; //thrown
+    }
+
+    if(reset_state) { //on 1, resets move_time and fire_time to default
+        move_time = MOVEMENT_TIME;
+        fire_time = FIRE_TIME;
+        startup_counter = GAME_STARTUP_COUNTER; //may remove
+        current_turn->accel = default_accel;
+        next_turn->accel = default_accel;
+        reset_state = 0; //reset
     }
 
     HideCursor();
@@ -151,6 +196,8 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
 
             sprintf(text, "%d", startup_counter);
             DrawText(text, WIDTH / 2, HEIGHT / 2, 50, WHITE);
+            DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
+            DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
             DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
             --startup_counter;
         }
@@ -167,6 +214,8 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
             DrawText("Begin!", WIDTH / 2 - 70, HEIGHT / 2, 50, WHITE);
+            DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
+            DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
             DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
             current_turn->can_move = true;
             --startup_counter; // game starts
@@ -183,6 +232,36 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
             DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
+            DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
+
+            while(move_time > 0 && allow_next_loop) {
+                current_turn->can_fire = false;
+                allow_next_loop = 0;
+                pthread_t decrement_thread;
+                pthread_create(&decrement_thread, NULL, DecreaseTime, &move_time);
+                pthread_detach(decrement_thread);
+            }
+            if(move_time == 0) {
+                current_turn->can_move = false;
+                if(fire_time != 0) current_turn->can_fire = true;
+            }
+
+            while(move_time == 0 && fire_time > 0 && allow_next_loop) {
+                allow_next_loop = 0;
+                pthread_t decrement_thread;
+                pthread_create(&decrement_thread, NULL, DecreaseTime, &fire_time);
+                pthread_detach(decrement_thread);
+            }
+            if(fire_time == 0) {
+                current_turn->can_fire = false;
+            }
+            if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
+                void *temp = current_turn;
+                current_turn = next_turn;
+                next_turn = temp;
+                reset_state = 1;
+            }
         }
         EndDrawing();
     }
@@ -236,11 +315,12 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
                 DrawTexture(heart_empty, 5 + 55 * i, 5, WHITE); //hearts empty in those indices
             }
         }
-    }
-    //Insert debugging text here when needed
-    DrawText(TextFormat("%d", obstacles.rock_count), 5, HEIGHT - 30, 20, LIME);
-    for(int i = 0; i < obstacles.rock_count; i++){
-        DrawText(TextFormat("%d", obstacles.rock_list[i].rotation_vec.x), 25*i, HEIGHT - 50, 20, LIME);
+
+        /*//Insert debugging text here when needed
+        DrawText(TextFormat("%d", obstacles.rock_count), 5, HEIGHT - 30, 20, LIME);
+        for(int i = 0; i < obstacles.rock_count; i++){
+            DrawText(TextFormat("%d", obstacles.rock_list[i].rotation_vec.x), 25*i, HEIGHT - 50, 20, LIME);
+        }*/
     }
     EndTextureMode();
 }
@@ -264,4 +344,11 @@ void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Obstacles obsta
 
     CheckHit(ship1, ship2, &current_screen, explosion, obstacles, settings.enable_sfx);
     CheckHit(ship2, ship1, &current_screen, explosion, obstacles, settings.enable_sfx);
+}
+
+void *DecreaseTime(void *arg) {
+    int *input = (int *)arg;
+    (*input)--;
+    sleep(1); //1 second off
+    allow_next_loop = 1;
 }

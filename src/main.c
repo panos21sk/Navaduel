@@ -146,9 +146,11 @@ int main() {
 	UnloadTexture(heart_full);
 	UnloadTexture(heart_empty);
 	UnloadTexture(sand_tex);
+	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function
+	// TODO: properly unload island and rock models (throws an error if not)
 	return 0;
 }
