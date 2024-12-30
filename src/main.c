@@ -55,9 +55,13 @@ int main() {
 
 	Texture2D sand_tex = LoadTexture("resources/sprites/8_BIT_Sand.png");
 	Model palm_tree = LoadModel("resources/models/low_poly_palm_tree.glb");
+	Texture2D rock_tex = LoadTexture("resources/sprites/rock.png");
 
 	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
 	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
+	const int rock_count = GetRandomValue(MIN_ROCKS, MAX_ROCKS);
+	Rock* rock_list = CreateAllRocks(rock_tex, (Vector2){-500, -500}, (Vector2){500, 500}, rock_count);
+	Obstacles obstacles = CreateObjactlesInstance(island_list, island_count, rock_list, rock_count);
 
 	//Recalculate SkyBox bounds
 	{
@@ -91,12 +95,12 @@ int main() {
 			}
 			case GAME_REAL:
 			{	
-				DisplayRealTimeGameScreen(&ship1, &ship2, island_list, island_count, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
+				DisplayRealTimeGameScreen(&ship1, &ship2, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
 			{
-				DisplayTurnBasedGameScreen(&ship1, &ship2, island_list, island_count, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
+				DisplayTurnBasedGameScreen(&ship1, &ship2, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:
@@ -129,6 +133,7 @@ int main() {
 		}
 	}
 	DeinitMainWindow(); //Main window de-initialization
+	UnloadMesh(water_cube);
 	UnloadModel(water_model);
 	UnloadModel(skybox_model);
 	UnloadTexture(water_tex);
@@ -136,6 +141,7 @@ int main() {
 	UnloadSound(click);
 	UnloadSound(fire);
 	UnloadSound(splash);
+	UnloadSound(explosion);
 	UnloadTexture(heart_full);
 	UnloadTexture(heart_empty);
 	UnloadTexture(sand_tex);
