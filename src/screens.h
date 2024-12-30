@@ -33,6 +33,7 @@ extern screen current_screen;
 extern Rectangle play_button;
 extern RenderTexture screenShip1;
 extern RenderTexture screenShip2;
+extern RenderTexture screenCurrentShip;
 
 void InitMainWindow();
 void DeinitMainWindow();

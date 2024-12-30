@@ -9,6 +9,7 @@
 #include "raymath.h"
 
 int main() {
+    SetTraceLogLevel(7);
 	//! Main window initialization
 	InitMainWindow();
 
@@ -61,7 +62,7 @@ int main() {
 	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
 	const int rock_count = GetRandomValue(MIN_ROCKS, MAX_ROCKS);
 	Rock* rock_list = CreateAllRocks(rock_tex, (Vector2){-500, -500}, (Vector2){500, 500}, rock_count);
-	Obstacles obstacles = CreateObjactlesInstance(island_list, island_count, rock_list, rock_count);
+	Obstacles obstacles = CreateObstactlesInstance(island_list, island_count, rock_list, rock_count);
 
 	//Recalculate SkyBox bounds
 	{

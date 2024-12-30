@@ -37,6 +37,7 @@ Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
 
 RenderTexture screenShip1;
 RenderTexture screenShip2;
+RenderTexture screenCurrentShip;
 
 void InitMainWindow()
 {
@@ -51,6 +52,7 @@ void InitMainWindow()
 
     screenShip1 = LoadRenderTexture(WIDTH / 2, HEIGHT);
     screenShip2 = LoadRenderTexture(WIDTH / 2, HEIGHT);
+    screenCurrentShip = LoadRenderTexture(WIDTH, HEIGHT);
 }
 
 void DisplayMainScreen(const Sound click)

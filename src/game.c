@@ -13,9 +13,16 @@
 #include <time.h>
 
 int startup_counter = GAME_STARTUP_COUNTER;
+// move_time and fire_time are external -> to be saved in every game state
+int move_time = MOVEMENT_TIME;
+int fire_time = FIRE_TIME;
 int winner;
+Ship *current_turn;
+Ship *next_turn;
 bool is_loaded = false;
 BoundingBox game_bounds;
+
+int dice_state = 1; //dice = choosing randomly a player for turn-based gameplay
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
         const Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty)
@@ -106,27 +113,33 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
+    if(dice_state) { //"throws" a D10 (0-9) dice to declare the first turn
+        srand(time(0));
+        int number = rand()%10;
+        current_turn = isEvenNumber(number) ? ship2 : ship1;
+        dice_state = 0; //thrown
+    }
+
     HideCursor();
+
+    CheckCollisionWithBounds(current_turn, game_bounds);
 
     //! Input Handling:
     // Ship Movement
-    CheckMovement(ship1, fire, settings.enable_sfx);
-    CheckMovement(ship2, fire, settings.enable_sfx);
+    CheckMovement(current_turn, fire, settings.enable_sfx);
 
     // Update Camera manually
-    UpdateShipCamera(ship1, settings.first_or_third_person_cam);
-    UpdateShipCamera(ship2, settings.first_or_third_person_cam);
+    UpdateShipCamera(current_turn, settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&ship1->cannonball, splash, settings.enable_sfx);
-    UpdateCannonballState(&ship2->cannonball, splash, settings.enable_sfx);
-
-    const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
+    UpdateCannonballState(&current_turn->cannonball, splash, settings.enable_sfx);
 
     Update_Variables(ship1, ship2, explosion, obstacles);
 
-    DrawGameState(*ship1, *ship2, camera1, screenShip1, obstacles, water_model, sky_model, *ship1, heart_full, heart_empty);
-    DrawGameState(*ship1, *ship2, camera2, screenShip2, obstacles,water_model, sky_model, *ship2, heart_full, heart_empty);
+    DrawGameState(*ship1, *ship2, *(current_turn->camera), screenCurrentShip, obstacles, water_model, sky_model, *current_turn, heart_full, heart_empty);
 
+    const Rectangle screenRec = {0.0f, 0.0f, (float)screenCurrentShip.texture.width, (float)-screenCurrentShip.texture.height};
+
+    //Game start
     if (startup_counter > 0)
     {
         char *text = malloc(sizeof(char) * 2); // with null char
@@ -134,13 +147,11 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
         {
             ClearBackground(RAYWHITE);
 
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+            DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
             sprintf(text, "%d", startup_counter);
-            DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
+            DrawText(text, WIDTH / 2, HEIGHT / 2, 50, WHITE);
+            DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
             --startup_counter;
         }
         EndDrawing();
@@ -153,14 +164,11 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
         {
             ClearBackground(RAYWHITE);
 
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+            DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
-            DrawText("Begin!", WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
-            DrawText("Begin!", 3 * WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
-            ship1->can_move = true;
-            ship2->can_move = true;
+            DrawText("Begin!", WIDTH / 2 - 70, HEIGHT / 2, 50, WHITE);
+            DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
+            current_turn->can_move = true;
             --startup_counter; // game starts
         }
         EndDrawing();
@@ -172,9 +180,9 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
         {
             ClearBackground(RAYWHITE);
 
-            DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
-            DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
-            DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+            DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
+
+            DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
         }
         EndDrawing();
     }
@@ -207,15 +215,18 @@ void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenSh
             for(int i = 0; i < obstacles.island_count; i++){
                 DrawModel(obstacles.island_list[i].island_sphere, obstacles.island_list[i].center_pos, 1, WHITE);
                 DrawModel(obstacles.island_list[i].palm_tree, Vector3Add(
-                    obstacles.island_list[i].center_pos, (Vector3){0, obstacles.island_list[i].radius, 0}), 1, WHITE);
+                    obstacles.island_list[i].center_pos, (Vector3){0, (float)obstacles.island_list[i].radius, 0}), 1, WHITE);
             }
+
             for(int i = 0; i < obstacles.rock_count; i++){
                 DrawModel(obstacles.rock_list[i].model, obstacles.rock_list[i].center_pos, 1, WHITE);
             }
         }
         EndMode3D();
 
-        if(settings.show_fps) DrawFPS(WIDTH/2-100, HEIGHT-30);
+        if(settings.show_fps) DrawFPS(
+            gamemode == GAME_REAL ? WIDTH/2-100 : WIDTH-100,
+            HEIGHT-30);
 
         //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
         for(int i = 0; i < current_player_ship.initial_health; i++){

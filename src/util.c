@@ -24,6 +24,11 @@ char *booltostr(const bool input) {
     return "false";
 }
 
+bool isEvenNumber(const int number) {
+    if(number%2==0) return true;
+    return false;
+}
+
 //Reference: https://github.com/benhoyt/inih
 static int parseHandler(void* user, const char* section, const char* name, const char* value) {
     setting* settings = user;
@@ -52,7 +57,10 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
         {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
-                if(*current_screen == GAMEMODES && scr != MAIN) gamemode = scr; //saves selected gamemode
+                if(*current_screen == GAMEMODES && scr != MAIN) {
+                    gamemode = scr; //saves selected gamemode
+                    dice_state = 1;
+                }
                 if(*current_screen != MAIN) success_load = 1;
                 if(*current_screen == GAME_MENU) {
                     success_save = 0;

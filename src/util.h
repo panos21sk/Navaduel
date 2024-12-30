@@ -19,6 +19,7 @@ extern int control_index;
 extern jmp_buf reset_point;
 extern setting settings;
 
+bool isEvenNumber(int number);
 void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mouse_point, const Sound click, screen* current_screen, const screen scr, const bool sfx_en);
 void AddSetting(bool* setting, const char* setting_name, Rectangle rec, Sound click, bool sfx_en);
 void LoadSettings();

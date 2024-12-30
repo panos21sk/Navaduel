@@ -68,7 +68,7 @@ Rock* CreateAllRocks(Texture2D rock_tex, Vector2 corner_bound, Vector2 opp_corne
     return rock_list;
 }
 
-Obstacles CreateObjactlesInstance(Island* island_list, int island_count, Rock* rock_list, int rock_count){
+Obstacles CreateObstactlesInstance(Island* island_list, int island_count, Rock* rock_list, int rock_count){
     Obstacles obj_inst;
     obj_inst.island_count = island_count;
     obj_inst.rock_count = rock_count;
