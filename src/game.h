@@ -18,12 +18,12 @@ extern Ship *next_turn;
 extern bool is_loaded;
 extern BoundingBox game_bounds;
 
-void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
+void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
         Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty);
-void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
+void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
         Model water_model, Model sky_model, Sound splash, Sound fire, Sound explosion, Texture2D heart_full, Texture2D heart_empty);
-void DrawGameState(Ship ship1, Ship ship2, Camera camera, RenderTexture screenShip, Obstacles obstacles,
+void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles,
         Model water_model, Model sky_model, Ship current_player_ship, Texture2D heart_full, Texture2D heart_empty);
-void Update_Variables(Ship* ship1, Ship* ship2, Sound explosion, Obstacles obstacles);
+void Update_Variables(Ship_data ship_data, Sound explosion, Obstacles obstacles);
 
 #endif // GAME_H

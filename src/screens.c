@@ -27,6 +27,7 @@ Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 220, 160, 40
 Rectangle about_button = {(float)WIDTH - 165, (float)HEIGHT - 45, 160, 40};
 Rectangle real_time_1v1_button = {(float)WIDTH / 2 - 180, (float)HEIGHT / 2 - 20, 170, 40};
 Rectangle turn_based_1v1_button = {(float)WIDTH / 2 + 10, (float)HEIGHT / 2 - 20, 180, 40};
+Rectangle player_count_button = {(float)WIDTH / 2 - 12, (float)HEIGHT / 2 + 32, 24, 24}; //textbox
 Rectangle github_jim_button = {(float)WIDTH / 2 + 90, 210, 160, 40};
 Rectangle github_panos_button = {(float)WIDTH / 2 + 430, 210, 160, 40};
 Rectangle play_again_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
@@ -143,20 +144,59 @@ void DisplayMainScreen(const Sound click)
     EndDrawing();
 }
 
-void DisplayGamemodesScreen(const Sound click)
+
+char player_count[2] = {'2', '\0'};
+void DisplayGamemodesScreen(const Sound click, int* player_count_addr)
 {
     mouse_point = GetMousePosition();
     control_index = 0;
+    static int letter_count;
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
         DrawText("GAMEMODES", 20, 20, 30, BLUE);
+        DrawRectangleRec(player_count_button, LIGHTGRAY);
+        if(CheckCollisionPointRec(mouse_point, player_count_button)){
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+            DrawRectangleLines(player_count_button.x, player_count_button.y, player_count_button.width, player_count_button.height, RED);
+            int key = GetCharPressed();
+            while (key > 0)
+            {
+                if ((key >= 50) && (key <= 56) && (letter_count < 2)) //keycode -> ascii,  lettercount -> 1 num + terminator, accept numbers 2-8
+                {
+                    player_count[0] = (char)key;
+                    player_count[1] = '\0'; // Add null terminator at the end of the string.
+                    *player_count_addr = key % 48;
+                }
+                key = GetCharPressed();
+            }
+        } else {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+        }
+        DrawText(player_count, player_count_button.x + 2, player_count_button.y + 2, 20, BLACK);
+        DrawText("Player Count:", player_count_button.x - 150, player_count_button.y + 2, 20, BLACK);
+        DrawText("Hover mouse over the gray box and enter a number\nranging from 2-8 to change amount of players\nWorks only for Turn-Based", 
+                player_count_button.x + 26, player_count_button.y + 2, 20, BLACK);
 
         AddScreenChangeBtn(real_time_1v1_button, "REAL-TIME 1V1", GetMousePosition(), click, &current_screen, GAME_REAL, settings.enable_sfx);
         AddScreenChangeBtn(turn_based_1v1_button, "TURN-BASED 1V1", GetMousePosition(), click, &current_screen, GAME_TURN, settings.enable_sfx);
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
     EndDrawing();
+}
+
+void DisplayShipSelectScreen(Sound click, Ship_data* ship_data_addr){
+    DrawText("SHIP 1: Bigger, More health, Slower movement & firing.", 5, 5, 20, BLUE);
+    DrawText("SHIP 2: Smaller, Less health, Faster movement & firing.", 5, 30, 20, RED); // next up is y 55
+    Rectangle Rec0 = (Rectangle){5, 55, WIDTH - 10, 22};
+    int type_list[8];
+    for(int i = 0; i < ship_data_addr->player_count; i++){
+        //outer rec
+        Rec0.y = 55 + 25*i;
+        DrawRectangleLines(Rec0.x - 1, Rec0.y - 1, Rec0.width + 2, Rec0.height + 2, BLACK);
+        DrawText(TextFormat("Player %d:", ship_data_addr->ship_list[i].id), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
+
+    }
 }
 
 void DisplayGameOverScreen(const int winnerId, const Sound click)

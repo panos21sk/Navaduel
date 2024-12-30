@@ -10,8 +10,8 @@
 
 #include "cJSON.h"
 
-const struct accel_settings default_accel = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
-struct accel_settings bounds_accel;
+const accel_settings default_accel = {MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL, MIN_ACCEL};
+accel_settings bounds_accel;
 
 
 Ship ship1;
@@ -19,14 +19,13 @@ Ship ship2;
 Cannon cannon1;
 Cannon cannon2;
 Cannonball initcannonball;
-Camera camera1 = {0};
-Camera camera2 = {0};
 
-void SetupShips()
+Ship* SetupShips(int player_count, int* type_list)
 {
+    static Ship ship_list[8]; //8 is the num of max players
     // Variable init
-    const struct movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
-    const struct movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
+    const movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
+    const movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
 
     // Cannonball init
     initcannonball.position = (Vector3){0, 1000, 0};
@@ -35,71 +34,79 @@ void SetupShips()
     initcannonball.has_splashed = true;
     initcannonball.has_hit_enemy = true;
 
-    // Cannon for ship1
-    cannon1.relative_position = (Vector3){0, -8, 20};
-    cannon1.rotation = (Vector3){0, 0, 0};
-    cannon1.stand_model = LoadModel("resources/models/cannon_stand.glb");
-    cannon1.rail_model = LoadModel("resources/models/cannon_rail.glb");
-    // Ship 1
-    ship1.id = 1;
-    ship1.camera = &camera1;
-    ship1.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position
-    ship1.camera->target = (Vector3){0.0f, 0.0f, 0.0f};     // Camera looking at point
-    ship1.camera->up = (Vector3){0.0f, 0.0f, 1.0f};         // Camera up vector (rotation towards target)
-    ship1.camera->fovy = 45.0f;                             // Camera field-of-view Y
-    ship1.camera->projection = CAMERA_PERSPECTIVE;
-    ship1.model = LoadModel("resources/models/ship1edited.glb");
-    ship1.movement_buttons = btns1;
-    ship1.accel = default_accel;
-    ship1.position = (Vector3){0.0f, 17.0f, -50.0f};
-    ship1.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
-    ship1.cannon = &cannon1;
-    ship1.cannonball = initcannonball;
-    ship1.yaw = 0;
-    ship1.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
-    ship1.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 16.0f};
-    ship1.can_move = false;
-    ship1.sphere_hitbox_radius = 15;
-    ship1.initial_health = 5;
-    ship1.current_health = 5;
+    for(int i = 0; i < player_count; i++){
+        Cannon cannon_inst;
+        Cannon* cannon_addr = (Cannon*)MemAlloc(sizeof(Cannon));
+        Ship ship_inst;
+        Camera* camera_addr = (Camera*)MemAlloc(sizeof(Camera));
 
-    // cannon for ship2
-    cannon2.relative_position = (Vector3){0, 1, 7};
-    cannon2.rotation = (Vector3){0, 0, 0};
-    cannon2.stand_model = LoadModel("resources/models/cannon_stand.glb");
-    cannon2.rail_model = LoadModel("resources/models/cannon_rail.glb");
-    // Ship 2
-    ship2.id = 2;
-    ship2.camera = &camera2;
-    ship2.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position
-    ship2.camera->target = (Vector3){0.0f, 0.0f, 0.0f};     // Camera looking at point
-    ship2.camera->up = (Vector3){0.0f, 0.0f, 1.0f};         // Camera up vector (rotation towards target)
-    ship2.camera->fovy = 45.0f;                             // Camera field-of-view Y
-    ship2.camera->projection = CAMERA_PERSPECTIVE;
-    ship2.model = LoadModel("resources/models/ship2edited.glb");
-    ship2.movement_buttons = btns2;
-    ship2.accel = default_accel;
-    ship2.position = (Vector3){0.0f, 7.5f, 50.0f};
-    ship2.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
-    ship2.cannon = &cannon2;
-    ship2.cannonball = initcannonball;
-    ship2.yaw = 3.1415f;
-    ship2.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
-    ship2.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
-    ship2.can_move = false;
-    ship2.sphere_hitbox_radius = 10;
-    ship2.initial_health = 3;
-    ship2.current_health = 3;
+        cannon_inst.rotation = Vector3Zero();
+        cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
+        cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
+        //init for big ship
+        if(type_list[i] == 0){
+            cannon_inst.relative_position = (Vector3){0, -8, 20};
+            ship_inst.model = LoadModel("resources/models/ship1edited.glb");
+            ship_inst.accel = (accel_settings){default_accel.r_coefficient / 1.2, default_accel.l_coefficient / 1.2,
+                                                default_accel.f_coefficient / 1.2, default_accel.b_coefficient / 1.2,
+                                                default_accel.turn_l_coefficient / 1.2, default_accel.turn_r_coefficient / 1.2,
+                                                default_accel.fire_coefficient / 1.2}; 
+
+            ship_inst.camera_distance_vector_tp = (Vector3){0.0f, 35.0f, -70.0f};
+            ship_inst.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 16.0f};
+            ship_inst.sphere_hitbox_radius = 15;
+            ship_inst.initial_health = 4;
+        } 
+        //init for small ship
+        else if(type_list[i] == 1){
+            cannon_inst.relative_position = (Vector3){0, 1, 7};
+            ship_inst.model = LoadModel("resources/models/ship2edited.glb");
+            ship_inst.accel = (accel_settings){default_accel.r_coefficient * 1.2, default_accel.l_coefficient * 1.2,
+                                                default_accel.f_coefficient * 1.2, default_accel.b_coefficient * 1.2,
+                                                default_accel.turn_l_coefficient * 1.2, default_accel.turn_r_coefficient * 1.2,
+                                                default_accel.fire_coefficient * 1.2}; 
+
+            ship_inst.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
+            ship_inst.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
+            ship_inst.sphere_hitbox_radius = 10;
+            ship_inst.initial_health = 3;
+        }
+        ship_inst.position = (Vector3){
+                GetRandomValue(-500, 500), 17, GetRandomValue(-500, 500) //add it via ref to bounds later
+            };
+        ship_inst.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
+        ship_inst.cannon = cannon_addr;
+        *ship_inst.cannon = cannon_inst;
+        ship_inst.cannonball = initcannonball;
+        ship_inst.yaw = GetRandomValue(0, 6) + GetRandomValue(0, 2830) / 10000;
+        ship_inst.can_move = false;
+        ship_inst.current_health = ship_inst.initial_health;
+        ship_inst.id = i;
+        ship_inst.camera = &camera_addr;
+        ship_inst.camera->up = (Vector3){0,0,1};
+        ship_inst.camera->fovy = 45.0f;
+        ship_inst.camera->projection = CAMERA_PERSPECTIVE;
+
+        if(player_count == 2){
+            if(i == 1){
+                ship_inst.movement_buttons = btns2;
+            } else ship_inst.movement_buttons = btns1;
+        } else ship_inst.movement_buttons = btns1;
+
+        ship_list[i] = ship_inst;
+    }
+    return ship_list;
+}
+
+Ship_data CreateShipData(int player_count, int* type_list){
+	Ship_data ship_data;
+	ship_data.ship_list = SetupShips(player_count, type_list);
+	ship_data.player_count = player_count;
+	ship_data.type_list = type_list;
+    return ship_data;
 }
 
 void ResetShipsState() {
-    // Cannonball init
-    initcannonball.position = (Vector3){0, 1000, 0};
-    initcannonball.velocity = Vector3Zero();
-    initcannonball.accel = Vector3Zero();
-    initcannonball.has_splashed = true;
-    initcannonball.has_hit_enemy = true;
-
     cannon1.relative_position = (Vector3){0, -8, 20};
 
     ship1.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position

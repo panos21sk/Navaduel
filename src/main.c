@@ -13,9 +13,6 @@ int main() {
 	//! Main window initialization
 	InitMainWindow();
 
-	//! Set-up ships-players
-	SetupShips();
-
 	//! Load game settings
 	LoadSettings();
 
@@ -58,11 +55,14 @@ int main() {
 	Model palm_tree = LoadModel("resources/models/low_poly_palm_tree.glb");
 	Texture2D rock_tex = LoadTexture("resources/sprites/rock.png");
 
-	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
-	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
-	const int rock_count = GetRandomValue(MIN_ROCKS, MAX_ROCKS);
-	Rock* rock_list = CreateAllRocks(rock_tex, (Vector2){-500, -500}, (Vector2){500, 500}, rock_count);
-	Obstacles obstacles = CreateObstactlesInstance(island_list, island_count, rock_list, rock_count);
+	bool gen_obs = true;
+	Obstacles obstacles;
+	bool gen_ships = true;
+	Ship* ship_list;
+	int player_count = 2;
+	int* player_count_addr = &player_count; // pass onto gamemode screen
+	int type_list[8] = {0};
+	Ship_data ship_data;
 
 	//Recalculate SkyBox bounds
 	{
@@ -91,17 +91,31 @@ int main() {
 			}
 			case GAMEMODES:
 			{
-				DisplayGamemodesScreen(click);
+				gen_obs = true;
+				gen_ships = true;
+				DisplayGamemodesScreen(click, player_count_addr);
 				break;
 			}
 			case GAME_REAL:
-			{	
-				DisplayRealTimeGameScreen(&ship1, &ship2, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
+			{	if(gen_ships){
+					ship_data = CreateShipData(player_count, type_list);
+				}
+				if(gen_obs){
+					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
+					gen_obs = false;
+				}
+				DisplayRealTimeGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
-			{
-				DisplayTurnBasedGameScreen(&ship1, &ship2, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
+			{	if(gen_ships){
+					ship_data = CreateShipData(player_count, type_list);
+				}
+				if(gen_obs){
+					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
+					gen_obs = false;
+				}
+				DisplayTurnBasedGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:

@@ -49,7 +49,10 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
  /usr/include/linux/close_range.h /usr/include/time.h \
  /usr/include/bits/time.h /usr/include/bits/timex.h \
  /usr/include/bits/types/struct_tm.h \
- /usr/include/bits/types/struct_itimerspec.h
+ /usr/include/bits/types/struct_itimerspec.h /usr/include/pthread.h \
+ /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/bits/types/struct_sched_param.h /usr/include/bits/cpu-set.h \
+ /usr/include/bits/pthread_stack_min-dynamic.h
 /usr/include/stdc-predef.h:
 ../../include/raylib.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h:
@@ -142,3 +145,9 @@ obj/x64/Debug/navaduel/game.o: ../../src/game.c \
 /usr/include/bits/timex.h:
 /usr/include/bits/types/struct_tm.h:
 /usr/include/bits/types/struct_itimerspec.h:
+/usr/include/pthread.h:
+/usr/include/sched.h:
+/usr/include/bits/sched.h:
+/usr/include/bits/types/struct_sched_param.h:
+/usr/include/bits/cpu-set.h:
+/usr/include/bits/pthread_stack_min-dynamic.h:

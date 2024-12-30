@@ -13,7 +13,7 @@
 #define MIN_ACCEL 0.01f
 #define MOVEMENT_STEP 1.0f
 
-struct movement_buttons {
+typedef struct {
     int right;
     int left;
     int forward;
@@ -21,9 +21,9 @@ struct movement_buttons {
     int turn_cannon_left;
     int turn_cannon_right;
     int fire;
-};
+} movement_buttons;
 
-struct accel_settings {
+typedef struct {
     float r_coefficient; //right
     float l_coefficient; //left
     float f_coefficient; //forwards
@@ -31,7 +31,7 @@ struct accel_settings {
     float turn_l_coefficient;
     float turn_r_coefficient;
     float fire_coefficient;
-};
+} accel_settings;
 
 typedef struct {
     Vector3 position;
@@ -49,14 +49,11 @@ typedef struct {
 } Cannon;
 
 typedef struct {
-    int id; //so far unused, will be in use when scaling to make players
+    int id; 
     float yaw;
-    struct accel_settings accel;
-    struct movement_buttons movement_buttons;
+    movement_buttons movement_buttons;
     Vector3 position;
     Vector3 prev_position;
-    Vector3 camera_distance_vector_fp;
-    Vector3 camera_distance_vector_tp;
     Camera *camera;
     Model model;
     Cannon* cannon;
@@ -64,18 +61,29 @@ typedef struct {
     BoundingBox boundary;
     bool can_fire;
     bool can_move;
-    float sphere_hitbox_radius;
     int current_health;
+    //ship specific
     int initial_health;
+    accel_settings accel;
+    Vector3 camera_distance_vector_fp;
+    Vector3 camera_distance_vector_tp;
+    float sphere_hitbox_radius;
 } Ship;
 
-extern const struct accel_settings default_accel;
+typedef struct {
+    Ship* ship_list;
+    int* type_list;
+    int player_count
+} Ship_data;
+
+extern const accel_settings default_accel;
 extern Ship ship1;
 extern Ship ship2;
 extern Camera camera1;
 extern Camera camera2;
 
-void SetupShips();
+Ship* SetupShips(int player_count, int* type_list);
+Ship_data CreateShipData(int player_count, int* type_list);
 void ResetShipsState();
 void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(const Ship* ship);
