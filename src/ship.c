@@ -379,7 +379,7 @@ void *EndGame(void *arg)
 }
 
 //TODO: Make function return int specifying player id of winner
-void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Island* island_list, int island_count, bool sfx_en)
+void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Obstacles obstacles, bool sfx_en)
 {
     // adding small delay before stopping game to improve game feel. Maybe add game end animation by passing in here a pointer to the game state and changing it
     // to game_end = true for example, and then render in another way
@@ -410,13 +410,43 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
     }
 
     //End game if a player hits and island
-    for(int i = 0; i < island_count; i++){
-        if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, island_list[i].center_pos, island_list[i].radius)){
+    for(int i = 0; i < obstacles.island_count; i++){
+        if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.island_list[i].center_pos, obstacles.island_list[i].radius)){
             winner = enemy_ship->id;
             if(sfx_en)PlaySound(explosion);
             pthread_t wait_before_end;
             pthread_create(&wait_before_end, NULL, EndGame, state);
             pthread_detach(wait_before_end);
+        }
+    }
+    for(int i = 0; i < obstacles.rock_count; i++){
+        switch(obstacles.rock_list[i].geometry_id)
+        {   case 1: //cube
+            //assuming the origin of the mesh from genmeshcube is the geometrical center, where its relative coordinates are (0,0,0) when drawn in other words 
+                if(CheckCollisionBoxSphere((BoundingBox){
+                    (Vector3){obstacles.rock_list[i].center_pos.x - obstacles.rock_list[i].height / 6,
+                            obstacles.rock_list[i].center_pos. y - obstacles.rock_list[i].height / 2,
+                            obstacles.rock_list[i].center_pos.z - obstacles.rock_list[i].height / 6}, 
+                    (Vector3){obstacles.rock_list[i].center_pos.x + obstacles.rock_list[i].height / 6,
+                            obstacles.rock_list[i].center_pos. y + obstacles.rock_list[i].height / 2,
+                            obstacles.rock_list[i].center_pos.z + obstacles.rock_list[i].height / 6}
+                }, 
+                player_ship->position, player_ship->sphere_hitbox_radius)){
+                    winner = enemy_ship->id;
+                    if(sfx_en)PlaySound(explosion);
+                    pthread_t wait_before_end;
+                    pthread_create(&wait_before_end, NULL, EndGame, state);
+                    pthread_detach(wait_before_end);
+                }
+            break;
+            case 2: //sphere
+                if(CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.rock_list[i].center_pos, obstacles.rock_list[i].height)){
+                    winner = enemy_ship->id;
+                    if(sfx_en)PlaySound(explosion);
+                    pthread_t wait_before_end;
+                    pthread_create(&wait_before_end, NULL, EndGame, state);
+                    pthread_detach(wait_before_end);
+                }
         }
     }
 }

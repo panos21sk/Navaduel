@@ -13,9 +13,6 @@
 #define MIN_ACCEL 0.01f
 #define MOVEMENT_STEP 1.0f
 
-#define MAX_ISLANDS 7
-#define MIN_ISLANDS 2
-
 struct movement_buttons {
     int right;
     int left;
@@ -87,7 +84,7 @@ void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
 void *EndGame(void* arg);
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Island* island_list, int island_count, bool sfx_en);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Obstacles obstacles, bool sfx_en);
 void CheckCollisionWithBounds(Ship *ship, BoundingBox bound);
 
 #endif // SHIP_H

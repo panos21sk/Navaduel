@@ -17,8 +17,14 @@ obj/x64/Debug/navaduel/util.o: ../../src/util.c \
  /usr/include/bits/floatn-common.h ../../include/raylib.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h \
  ../../src/screens.h ../../src/util.h ../../src/ship.h \
- ../../src/obstacles.h ../../include/cJSON.h /usr/include/setjmp.h \
- /usr/include/bits/setjmp.h \
+ ../../src/obstacles.h ../../include/raymath.h /usr/include/math.h \
+ /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
+ /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
+ /usr/include/bits/fp-fast.h \
+ /usr/include/bits/mathcalls-helper-functions.h \
+ /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
+ /usr/include/bits/iscanonical.h ../../include/cJSON.h \
+ /usr/include/setjmp.h /usr/include/bits/setjmp.h \
  /usr/include/bits/types/struct___jmp_buf_tag.h \
  /usr/include/bits/types/__sigset_t.h ../../src/game.h \
  /usr/include/stdlib.h /usr/include/bits/waitflags.h \
@@ -75,6 +81,17 @@ obj/x64/Debug/navaduel/util.o: ../../src/util.c \
 ../../src/util.h:
 ../../src/ship.h:
 ../../src/obstacles.h:
+../../include/raymath.h:
+/usr/include/math.h:
+/usr/include/bits/math-vector.h:
+/usr/include/bits/libm-simd-decl-stubs.h:
+/usr/include/bits/flt-eval-method.h:
+/usr/include/bits/fp-logb.h:
+/usr/include/bits/fp-fast.h:
+/usr/include/bits/mathcalls-helper-functions.h:
+/usr/include/bits/mathcalls.h:
+/usr/include/bits/mathcalls-narrow.h:
+/usr/include/bits/iscanonical.h:
 ../../include/cJSON.h:
 /usr/include/setjmp.h:
 /usr/include/bits/setjmp.h:
