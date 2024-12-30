@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+bool exit_window = false;
+
 int success_save = 0;
 int success_load = 1;
 
@@ -114,8 +116,7 @@ void DisplayMainScreen(const Sound click)
             {
                 escape:
                     if (!success_load) {
-                        DrawText("No saved game state", WIDTH / 2 - 120, HEIGHT-30, 20, RED);
-                        success_load = 1;
+                        DrawText("No saved game state", WIDTH / 2 - 107, HEIGHT-30, 20, RED);
                     }
             }
         }
@@ -129,7 +130,8 @@ void DisplayMainScreen(const Sound click)
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                 {
                     PlaySound(click);
-                    CloseWindow(); // TODO: Causes SIGSEV: Address Boundary error
+                    exit_window = true;
+                    return;
                 }
                 DrawRectangleRec(exit_button, RED);
             }
@@ -159,12 +161,11 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
 {
     mouse_point = GetMousePosition();
     ShowCursor();
-    //SetupShips(); //Resets ships' state //IN-DEBUG MODE->COMMENTED
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
 
-        DrawText("THE GAME IS OVER", WIDTH/2, 20, 30, BLUE);
+        DrawText("THE GAME IS OVER", WIDTH/2-175, 20, 35, BLUE);
         AddScreenChangeBtn(play_again_button, "PLAY AGAIN", mouse_point, click, &current_screen, GAMEMODES, settings.enable_sfx);
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
 
@@ -173,7 +174,7 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
         if(winnerId == 1) strcat(winnerstr, "Player 1!");
         else if(winnerId == 2) strcat(winnerstr, "Player 2!");
         else strcat(winnerstr, "no one!");
-        DrawText(winnerstr, WIDTH/2, 40, 25, LIME);
+        DrawText(winnerstr, WIDTH/2-170, 70, 30, LIME);
         free(winnerstr);
     }
     EndDrawing();
@@ -259,6 +260,7 @@ void DisplayOptionsScreen(const Sound click, bool* bgm_en)
     Rectangle fullscreen_rec = {17, 97, WIDTH - 37, 23};
     Rectangle sfx_rec = {17, 137, WIDTH - 37, 23};
     Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
+    Rectangle fps_rec = {17, 217, WIDTH - 37, 23};
 
     bool tmp = settings.fullscreen; 
 
@@ -272,6 +274,7 @@ void DisplayOptionsScreen(const Sound click, bool* bgm_en)
         AddSetting(&settings.enable_sfx, "ENABLE SOUND EFFECTS:", sfx_rec, click, settings.enable_sfx);
         AddSetting(&settings.show_reticle, "SHOW TARGET RETICLE:", reticle_rec, click, settings.enable_sfx);
         AddSetting(&settings.first_or_third_person_cam, "FIRST PERSON", first_person_rec, click, settings.enable_sfx);
+        AddSetting(&settings.show_fps, "SHOW FPS:", fps_rec, click, settings.enable_sfx);
         
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }

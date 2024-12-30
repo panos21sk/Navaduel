@@ -11,14 +11,20 @@
 #include <string.h>
 
 int control_index = 0;
-jmp_buf jump_point;
+jmp_buf reset_point;
 setting settings;
 
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
-    else return false;
+    return false;
 }
 
+char *booltostr(const bool input) {
+    if(input) return "true";
+    return "false";
+}
+
+//Reference: https://github.com/benhoyt/inih
 static int parseHandler(void* user, const char* section, const char* name, const char* value) {
     setting* settings = user;
 
@@ -32,7 +38,8 @@ static int parseHandler(void* user, const char* section, const char* name, const
         settings->enable_bgm = strtobool(value);
     } else if (MATCH("settings", "fullscreen")) {
         settings->fullscreen = strtobool(value);
-
+    } else if (MATCH("settings", "show_fps")) {
+        settings->show_fps = strtobool(value);
     } else {
         return 0;  /* unknown section/name, error */
     }
@@ -46,12 +53,13 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
                 if(*current_screen == GAMEMODES && scr != MAIN) gamemode = scr; //saves selected gamemode
+                if(*current_screen != MAIN) success_load = 1;
                 if(*current_screen == GAME_MENU) {
                     success_save = 0;
                     if(scr == MAIN) {
                         while(control_index < 1) {
                             ++control_index;
-                            longjmp(jump_point, 0);
+                            longjmp(reset_point, 0);
                         }
                     }
                 }
@@ -63,7 +71,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                         }
                         ++control_index;
                         startup_counter = GAME_STARTUP_COUNTER;
-                        longjmp(jump_point, 0);
+                        longjmp(reset_point, 0);
                     }
                 }
                 if(sfx_en) PlaySound(click);
@@ -78,6 +86,7 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     if (CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         if(sfx_en) PlaySound(click);
         *setting = !(*setting);
+        UpdateSettingsConfig(settings);
     }
     DrawRectangleLinesEx(rec, 3, BLACK);
     DrawText(setting_name, (int)rec.x + 3, (int)rec.y + 3, 20, BLACK);
@@ -90,9 +99,19 @@ void LoadSettings() {
     settings.first_or_third_person_cam = NULL;
     settings.fullscreen = NULL;
     settings.show_reticle = NULL;
+    settings.show_fps = NULL;
 
     if(ini_parse("config.ini", parseHandler, &settings) < 0) printf("\n\nSettings were not loaded\n\n");
     else printf("\n\nSettings were loaded\n\n");
+}
+
+void UpdateSettingsConfig(const setting settings) {
+    FILE *config = fopen("config.ini", "w");
+    fprintf(config,"[settings] ; Game settings\nshow_reticle = %s\nfirst_or_third_person_cam = %s ; true = first person, false = third person\nfullscreen = %s\nenable_sfx = %s\nenable_bgm = %s\nshow_fps = %s",
+        booltostr(settings.show_reticle), booltostr(settings.first_or_third_person_cam),
+        booltostr(settings.fullscreen), booltostr(settings.enable_sfx), booltostr(settings.enable_bgm),
+        booltostr(settings.show_fps));
+    fclose(config);
 }
 
 cJSON *create_ship_json(const Ship ship) {

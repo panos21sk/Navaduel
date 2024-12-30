@@ -54,6 +54,7 @@ typedef struct {
     struct accel_settings accel;
     struct movement_buttons movement_buttons;
     Vector3 position;
+    Vector3 prev_position;
     Vector3 camera_distance_vector_fp;
     Vector3 camera_distance_vector_tp;
     Camera *camera;
@@ -75,13 +76,15 @@ extern Camera camera1;
 extern Camera camera2;
 
 void SetupShips();
+void ResetShipsState();
 void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
-void* EndGame(void* arg);
+void *EndGame(void* arg);
 void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Island* island_list, int island_count, bool sfx_en);
+void CheckCollisionWithBounds(Ship *ship, BoundingBox bound);
 
 #endif // SHIP_H

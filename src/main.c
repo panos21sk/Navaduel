@@ -1,14 +1,19 @@
 #include <setjmp.h>
+#include <stdlib.h>
 
 #include "raylib.h"
 #include "ship.h"
 #include "screens.h"
 #include "util.h"
 #include "game.h"
+#include "raymath.h"
 
 int main() {
 	//! Main window initialization
 	InitMainWindow();
+
+	//! Set-up ships-players
+	SetupShips();
 
 	//! Load game settings
 	LoadSettings();
@@ -51,18 +56,26 @@ int main() {
 	Texture2D sand_tex = LoadTexture("resources/sprites/8_BIT_Sand.png");
 	Model palm_tree = LoadModel("resources/models/low_poly_palm_tree.glb");
 
-	// Set-up ships-players
+	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
+	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
+
+	//Recalculate SkyBox bounds
 	{
-		setjmp(jump_point);
-		SetupShips();
+		game_bounds = GetMeshBoundingBox(skybox_model.meshes[0]);
+		game_bounds.min = Vector3Scale(game_bounds.min, 900.0f);
+		game_bounds.max = Vector3Scale(game_bounds.max, 900.0f);
 	}
 
-	const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
-	const Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
+	// Reset ships-players
+	{
+		setjmp(reset_point);
+		ResetShipsState();
+	}
 
 	//! Game loop
-	while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or presses the Close button on the window
-	{	
+	while (!exit_window)
+	{
+		if(WindowShouldClose()) exit_window = true;
 		if(bgm_en) UpdateMusicStream(bgm);
 		//rendering begin
 		switch (current_screen) {
@@ -125,6 +138,8 @@ int main() {
 	UnloadSound(splash);
 	UnloadTexture(heart_full);
 	UnloadTexture(heart_empty);
+	UnloadTexture(sand_tex);
+	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function
