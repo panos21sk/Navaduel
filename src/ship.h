@@ -73,7 +73,7 @@ typedef struct {
 typedef struct {
     Ship* ship_list;
     int* type_list;
-    int player_count
+    int player_count;
 } Ship_data;
 
 extern const accel_settings default_accel;

@@ -195,7 +195,23 @@ void DisplayShipSelectScreen(Sound click, Ship_data* ship_data_addr){
         Rec0.y = 55 + 25*i;
         DrawRectangleLines(Rec0.x - 1, Rec0.y - 1, Rec0.width + 2, Rec0.height + 2, BLACK);
         DrawText(TextFormat("Player %d:", ship_data_addr->ship_list[i].id), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
-
+        //prep for buttons
+        Rectangle btn0;
+        Rectangle btn1;
+        bool is_ship_1_selected = true;
+        btn0.x = Rec0.x + Rec0.width - 80 * 2; btn0.y = Rec0.y; btn0.height = Rec0.height; btn0.width = 80;
+        btn1 = btn0; btn1.x += 80;
+        if(CheckCollisionPointRec(GetMousePosition(), btn0)){
+            DrawRectangleLines(btn0.x, btn0.y, btn0.width, btn0.height, RED);
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) is_ship_1_selected = true;
+        } else
+        if(CheckCollisionPointRec(GetMousePosition(), btn1)){
+            DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, RED);
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) is_ship_1_selected = false;
+        }
+        DrawRectangleRec(btn0, is_ship_1_selected ? GRAY : LIGHTGRAY);
+        DrawRectangleRec(btn1, is_ship_1_selected ? LIGHTGRAY : GRAY);
+        type_list[i] = (int)!is_ship_1_selected; //ship1 is 0, ship2 is 1, hence the !
     }
 }
 
