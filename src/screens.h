@@ -22,7 +22,8 @@ typedef enum
     GAME_OVER, // game over screen - when a ship gets destroyed
     ABOUT, // credits and basic gameplay
     GAME_MENU, // pressing esc in-game
-    GAMEMODES // choosing between real-time gameplay and turn-based gameplay
+    GAMEMODES, // choosing between real-time gameplay and turn-based gameplay
+    SHIP_SELECT
 } screen;
 
 extern int success_save;
@@ -38,8 +39,8 @@ extern RenderTexture screenCurrentShip;
 void InitMainWindow();
 void DeinitMainWindow();
 void DisplayMainScreen(Sound click);
-void DisplayGamemodesScreen(Sound click, int* player_count_addr);
-void DisplayShipSelectScreen(Sound click, Ship_data* ship_data_addr);
+void DisplayGamemodesScreen(Sound click, int* player_count_addr, char* real_or_turn_addr);
+void DisplayShipSelectScreen(Sound click, void* ship_data_addr_v, char real_or_turn);
 void DisplayGameOverScreen(int winnerId, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);
 void DisplayControlsScreen(Sound click);

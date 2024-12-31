@@ -57,12 +57,13 @@ int main() {
 
 	bool gen_obs = true;
 	Obstacles obstacles;
-	bool gen_ships = true;
 	Ship* ship_list;
 	int player_count = 2;
 	int* player_count_addr = &player_count; // pass onto gamemode screen
 	int type_list[8] = {0};
-	Ship_data ship_data;
+	Ship_data ship_data = CreateShipData(player_count, type_list);
+	char real_or_turn;
+	char* real_or_turn_addr = &real_or_turn;
 
 	//Recalculate SkyBox bounds
 	{
@@ -73,8 +74,7 @@ int main() {
 
 	// Reset ships-players
 	{
-		setjmp(reset_point);
-		ResetShipsState();
+		if(setjmp(reset_point)) ResetShipsState(&ship_data);
 	}
 
 	//! Game loop
@@ -92,14 +92,16 @@ int main() {
 			case GAMEMODES:
 			{
 				gen_obs = true;
-				gen_ships = true;
-				DisplayGamemodesScreen(click, player_count_addr);
+				DisplayGamemodesScreen(click, player_count_addr, real_or_turn_addr);
+				break;
+			}
+			case SHIP_SELECT:
+			{
+				DisplayShipSelectScreen(click, (void*)&ship_data, real_or_turn);
 				break;
 			}
 			case GAME_REAL:
-			{	if(gen_ships){
-					ship_data = CreateShipData(player_count, type_list);
-				}
+			{
 				if(gen_obs){
 					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
 					gen_obs = false;
@@ -108,9 +110,7 @@ int main() {
 				break;
 			}
 			case GAME_TURN:
-			{	if(gen_ships){
-					ship_data = CreateShipData(player_count, type_list);
-				}
+			{	
 				if(gen_obs){
 					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
 					gen_obs = false;

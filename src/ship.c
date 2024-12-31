@@ -82,7 +82,7 @@ Ship* SetupShips(int player_count, int* type_list)
         ship_inst.can_move = false;
         ship_inst.current_health = ship_inst.initial_health;
         ship_inst.id = i;
-        ship_inst.camera = &camera_addr;
+        ship_inst.camera = camera_addr;
         ship_inst.camera->up = (Vector3){0,0,1};
         ship_inst.camera->fovy = 45.0f;
         ship_inst.camera->projection = CAMERA_PERSPECTIVE;
@@ -106,28 +106,29 @@ Ship_data CreateShipData(int player_count, int* type_list){
     return ship_data;
 }
 
-void ResetShipsState() {
-    cannon1.relative_position = (Vector3){0, -8, 20};
-
-    ship1.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position
-    ship1.accel = default_accel;
-    ship1.position = (Vector3){0.0f, 17.0f, -50.0f};
-    ship1.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
-    ship1.cannonball = initcannonball;
-    ship1.yaw = 0;
-    ship1.can_move = false;
-    ship1.current_health = ship1.initial_health;
-
-    cannon2.relative_position = (Vector3){0, 1, 7};
-
-    ship2.camera->position = (Vector3){25.0f, 25.0f, 0.0f}; // Camera position
-    ship2.accel = default_accel;
-    ship2.position = (Vector3){0.0f, 7.5f, 50.0f};
-    ship2.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
-    ship2.cannonball = initcannonball;
-    ship2.yaw = 3.1415f;
-    ship2.can_move = false;
-    ship2.current_health = ship2.initial_health;
+void ResetShipsState(Ship_data* ship_data) {
+    for(int i = 0; i < ship_data->player_count; i++){
+        if(ship_data->type_list[i] == 0){
+            ship_data->ship_list[i].cannon->relative_position = (Vector3){0, -8, 20};
+            ship_data->ship_list[i].accel = (accel_settings){default_accel.r_coefficient / 1.2, default_accel.l_coefficient / 1.2,
+                                                default_accel.f_coefficient / 1.2, default_accel.b_coefficient / 1.2,
+                                                default_accel.turn_l_coefficient / 1.2, default_accel.turn_r_coefficient / 1.2,
+                                                default_accel.fire_coefficient / 1.2};
+        } else if(ship_data->type_list[i] == 1){
+            ship_data->ship_list[i].cannon->relative_position = (Vector3){0, 1, 7};
+            ship_data->ship_list[i].accel = (accel_settings){default_accel.r_coefficient * 1.2, default_accel.l_coefficient * 1.2,
+                                                default_accel.f_coefficient * 1.2, default_accel.b_coefficient * 1.2,
+                                                default_accel.turn_l_coefficient * 1.2, default_accel.turn_r_coefficient * 1.2,
+                                                default_accel.fire_coefficient * 1.2};
+        }
+        ship_data->ship_list[i].position = (Vector3){
+            GetRandomValue(-500, 500), 17, GetRandomValue(-500, 500) //add it via ref to bounds later
+        };
+        ship_data->ship_list[i].prev_position = Vector3Zero();
+        ship_data->ship_list[i].current_health = ship_data->ship_list[i].initial_health;
+        ship_data->ship_list[i].yaw = GetRandomValue(0, 6) + GetRandomValue(0, 2830) / 10000;
+        ship_data->ship_list[i].can_move = false;
+    }
 }
 
 void LoadShip(Ship *ship, const cJSON *shipState) {
@@ -174,7 +175,7 @@ void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
 {
     if(ship->can_move) {
         ship->prev_position = ship->position;
-            // Checking axis movement
+        // Checking axis movement
         if (IsKeyDown(ship->movement_buttons.forward))
         {
             ship->position = Vector3Add(ship->position,

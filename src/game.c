@@ -72,8 +72,8 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
 
     Update_Variables(ship_data, explosion, obstacles);
 
-    DrawGameState(ship_data, camera1, screenShip1, obstacles, water_model, sky_model, ship_data.ship_list[0], heart_full, heart_empty);
-    DrawGameState(ship_data, camera2, screenShip2, obstacles, water_model, sky_model, ship_data.ship_list[1], heart_full, heart_empty);
+    DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, water_model, sky_model, ship_data.ship_list[0], heart_full, heart_empty);
+    DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, water_model, sky_model, ship_data.ship_list[1], heart_full, heart_empty);
 
     if (startup_counter > 0)
     {
@@ -153,7 +153,6 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
         int number = rand() % ship_data.player_count;
         dice_state = 0; //thrown
         current_turn = &ship_data.ship_list[number];
-        next_turn = &ship_data.ship_list[number + 1];
     }
 
     if(reset_state) { //on 1, resets move_time and fire_time to default
@@ -161,7 +160,6 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
         fire_time = FIRE_TIME;
         startup_counter = GAME_STARTUP_COUNTER; //may remove
         current_turn->accel = default_accel;
-        next_turn->accel = default_accel;
         reset_state = 0; //reset
     }
 
@@ -198,7 +196,7 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
             DrawText(text, WIDTH / 2, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-            DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
             --startup_counter;
         }
         EndDrawing();
@@ -216,7 +214,7 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
             DrawText("Begin!", WIDTH / 2 - 70, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-            DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
             current_turn->can_move = true;
             --startup_counter; // game starts
         }
@@ -257,9 +255,7 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
                 current_turn->can_fire = false;
             }
             if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
-                void *temp = current_turn;
-                current_turn = next_turn;
-                next_turn = temp;
+                current_turn = &ship_data.ship_list[current_turn->id + 1];
                 reset_state = 1;
             }
         }
