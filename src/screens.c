@@ -202,10 +202,8 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
     EndDrawing();
 }
 
-void DisplayShipSelectScreen(Sound click, void *ship_data_addr_v, int player_count, char real_or_turn)
+void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char real_or_turn)
 {
-    Ship_data* ship_data_addr = (Ship_data*)ship_data_addr_v;
-
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -220,13 +218,13 @@ void DisplayShipSelectScreen(Sound click, void *ship_data_addr_v, int player_cou
         btn0.width = 80;
         btn1 = btn0;
         btn1.x += 80;
-        int type_list[8] = {0};
+        // size of typelist is 8
         for (int i = 0; i < player_count; i++) //dont use ship_data_addr->player_count
         {
             // outer rec
             Rec0.y = 55 + 25 * i;
             DrawRectangleLines(Rec0.x - 1, Rec0.y - 1, Rec0.width + 2, Rec0.height + 2, BLACK);
-            DrawText(TextFormat("Player %d:", ship_data_addr->ship_list[i].id), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
+            DrawText(TextFormat("Player %d:", i), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
             // prep for buttons
             btn0.y = Rec0.y;
             btn1.y = btn0.y;
@@ -244,9 +242,9 @@ void DisplayShipSelectScreen(Sound click, void *ship_data_addr_v, int player_cou
                     type_list[i] = 1;
             }
             else DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, BLACK);
-            DrawRectangleRec(btn0, ((bool)type_list[i]) ? GRAY : LIGHTGRAY);
+            DrawRectangleRec(btn0, ((bool)type_list[i]) ? LIGHTGRAY : GRAY);
             DrawText("SHIP 1", btn0.x + 1, btn0.y + 1, 20, BLACK);
-            DrawRectangleRec(btn1, ((bool)type_list[i]) ? LIGHTGRAY : GRAY);
+            DrawRectangleRec(btn1, ((bool)type_list[i]) ? GRAY : LIGHTGRAY);
             DrawText("SHIP 2", btn1.x + 1, btn1.y + 1, 20, BLACK);
         }
         bool tmp;

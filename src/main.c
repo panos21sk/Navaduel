@@ -73,10 +73,10 @@ int main() {
 		game_bounds.max = Vector3Scale(game_bounds.max, 900.0f);
 	}
 
-	// Reset ships-players
-	{
-		if(setjmp(reset_point)) ResetShipsState(&ship_data);
-	}
+	// // Reset ships-players
+	// {
+	// 	if(setjmp(reset_point)) ResetShipsState(&ship_data);
+	// }
 
 	//! Game loop
 	while (!exit_window)
@@ -99,7 +99,7 @@ int main() {
 			{
 				gen_obs = true;
 				gen_ships = true;
-				DisplayShipSelectScreen(click, (void*)&ship_data, player_count, real_or_turn);
+				DisplayShipSelectScreen(click, &type_list[0], player_count, real_or_turn);
 				break;
 			}
 			case GAME_REAL:
@@ -109,7 +109,7 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, type_list);
+					ship_data = CreateShipData(player_count, &type_list[0]);
 					gen_ships = false;
 				}
 				DisplayRealTimeGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
@@ -122,7 +122,7 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, type_list);
+					ResetShipsState(&ship_data);
 					gen_ships = false;
 				}
 				DisplayTurnBasedGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game

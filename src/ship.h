@@ -84,7 +84,7 @@ extern Camera camera2;
 
 Ship* SetupShips(int player_count, int* type_list);
 Ship_data CreateShipData(int player_count, int* type_list);
-void ResetShipsState();
+void ResetShipsState(Ship_data* ship_data);
 void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);

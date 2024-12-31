@@ -40,7 +40,7 @@ void InitMainWindow();
 void DeinitMainWindow();
 void DisplayMainScreen(Sound click);
 void DisplayGamemodesScreen(Sound click, int* player_count_addr, char* real_or_turn_addr);
-void DisplayShipSelectScreen(Sound click, void* ship_data_addr_v, int player_count, char real_or_turn);
+void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char real_or_turn);
 void DisplayGameOverScreen(int winnerId, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);
 void DisplayControlsScreen(Sound click);
