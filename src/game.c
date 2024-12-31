@@ -229,7 +229,7 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
 
             DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
-            DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Player %d", current_turn-> id + 1), WIDTH-150, 30, 20, RED);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
 
@@ -255,7 +255,11 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
                 current_turn->can_fire = false;
             }
             if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
-                current_turn = &ship_data.ship_list[current_turn->id + 1];
+                if(current_turn->id < ship_data.player_count - 1){
+                    current_turn = &ship_data.ship_list[current_turn->id + 1];
+                } else {
+                    current_turn = &ship_data.ship_list[0];
+                }
                 reset_state = 1;
             }
         }

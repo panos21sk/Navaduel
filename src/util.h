@@ -22,7 +22,7 @@ extern setting settings;
 bool isEvenNumber(int number);
 void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mouse_point, const Sound click, screen* current_screen, const screen scr, const bool sfx_en);
 void AddSetting(bool* setting, const char* setting_name, Rectangle rec, Sound click, bool sfx_en);
-void LoadSettings();
+void LoadSettings(bool* bgm_en);
 void UpdateSettingsConfig(setting settings);
 static int parseHandler(void* user, const char* section, const char* name, const char* value);
 cJSON *create_ship_json(Ship ship);

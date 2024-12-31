@@ -62,9 +62,10 @@ typedef struct {
     bool can_fire;
     bool can_move;
     int current_health;
+    accel_settings accel;
     //ship specific
     int initial_health;
-    accel_settings accel;
+    float max_accel;
     Vector3 camera_distance_vector_fp;
     Vector3 camera_distance_vector_tp;
     float sphere_hitbox_radius;
@@ -84,7 +85,6 @@ extern Camera camera2;
 
 Ship* SetupShips(int player_count, int* type_list);
 Ship_data CreateShipData(int player_count, int* type_list);
-void ResetShipsState(Ship_data* ship_data);
 void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(const Ship* ship);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);

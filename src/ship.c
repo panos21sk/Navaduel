@@ -39,20 +39,20 @@ Ship* SetupShips(int player_count, int* type_list)
         Cannon* cannon_addr = (Cannon*)MemAlloc(sizeof(Cannon));
         Ship ship_inst;
         Camera* camera_addr = (Camera*)MemAlloc(sizeof(Camera));
-        int init_y = 0;
+        float init_y;
 
         cannon_inst.rotation = Vector3Zero();
         cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
         cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
         //init for big ship
         if(type_list[i] == 0){
-            init_y = 17; //17 for ship 1
+            init_y = 17.0f; //17 for ship 1
             cannon_inst.relative_position = (Vector3){0, -8, 20};
             ship_inst.model = LoadModel("resources/models/ship1edited.glb");
-            ship_inst.accel = (accel_settings){default_accel.r_coefficient / 1.2, default_accel.l_coefficient / 1.2,
-                                                default_accel.f_coefficient / 1.2, default_accel.b_coefficient / 1.2,
-                                                default_accel.turn_l_coefficient / 1.2, default_accel.turn_r_coefficient / 1.2,
-                                                default_accel.fire_coefficient / 1.2}; 
+            ship_inst.max_accel = MAX_ACCEL * 0.7f;
+            ship_inst.accel = (accel_settings){
+                default_accel.f_coefficient 
+            };
 
             ship_inst.camera_distance_vector_tp = (Vector3){0.0f, 35.0f, -70.0f};
             ship_inst.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 16.0f};
@@ -61,13 +61,10 @@ Ship* SetupShips(int player_count, int* type_list)
         } 
         //init for small ship
         else if(type_list[i] == 1){
-            init_y = 17;
+            init_y = 8.0f;
             cannon_inst.relative_position = (Vector3){0, 1, 7};
             ship_inst.model = LoadModel("resources/models/ship2edited.glb");
-            ship_inst.accel = (accel_settings){default_accel.r_coefficient * 1.2, default_accel.l_coefficient * 1.2,
-                                                default_accel.f_coefficient * 1.2, default_accel.b_coefficient * 1.2,
-                                                default_accel.turn_l_coefficient * 1.2, default_accel.turn_r_coefficient * 1.2,
-                                                default_accel.fire_coefficient * 1.2}; 
+            ship_inst.max_accel = MAX_ACCEL * 1.5f;
 
             ship_inst.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
             ship_inst.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
@@ -82,6 +79,7 @@ Ship* SetupShips(int player_count, int* type_list)
         *ship_inst.cannon = cannon_inst;
         ship_inst.cannonball = initcannonball;
         ship_inst.yaw = GetRandomValue(0, 6) + GetRandomValue(0, 2830) / 10000;
+        ship_inst.accel = default_accel;
         ship_inst.can_move = false;
         ship_inst.current_health = ship_inst.initial_health;
         ship_inst.id = i;
@@ -107,31 +105,6 @@ Ship_data CreateShipData(int player_count, int* type_list){
 	ship_data.player_count = player_count;
 	ship_data.type_list = type_list;
     return ship_data;
-}
-
-void ResetShipsState(Ship_data* ship_data) {
-    for(int i = 0; i < ship_data->player_count; i++){
-        if(ship_data->type_list[i] == 0){
-            ship_data->ship_list[i].cannon->relative_position = (Vector3){0, -8, 20};
-            ship_data->ship_list[i].accel = (accel_settings){default_accel.r_coefficient / 1.2, default_accel.l_coefficient / 1.2,
-                                                default_accel.f_coefficient / 1.2, default_accel.b_coefficient / 1.2,
-                                                default_accel.turn_l_coefficient / 1.2, default_accel.turn_r_coefficient / 1.2,
-                                                default_accel.fire_coefficient / 1.2};
-        } else if(ship_data->type_list[i] == 1){
-            ship_data->ship_list[i].cannon->relative_position = (Vector3){0, 1, 7};
-            ship_data->ship_list[i].accel = (accel_settings){default_accel.r_coefficient * 1.2, default_accel.l_coefficient * 1.2,
-                                                default_accel.f_coefficient * 1.2, default_accel.b_coefficient * 1.2,
-                                                default_accel.turn_l_coefficient * 1.2, default_accel.turn_r_coefficient * 1.2,
-                                                default_accel.fire_coefficient * 1.2};
-        }
-        ship_data->ship_list[i].position = (Vector3){
-            GetRandomValue(-500, 500), 17, GetRandomValue(-500, 500) //add it via ref to bounds later
-        };
-        ship_data->ship_list[i].prev_position = Vector3Zero();
-        ship_data->ship_list[i].current_health = ship_data->ship_list[i].initial_health;
-        ship_data->ship_list[i].yaw = GetRandomValue(0, 6) + GetRandomValue(0, 2830) / 10000;
-        ship_data->ship_list[i].can_move = false;
-    }
 }
 
 void LoadShip(Ship *ship, const cJSON *shipState) {
@@ -174,7 +147,7 @@ void DestroyShip(const Ship* ship){
     UnloadModel(ship->cannon->stand_model);
 }
 
-void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
+void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
 {
     if(ship->can_move) {
         ship->prev_position = ship->position;
@@ -186,7 +159,7 @@ void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
                                             (Vector3){0, 0, MOVEMENT_STEP * ship->accel.f_coefficient},
                                             (Vector3){0, 1, 0},
                                             ship->yaw));
-            ship->accel.f_coefficient = (ship->accel.f_coefficient < MAX_ACCEL) ? (ship->accel.f_coefficient + ACCEL_STEP) : MAX_ACCEL;
+            ship->accel.f_coefficient = (ship->accel.f_coefficient < ship->max_accel) ? (ship->accel.f_coefficient + ACCEL_STEP) : ship->max_accel;
         }
         if (IsKeyDown(ship->movement_buttons.backwards))
         {
@@ -195,17 +168,17 @@ void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
                                             (Vector3){0, 0, -MOVEMENT_STEP * ship->accel.b_coefficient},
                                             (Vector3){0, 1, 0},
                                             ship->yaw));
-            ship->accel.b_coefficient = (ship->accel.b_coefficient < MAX_ACCEL) ? (ship->accel.b_coefficient + ACCEL_STEP) : MAX_ACCEL;
+            ship->accel.b_coefficient = (ship->accel.b_coefficient < ship->max_accel) ? (ship->accel.b_coefficient + ACCEL_STEP) : ship->max_accel;
         }
         if (IsKeyDown(ship->movement_buttons.left))
         {
             ship->yaw += MOVEMENT_STEP * ship->accel.l_coefficient * 0.02f;
-            ship->accel.l_coefficient = (ship->accel.l_coefficient < MAX_ACCEL) ? (ship->accel.l_coefficient + ACCEL_STEP) : MAX_ACCEL;
+            ship->accel.l_coefficient = (ship->accel.l_coefficient < ship->max_accel) ? (ship->accel.l_coefficient + ACCEL_STEP) : ship->max_accel;
         }
         if (IsKeyDown(ship->movement_buttons.right))
         {
             ship->yaw += -MOVEMENT_STEP * ship->accel.r_coefficient * 0.02f;
-            ship->accel.r_coefficient = (ship->accel.r_coefficient < MAX_ACCEL) ? (ship->accel.r_coefficient + ACCEL_STEP) : MAX_ACCEL;
+            ship->accel.r_coefficient = (ship->accel.r_coefficient < ship->max_accel) ? (ship->accel.r_coefficient + ACCEL_STEP) : ship->max_accel;
         }
         // Setting all acceleration coefficients back to std
         // Realistic ship physics while on water (deacceleration)
@@ -256,12 +229,12 @@ void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
         if (IsKeyDown(ship->movement_buttons.turn_cannon_left))
         {
             ship->cannon->rotation.y = (ship->cannon->rotation.y > -MAX_TURN) ? (ship->cannon->rotation.y - MOVEMENT_STEP / 10.0f * ship->accel.turn_l_coefficient) : (float)-MAX_TURN;
-            ship->accel.turn_l_coefficient = (ship->accel.l_coefficient < MAX_ACCEL) ? (ship->accel.turn_l_coefficient + ACCEL_STEP) : MAX_ACCEL;
+            ship->accel.turn_l_coefficient = (ship->accel.l_coefficient < ship->max_accel) ? (ship->accel.turn_l_coefficient + ACCEL_STEP) : ship->max_accel;
         }
         if (IsKeyDown(ship->movement_buttons.turn_cannon_right))
         {
             ship->cannon->rotation.y = (ship->cannon->rotation.y < MAX_TURN) ? ship->cannon->rotation.y + MOVEMENT_STEP / 10.0f * ship->accel.turn_r_coefficient : (float)MAX_TURN;
-            ship->accel.turn_r_coefficient = (ship->accel.r_coefficient < MAX_ACCEL) ? (ship->accel.turn_r_coefficient + ACCEL_STEP) : MAX_ACCEL;
+            ship->accel.turn_r_coefficient = (ship->accel.r_coefficient < ship->max_accel) ? (ship->accel.turn_r_coefficient + ACCEL_STEP) : ship->max_accel;
         }
         if (IsKeyUp(ship->movement_buttons.turn_cannon_left))
         {
@@ -312,9 +285,9 @@ void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
         {
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
             ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
-            ship->accel.fire_coefficient = (ship->accel.fire_coefficient < MAX_ACCEL)
+            ship->accel.fire_coefficient = (ship->accel.fire_coefficient < ship->max_accel)
                                                ? ship->accel.fire_coefficient + ACCEL_STEP
-                                               : MAX_ACCEL;
+                                               : ship->max_accel;
         }
         else
         {

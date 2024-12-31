@@ -1,5 +1,6 @@
 #include <setjmp.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "raylib.h"
 #include "ship.h"
@@ -9,24 +10,25 @@
 #include "raymath.h"
 
 int main() {
-    SetTraceLogLevel(7);
+    //SetTraceLogLevel(7);
 	//! Main window initialization
 	InitMainWindow();
 
 	//! Load game settings
-	LoadSettings();
-
+	bool bgm_en;
+	bgm_en = true;
+	if(access("config.ini", F_OK) == 0){
+		LoadSettings(&bgm_en);
+	}
 	//! Initalize Audio and start bgm
 	InitAudioDevice();
 	//start bgm
     //Music from #Uppbeat (free for Creators!):
     //https://uppbeat.io/t/studiokolomna/corsairs
     Music bgm = LoadMusicStream("resources/sound/music/corsairs-studiokolomna-main-version-23542-02-33.mp3");
-    PlayMusicStream(bgm);
+	PlayMusicStream(bgm);
     //pause with StopMusicStream(bgm), resume with ResumeMusicStream(bgm);
-	bool bgm_en;
-	bgm_en = true;
-
+	
 	//! Iniatializing Models for rendering
 	const Texture2D water_tex = LoadTexture("resources/sprites/water.png");
 	const Mesh water_cube = GenMeshCube(300, 1, 300);
@@ -61,10 +63,11 @@ int main() {
 	int player_count = 2;
 	int* player_count_addr = &player_count; // pass onto gamemode screen
 	int type_list[8] = {0};
-	bool gen_ships = true;
+	bool gen_ships;
 	Ship_data ship_data;
 	char real_or_turn;
 	char* real_or_turn_addr = &real_or_turn;
+	
 
 	//Recalculate SkyBox bounds
 	{
@@ -73,11 +76,10 @@ int main() {
 		game_bounds.max = Vector3Scale(game_bounds.max, 900.0f);
 	}
 
-	// // Reset ships-players
+	// Reset ships-players
 	// {
 	// 	if(setjmp(reset_point)) ResetShipsState(&ship_data);
 	// }
-
 	//! Game loop
 	while (!exit_window)
 	{
@@ -122,7 +124,7 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ResetShipsState(&ship_data);
+					ship_data = CreateShipData(player_count, &type_list[0]);
 					gen_ships = false;
 				}
 				DisplayTurnBasedGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
