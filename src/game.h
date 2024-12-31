@@ -11,6 +11,7 @@
 extern int winner;
 extern int startup_counter;
 extern int dice_state;
+extern int reset_state;
 extern int move_time;
 extern int fire_time;
 extern Ship *current_turn;

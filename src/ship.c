@@ -157,7 +157,7 @@ void LoadShip(Ship *ship, const cJSON *shipState) {
     ship->can_move = false;
 }
 
-void DestroyShip(const Ship* ship){
+void DestroyShip(const Ship *ship){
     UnloadModel(ship->model);
     UnloadModel(ship->cannon->rail_model);
     UnloadModel(ship->cannon->stand_model);
@@ -382,7 +382,7 @@ void *EndGame(void *arg)
 }
 
 //TODO: Make function return int specifying player id of winner
-void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Obstacles obstacles, bool sfx_en)
+void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, const Sound explosion, const Obstacles obstacles, const bool sfx_en)
 {
     // adding small delay before stopping game to improve game feel. Maybe add game end animation by passing in here a pointer to the game state and changing it
     // to game_end = true for example, and then render in another way
@@ -396,6 +396,8 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
             if (enemy_ship->current_health <= 0)
             {
                 winner = player_ship->id;
+                player_ship->can_move = false;
+                enemy_ship->can_move = false;
                 pthread_t wait_before_end;
                 pthread_create(&wait_before_end, NULL, EndGame, state);
                 pthread_detach(wait_before_end);

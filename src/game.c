@@ -21,16 +21,18 @@ BoundingBox game_bounds;
 int allow_next_loop = 1; //controls loops, DO NOT DELETE IN ANY CASE (the program will hang up)
 
 /* Turn-based gameplay declarations */
-// move_time and fire_time are external -> to be saved in every game state
+Cannonball cannonball;
 int move_time = MOVEMENT_TIME;
 int fire_time = FIRE_TIME;
 Ship *current_turn;
 Ship *next_turn;
 int dice_state = 1; //dice = choosing randomly a player for turn-based gameplay
-int reset_state = 0;
+int reset_state = 1;
+bool has_fired_once = false;
 void *DecreaseTime(void *arg);
 void *DecreaseCounter(void *arg);
 
+/* Threads */
 pthread_t decrement_counter_thread;
 pthread_t decrement_move_time_thread;
 pthread_t decrement_fire_time_thread;
@@ -171,11 +173,19 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
     }
 
     if(reset_state) { //on 1, resets move_time and fire_time to default
+        cannonball.position = (Vector3){0, 1000, 0};
+        cannonball.velocity = Vector3Zero();
+        cannonball.accel = Vector3Zero();
+        cannonball.has_splashed = true;
+        cannonball.has_hit_enemy = true;
+
         move_time = MOVEMENT_TIME;
         fire_time = FIRE_TIME;
         startup_counter = GAME_STARTUP_COUNTER; //may remove
+        has_fired_once = false;
         current_turn->accel = default_accel;
         next_turn->accel = default_accel;
+        next_turn->cannonball = cannonball;
         reset_state = 0; //reset
     }
 
@@ -256,36 +266,39 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-
-            while(move_time > 0 && allow_next_loop) {
-                current_turn->can_fire = false;
-                allow_next_loop = 0;
-                pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
-                pthread_detach(decrement_move_time_thread);
-            }
-            pthread_cancel(decrement_move_time_thread);
-            if(move_time == 0) {
-                current_turn->can_move = false;
-                if(fire_time != 0) current_turn->can_fire = true;
-            }
-
-            while(move_time == 0 && fire_time > 0 && allow_next_loop) {
-                allow_next_loop = 0;
-                pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
-                pthread_detach(decrement_fire_time_thread);
-            }
-            pthread_cancel(decrement_fire_time_thread);
-            if(fire_time == 0) {
-                current_turn->can_fire = false;
-            }
-            if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
-                void *temp = current_turn;
-                current_turn = next_turn;
-                next_turn = temp;
-                reset_state = 1;
-            }
         }
         EndDrawing();
+
+        while(move_time > 0 && allow_next_loop) {
+            current_turn->can_fire = false;
+            allow_next_loop = 0;
+            pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
+            pthread_detach(decrement_move_time_thread);
+        }
+        pthread_cancel(decrement_move_time_thread);
+        if(move_time == 0) {
+            current_turn->can_move = false;
+            current_turn->can_fire = true;
+        }
+
+        if(current_turn->cannonball.position.y < 0) {
+            has_fired_once = true;
+        }
+        while(move_time == 0 && fire_time > 0 && allow_next_loop) {
+            allow_next_loop = 0;
+            pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
+            pthread_detach(decrement_fire_time_thread);
+        }
+        pthread_cancel(decrement_fire_time_thread);
+        if(fire_time == 0 || has_fired_once) {
+            current_turn->can_fire = false;
+        }
+        if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
+            void *temp = current_turn;
+            current_turn = next_turn;
+            next_turn = temp;
+            reset_state = 1;
+        }
     }
 }
 

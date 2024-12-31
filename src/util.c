@@ -68,6 +68,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                 if(*current_screen == GAMEMODES && scr != MAIN) {
                     gamemode = scr; //saves selected gamemode
                     dice_state = 1;
+                    reset_state = 1;
                 }
                 if(*current_screen != MAIN) success_load = 1;
                 if(*current_screen == GAME_MENU) {
