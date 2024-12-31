@@ -14,6 +14,14 @@ int control_index = 0;
 jmp_buf reset_point;
 setting settings;
 
+Ship *getShipFromId(const int id) {
+    switch(id) {
+        case 1: return &ship1;
+        case 2: return &ship2;
+        default: return NULL;
+    }
+}
+
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
     return false;
