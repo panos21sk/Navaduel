@@ -61,6 +61,7 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
     CheckMovement(&ship_data.ship_list[1], fire, settings.enable_sfx);
 
     // Update Camera manually
+    // TODO: Find a way to get the camera behind the ship regardless of where its facing
     UpdateShipCamera(&ship_data.ship_list[0], settings.first_or_third_person_cam);
     UpdateShipCamera(&ship_data.ship_list[1], settings.first_or_third_person_cam);
 

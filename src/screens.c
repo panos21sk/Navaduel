@@ -190,11 +190,11 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) if(CheckCollisionPointRec(GetMousePosition(), real_time_1v1_button)) *real_or_turn_addr = 'r';
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) if(CheckCollisionPointRec(GetMousePosition(), turn_based_1v1_button)) *real_or_turn_addr = 't';
-        if(*player_count_addr == 2){
+        if(key % 48 == 2){
             AddScreenChangeBtn(real_time_1v1_button, "REAL-TIME 1V1", GetMousePosition(), click, &current_screen, SHIP_SELECT, settings.enable_sfx);
             AddScreenChangeBtn(turn_based_1v1_button, "TURN-BASED", GetMousePosition(), click, &current_screen, SHIP_SELECT, settings.enable_sfx);
         } else {
-            AddScreenChangeBtn(turn_based_1v1_button, "TURN-BASED", GetMousePosition(), click, &current_screen, SHIP_SELECT, settings.enable_sfx);
+
         }
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
@@ -225,7 +225,7 @@ void DisplayShipSelectScreen(Sound click, void *ship_data_addr_v, char real_or_t
             // outer rec
             Rec0.y = 55 + 25 * i;
             DrawRectangleLines(Rec0.x - 1, Rec0.y - 1, Rec0.width + 2, Rec0.height + 2, BLACK);
-            DrawText(TextFormat("Player %d:", i + 1), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
+            DrawText(TextFormat("Player %d:", ship_data_addr->ship_list[i].id), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
             // prep for buttons
             btn0.y = Rec0.y;
             btn1.y = btn0.y;
