@@ -14,6 +14,14 @@ int control_index = 0;
 jmp_buf reset_point;
 setting settings;
 
+Ship *getShipFromId(const int id) {
+    switch(id) {
+        case 1: return &ship1;
+        case 2: return &ship2;
+        default: return NULL;
+    }
+}
+
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
     return false;
@@ -67,7 +75,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                     if(scr == MAIN) {
                         while(control_index < 1) {
                             ++control_index;
-                            longjmp(reset_point, 0);
+                            longjmp(reset_point, 1);
                         }
                     }
                 }
@@ -79,7 +87,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                         }
                         ++control_index;
                         startup_counter = GAME_STARTUP_COUNTER;
-                        longjmp(reset_point, 0);
+                        longjmp(reset_point, 1);
                     }
                 }
                 if(sfx_en) PlaySound(click);

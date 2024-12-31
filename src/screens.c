@@ -98,10 +98,23 @@ void DisplayMainScreen(const Sound click)
                             return;
                         }
 
-                        cJSON *ship1State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship1");
-                        cJSON *ship2State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship2");
-                        cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
+                        const cJSON *ship1State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship1");
+                        const cJSON *ship2State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship2");
+                        const cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
                         gamemode = strcmp(gamemodeSt->valuestring, "GAME_REAL") == 0 ? GAME_REAL : GAME_TURN;
+
+                        if(gamemode == GAME_TURN) {
+                            const cJSON *move_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "move_time");
+                            const cJSON *fire_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "fire_time");
+                            const cJSON *c_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "current_turn");
+                            const cJSON *n_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "next_turn");
+
+                            move_time = move_t->valueint;
+                            fire_time = fire_t->valueint;
+                            current_turn = getShipFromId(c_turn->valueint);
+                            next_turn = getShipFromId(n_turn->valueint);
+                        }
+
                         LoadShip(&ship1, ship1State);
                         LoadShip(&ship2, ship2State);
                         success_load = !fclose(stateFile);

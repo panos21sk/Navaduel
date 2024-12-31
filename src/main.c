@@ -72,10 +72,7 @@ int main() {
 	}
 
 	// Reset ships-players
-	{
-		setjmp(reset_point);
-		ResetShipsState();
-	}
+	if(setjmp(reset_point)) ResetShipsState();
 
 	//! Game loop
 	while (!exit_window)
