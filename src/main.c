@@ -33,7 +33,7 @@ int main() {
 	bgm_en = true;
 
 	//! Iniatializing Models for rendering
-	const Texture2D water_tex = LoadTexture("resources/sprites/water.png");
+	const Texture2D water_tex = LoadTexture("resources/sprites/water-modified.png");
 	const Mesh water_cube = GenMeshCube(300, 1, 300);
 	Model water_model = LoadModelFromMesh(water_cube);
 	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex;
