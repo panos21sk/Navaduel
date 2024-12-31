@@ -1,6 +1,7 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
+#include "obstacles.h"
 #include "raylib.h"
 #ifndef bool
 #include <stdbool.h>
@@ -37,12 +38,12 @@ extern RenderTexture screenCurrentShip;
 
 void InitMainWindow();
 void DeinitMainWindow();
-void DisplayMainScreen(Sound click);
+void DisplayMainScreen(Sound click, Obstacles *obstacles);
 void DisplayGamemodesScreen(Sound click);
 void DisplayGameOverScreen(int winnerId, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);
 void DisplayControlsScreen(Sound click);
 void DisplayAboutScreen(Sound click);
-void DisplayGameMenuScreen(Sound click);
+void DisplayGameMenuScreen(Sound click, Obstacles obstacles);
 
 #endif //SCREENS_H

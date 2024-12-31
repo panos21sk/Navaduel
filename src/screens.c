@@ -1,4 +1,5 @@
 #include "screens.h"
+#include "obstacles.h"
 #include "ship.h"
 #include "util.h"
 #include "raylib.h"
@@ -55,7 +56,7 @@ void InitMainWindow()
     screenCurrentShip = LoadRenderTexture(WIDTH, HEIGHT);
 }
 
-void DisplayMainScreen(const Sound click)
+void DisplayMainScreen(const Sound click, Obstacles *obstacles)
 {
     startup_counter = GAME_STARTUP_COUNTER;
     control_index = 0;
@@ -79,7 +80,7 @@ void DisplayMainScreen(const Sound click)
                 {
                     PlaySound(click);
 
-                    //TODO: (In the future) Let the user choose their desired game state
+                    // Loads the most recently saved game state
                     if(success_load == 1) {
                         //init
                         FILE *stateFile = fopen("game.json", "r");
@@ -101,6 +102,9 @@ void DisplayMainScreen(const Sound click)
                         const cJSON *ship1State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship1");
                         const cJSON *ship2State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship2");
                         const cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
+                        const cJSON *rock_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "rock_count");
+                        const cJSON *island_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "island_count");
+
                         gamemode = strcmp(gamemodeSt->valuestring, "GAME_REAL") == 0 ? GAME_REAL : GAME_TURN;
 
                         if(gamemode == GAME_TURN) {
@@ -113,6 +117,15 @@ void DisplayMainScreen(const Sound click)
                             fire_time = fire_t->valueint;
                             current_turn = getShipFromId(c_turn->valueint);
                             next_turn = getShipFromId(n_turn->valueint);
+                        }
+
+                        Island island_list[island_count->valueint];
+                        Rock rock_list[rock_count->valueint];
+
+                        for(int i = 0; i < island_count->valueint; i++) {
+                            Island island;
+
+                            cJSON *island_info = cJSON_GetObjectItemCaseSensitive(jsonstate, TextFormat("island_%d", i));
                         }
 
                         LoadShip(&ship1, ship1State);
@@ -195,7 +208,7 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
     EndDrawing();
 }
 
-void DisplayGameMenuScreen(const Sound click) {
+void DisplayGameMenuScreen(const Sound click, Obstacles obstacles) {
     if(IsKeyPressed(KEY_ESCAPE)) {
         current_screen = gamemode;
         success_save = 0;
@@ -219,15 +232,40 @@ void DisplayGameMenuScreen(const Sound click) {
                 {
                     PlaySound(click);
 
-                    // Saving ships' state
+                    // Saving data
                     cJSON *jsonship1 = create_ship_json(ship1);
                     cJSON *jsonship2 = create_ship_json(ship2);
                     cJSON *jsonfinal = cJSON_CreateObject();
                     cJSON *gamemodeSt = cJSON_CreateString(gamemode == GAME_REAL ? "GAME_REAL" : "GAME_TURN");
+                    cJSON *rock_count = cJSON_CreateNumber(obstacles.rock_count);
+                    cJSON *island_count = cJSON_CreateNumber(obstacles.island_count);
+                    cJSON *rock_array = cJSON_CreateArray();
 
                     cJSON_AddItemToObject(jsonfinal, "ship1", jsonship1);
                     cJSON_AddItemToObject(jsonfinal, "ship2", jsonship2);
                     cJSON_AddItemToObject(jsonfinal, "gamemode", gamemodeSt);
+                    cJSON_AddItemToObject(jsonfinal, "rock_count", rock_count);
+                    cJSON_AddItemToObject(jsonfinal, "island_count", island_count);
+
+                    // Registering rocks to game.json
+                    for(int i = 0; i < obstacles.rock_count; i++) {
+                        cJSON *rock_info = cJSON_CreateArray();
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.x));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.y));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.z));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].height));
+                        cJSON_AddItemToObject(jsonfinal, TextFormat("rock_%d", i), rock_info);
+                    }
+
+                    // Registering islands to game.json
+                    for(int i = 0; i < obstacles.island_count; i++) {
+                        cJSON *island_info = cJSON_CreateArray();
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.x));
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.y));
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.z));
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].radius));
+                        cJSON_AddItemToObject(jsonfinal, TextFormat("island_%d", i), island_info);
+                    }
 
                     if(gamemode == GAME_TURN) {
                         cJSON *move_t = cJSON_CreateNumber(move_time);

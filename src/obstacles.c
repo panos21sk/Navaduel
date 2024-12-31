@@ -1,5 +1,6 @@
 #include "obstacles.h"
 #include "game.h"
+#include "raymath.h"
 
 Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, Vector2 opp_corner_bound){
     Island island_instance;

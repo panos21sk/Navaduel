@@ -8,6 +8,8 @@
 #include "game.h"
 #include "raymath.h"
 
+#define BOUNDS_SCALAR 900.0f
+
 int main() {
     SetTraceLogLevel(7);
 	//! Main window initialization
@@ -67,8 +69,8 @@ int main() {
 	//Recalculate SkyBox bounds
 	{
 		game_bounds = GetMeshBoundingBox(skybox_model.meshes[0]);
-		game_bounds.min = Vector3Scale(game_bounds.min, 900.0f);
-		game_bounds.max = Vector3Scale(game_bounds.max, 900.0f);
+		game_bounds.min = Vector3Scale(game_bounds.min, BOUNDS_SCALAR);
+		game_bounds.max = Vector3Scale(game_bounds.max, BOUNDS_SCALAR);
 	}
 
 	// Reset ships-players
@@ -83,7 +85,7 @@ int main() {
 		switch (current_screen) {
 			case MAIN:
 			{
-				DisplayMainScreen(click); //Displays the game's MAIN screen
+				DisplayMainScreen(click, &obstacles); //Displays the game's MAIN screen
 				break;
 			}
 			case GAMEMODES:
@@ -103,7 +105,7 @@ int main() {
 			}
 			case GAME_MENU:
 			{
-				DisplayGameMenuScreen(click);
+				DisplayGameMenuScreen(click, obstacles);
 				break;
 			}
 			case GAME_OVER:
@@ -136,6 +138,8 @@ int main() {
 	UnloadModel(skybox_model);
 	UnloadTexture(water_tex);
 	UnloadTexture(skybox_texture);
+	UnloadMaterial(skybox_material);
+	UnloadMesh(skybox_cube);
 	UnloadSound(click);
 	UnloadSound(fire);
 	UnloadSound(splash);
@@ -146,6 +150,8 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
+	UnloadModel(ship1.model);
+	UnloadModel(ship2.model);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function
 	// TODO: properly unload island and rock models (throws an error if not)
