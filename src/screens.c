@@ -108,7 +108,7 @@ void DisplayMainScreen(const Sound click)
                             const cJSON *fire_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "fire_time");
                             const cJSON *c_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "current_turn");
                             const cJSON *n_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "next_turn");
-
+                            
                             move_time = move_t->valueint;
                             fire_time = fire_t->valueint;
                             current_turn = getShipFromId(c_turn->valueint);

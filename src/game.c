@@ -29,6 +29,11 @@ Ship *next_turn;
 int dice_state = 1; //dice = choosing randomly a player for turn-based gameplay
 int reset_state = 0;
 void *DecreaseTime(void *arg);
+void *DecreaseCounter(void *arg);
+
+pthread_t decrement_counter_thread;
+pthread_t decrement_move_time_thread;
+pthread_t decrement_fire_time_thread;
 
 /**
  * @brief Description to-do
@@ -89,10 +94,13 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             sprintf(text, "%d", startup_counter);
             DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
             DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            --startup_counter;
+            while(allow_next_loop) { //decreasing startup count
+                allow_next_loop = 0;
+                pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+                pthread_detach(decrement_counter_thread);
+            }
         }
         EndDrawing();
-        sleep(1);
         free(text);
     }
     else if (startup_counter == 0)
@@ -108,11 +116,14 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             DrawText("Begin!", WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
             DrawText("Begin!", 3 * WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
             ship1->can_move = true;
+            ship1->can_fire = true;
             ship2->can_move = true;
-            --startup_counter; // game starts
+            ship2->can_fire = true;
+
+            pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+            pthread_detach(decrement_counter_thread);
         }
         EndDrawing();
-        sleep(1); //TODO: Find solution without using sleep
     }
     else
     {
@@ -123,6 +134,9 @@ void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
             DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+
+            ship1->can_fire = true;
+            ship2->can_fire = true;
         }
         EndDrawing();
     }
@@ -199,11 +213,15 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
             DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
-            --startup_counter;
         }
         EndDrawing();
-        sleep(1);
         free(text);
+
+        if(allow_next_loop) {
+            allow_next_loop = 0;
+            pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+            pthread_detach(decrement_counter_thread);
+        }
     }
     else if (startup_counter == 0)
     {
@@ -218,10 +236,14 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
             DrawText(current_turn->id == 1 ? "Player 1" : "Player 2", WIDTH-150, 30, 20, RED);
             current_turn->can_move = true;
-            --startup_counter; // game starts
         }
         EndDrawing();
-        sleep(1);
+
+        if(allow_next_loop) {
+            allow_next_loop = 0;
+            pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+            pthread_detach(decrement_counter_thread);
+        }
     }
     else
     {
@@ -238,10 +260,10 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
             while(move_time > 0 && allow_next_loop) {
                 current_turn->can_fire = false;
                 allow_next_loop = 0;
-                pthread_t decrement_thread;
-                pthread_create(&decrement_thread, NULL, DecreaseTime, &move_time);
-                pthread_detach(decrement_thread);
+                pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
+                pthread_detach(decrement_move_time_thread);
             }
+            pthread_cancel(decrement_move_time_thread);
             if(move_time == 0) {
                 current_turn->can_move = false;
                 if(fire_time != 0) current_turn->can_fire = true;
@@ -249,10 +271,10 @@ void DisplayTurnBasedGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
 
             while(move_time == 0 && fire_time > 0 && allow_next_loop) {
                 allow_next_loop = 0;
-                pthread_t decrement_thread;
-                pthread_create(&decrement_thread, NULL, DecreaseTime, &fire_time);
-                pthread_detach(decrement_thread);
+                pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
+                pthread_detach(decrement_fire_time_thread);
             }
+            pthread_cancel(decrement_fire_time_thread);
             if(fire_time == 0) {
                 current_turn->can_fire = false;
             }
@@ -350,5 +372,12 @@ void *DecreaseTime(void *arg) {
     int *input = (int *)arg;
     (*input)--;
     sleep(1); //1 second off
+    allow_next_loop = 1;
+}
+
+void *DecreaseCounter(void *arg) {
+    int *input = (int *)arg;
+    sleep(1);
+    (*input)--;
     allow_next_loop = 1;
 }
