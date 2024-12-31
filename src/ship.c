@@ -39,12 +39,14 @@ Ship* SetupShips(int player_count, int* type_list)
         Cannon* cannon_addr = (Cannon*)MemAlloc(sizeof(Cannon));
         Ship ship_inst;
         Camera* camera_addr = (Camera*)MemAlloc(sizeof(Camera));
+        int init_y = 0;
 
         cannon_inst.rotation = Vector3Zero();
         cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
         cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
         //init for big ship
         if(type_list[i] == 0){
+            init_y = 17; //17 for ship 1
             cannon_inst.relative_position = (Vector3){0, -8, 20};
             ship_inst.model = LoadModel("resources/models/ship1edited.glb");
             ship_inst.accel = (accel_settings){default_accel.r_coefficient / 1.2, default_accel.l_coefficient / 1.2,
@@ -59,6 +61,7 @@ Ship* SetupShips(int player_count, int* type_list)
         } 
         //init for small ship
         else if(type_list[i] == 1){
+            init_y = 17;
             cannon_inst.relative_position = (Vector3){0, 1, 7};
             ship_inst.model = LoadModel("resources/models/ship2edited.glb");
             ship_inst.accel = (accel_settings){default_accel.r_coefficient * 1.2, default_accel.l_coefficient * 1.2,
@@ -72,7 +75,7 @@ Ship* SetupShips(int player_count, int* type_list)
             ship_inst.initial_health = 3;
         }
         ship_inst.position = (Vector3){
-                GetRandomValue(-500, 500), 17, GetRandomValue(-500, 500) //add it via ref to bounds later
+                GetRandomValue(-500, 500), init_y, GetRandomValue(-500, 500) //add it via ref to bounds later
             };
         ship_inst.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
         ship_inst.cannon = cannon_addr;

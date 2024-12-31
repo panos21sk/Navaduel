@@ -61,7 +61,8 @@ int main() {
 	int player_count = 2;
 	int* player_count_addr = &player_count; // pass onto gamemode screen
 	int type_list[8] = {0};
-	Ship_data ship_data = CreateShipData(player_count, type_list);
+	bool gen_ships = true;
+	Ship_data ship_data;
 	char real_or_turn;
 	char* real_or_turn_addr = &real_or_turn;
 
@@ -91,13 +92,14 @@ int main() {
 			}
 			case GAMEMODES:
 			{
-				gen_obs = true;
 				DisplayGamemodesScreen(click, player_count_addr, real_or_turn_addr);
 				break;
 			}
 			case SHIP_SELECT:
 			{
-				DisplayShipSelectScreen(click, (void*)&ship_data, real_or_turn);
+				gen_obs = true;
+				gen_ships = true;
+				DisplayShipSelectScreen(click, (void*)&ship_data, player_count, real_or_turn);
 				break;
 			}
 			case GAME_REAL:
@@ -105,6 +107,10 @@ int main() {
 				if(gen_obs){
 					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
 					gen_obs = false;
+				}
+				if(gen_ships){
+					ship_data = CreateShipData(player_count, type_list);
+					gen_ships = false;
 				}
 				DisplayRealTimeGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
 				break;
@@ -114,6 +120,10 @@ int main() {
 				if(gen_obs){
 					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
 					gen_obs = false;
+				}
+				if(gen_ships){
+					ship_data = CreateShipData(player_count, type_list);
+					gen_ships = false;
 				}
 				DisplayTurnBasedGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
 				break;
