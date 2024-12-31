@@ -7,7 +7,6 @@
 #include "cJSON.h"
 #include <setjmp.h>
 #include <stdlib.h>
-#include <time.h> //for srand
 #include <string.h>
 
 int control_index = 0;

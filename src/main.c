@@ -85,7 +85,7 @@ int main() {
 		switch (current_screen) {
 			case MAIN:
 			{
-				DisplayMainScreen(click, &obstacles); //Displays the game's MAIN screen
+				DisplayMainScreen(click, &obstacles, sand_tex, palm_tree, rock_tex); //Displays the game's MAIN screen
 				break;
 			}
 			case GAMEMODES:

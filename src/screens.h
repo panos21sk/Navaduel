@@ -38,7 +38,7 @@ extern RenderTexture screenCurrentShip;
 
 void InitMainWindow();
 void DeinitMainWindow();
-void DisplayMainScreen(Sound click, Obstacles *obstacles);
+void DisplayMainScreen(Sound click, Obstacles *obstacles, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex);
 void DisplayGamemodesScreen(Sound click);
 void DisplayGameOverScreen(int winnerId, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);

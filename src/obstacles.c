@@ -32,13 +32,14 @@ Rock CreateRock(Texture2D rock_tex, Vector2 corner_bound, Vector2 opp_corner_bou
     rock_instance.rotation_vec = (Vector3){
         GetRandomValue(0, 3), GetRandomValue(0, 3), GetRandomValue(0, 3)
     };
+    rock_instance.model_coefficient = GetRandomValue(-3, 3);
     switch (GetRandomValue(1,2))
     {
     case 1:
         rock_instance.model = LoadModelFromMesh(GenMeshCube(
-            rock_instance.height / 3 + GetRandomValue(-3, 3) * rock_instance.height / 8,
+            rock_instance.height / 3 + rock_instance.model_coefficient * rock_instance.height / 8,
             rock_instance.height,
-            rock_instance.height / 3 + GetRandomValue(-3, 3) * rock_instance.height / 8));
+            rock_instance.height / 3 + rock_instance.model_coefficient * rock_instance.height / 8));
         rock_instance.geometry_id = 1;
         rock_instance.center_pos = (Vector3){
             GetRandomValue(corner_bound.x, opp_corner_bound.x),

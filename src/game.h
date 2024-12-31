@@ -17,6 +17,7 @@ extern int fire_time;
 extern Ship *current_turn;
 extern Ship *next_turn;
 extern bool is_loaded;
+extern bool has_fired_once;
 extern BoundingBox game_bounds;
 
 void DisplayRealTimeGameScreen(Ship *ship1, Ship *ship2, Obstacles obstacles,
