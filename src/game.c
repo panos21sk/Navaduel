@@ -3,10 +3,12 @@
 #include "rlgl.h"
 #include "game.h"
 #include "ship.h"
+#include "anim.h"
 #include "screens.h"
 #include "obstacles.h"
 
 #include "util.h"
+#include "anim.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,7 +48,7 @@ void *DecreaseTime(void *arg);
  * @returns void
  */
 void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
-        Model* game_models, Sound* game_sounds, Texture2D* game_textures)
+        Model* game_models, Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
@@ -66,15 +68,18 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
     UpdateShipCamera(&ship_data.ship_list[0], settings.first_or_third_person_cam);
     UpdateShipCamera(&ship_data.ship_list[1], settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&ship_data.ship_list[0].cannonball, game_sounds[1], settings.enable_sfx);
-    UpdateCannonballState(&ship_data.ship_list[1].cannonball, game_sounds[1], settings.enable_sfx);
+    UpdateCannonballState(&ship_data.ship_list[0].cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
+    UpdateCannonballState(&ship_data.ship_list[1].cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
 
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
-    Update_Variables(ship_data, game_sounds[2], obstacles);
+    UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
 
-    DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, game_models, ship_data.ship_list[0], game_textures);
-    DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, game_models, ship_data.ship_list[1], game_textures);
+    UpdateAnimation(&anim_list[0], GetFrameTime());
+    UpdateAnimation(&anim_list[1], GetFrameTime());
+
+    DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, game_models, ship_data.ship_list[0], game_textures, anim_list);
+    DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, game_models, ship_data.ship_list[1], game_textures, anim_list);
 
     if (startup_counter > 0)
     {
@@ -145,7 +150,7 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
  * @returns void
  */
 void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
-        Model* game_models, Sound* game_sounds, Texture2D* game_textures)
+        Model* game_models, Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
@@ -175,11 +180,14 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
     // Update Camera manually
     UpdateShipCamera(current_turn, settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&current_turn->cannonball, game_sounds[1], settings.enable_sfx);
+    UpdateCannonballState(&current_turn->cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
 
-    Update_Variables(ship_data, game_sounds[2], obstacles);
+    UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
 
-    DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, game_models, *current_turn, game_textures);
+    UpdateAnimation(&anim_list[0], GetFrameTime());
+    UpdateAnimation(&anim_list[1], GetFrameTime());
+
+    DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, game_models, *current_turn, game_textures, anim_list);
 
     const Rectangle screenRec = {0.0f, 0.0f, (float)screenCurrentShip.texture.width, (float)-screenCurrentShip.texture.height};
 
@@ -269,7 +277,7 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
 }
 
 void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles,
-                    Model* game_models, Ship current_player_ship, Texture2D* game_textures){
+                    Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list){
     BeginTextureMode(screenShip);
     {
         ClearBackground(RAYWHITE);
@@ -298,6 +306,9 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
             for(int i = 0; i < obstacles.rock_count; i++){
                 DrawModel(obstacles.rock_list[i].model, obstacles.rock_list[i].center_pos, 1, WHITE);
             }
+
+            DrawAnimation(&anim_list[0], *current_player_ship.camera);
+            DrawAnimation(&anim_list[1], *current_player_ship.camera);
         }
         EndMode3D();
 
@@ -314,29 +325,24 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
             }
         }
 
-        /*//Insert debugging text here when needed
-        DrawText(TextFormat("%d", obstacles.rock_count), 5, HEIGHT - 30, 20, LIME);
-        for(int i = 0; i < obstacles.rock_count; i++){
-            DrawText(TextFormat("%d", obstacles.rock_list[i].rotation_vec.x), 25*i, HEIGHT - 50, 20, LIME);
-        }*/
+        //Insert debugging text here when needed
+        DrawText(TextFormat("%d", anim_list[0].playing), 5, HEIGHT - 30, 20, RED);
     }
     EndTextureMode();
 }
 
-void Update_Variables(Ship_data ship_data, Sound explosion, Obstacles obstacles){
+void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
     // rotate ships
     for(int i = 0; i < ship_data.player_count; i++){
         ship_data.ship_list[i].model.transform = MatrixRotateXYZ((Vector3){0, ship_data.ship_list[i].yaw, 0});
         ship_data.ship_list[i].cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship_data.ship_list[i].yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
         // rotate cannon
-        //! No idea why this fucking works???? Here is old approach. Cannon spun around unctrollably when combining its pitch with its ships yaw. Pls explen to mi
-        //! Old approach for reference: ship1->cannon->rail_model.transform = MatrixRotateXYZ(Vector3RotateByAxisAngle(ship1->cannon->rotation, (Vector3){0,1,0}, ship1->yaw));
         // Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
         // Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
         Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship_data.ship_list[i].cannon->rotation.x), MatrixRotateY(ship_data.ship_list[i].yaw - 3.1415f / 2 + ship_data.ship_list[i].cannon->rotation.y));
         ship_data.ship_list[i].cannon->rail_model.transform = cannon_transform1;
         for(int j = 0; j < ship_data.player_count; j++){
-            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], &current_screen, explosion, obstacles, &ship_data, settings.enable_sfx);
+            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], &current_screen, explosion, obstacles, &ship_data, settings.enable_sfx, explosion_anim);
         }
     }
 }
@@ -347,3 +353,4 @@ void *DecreaseTime(void *arg) {
     sleep(1); //1 second off
     allow_next_loop = 1;
 }
+

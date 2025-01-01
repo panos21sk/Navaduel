@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "anim.h"
 #include "obstacles.h"
 #include "cJSON.h"
 #define MAX_ACCEL 1
@@ -67,6 +68,7 @@ typedef struct {
     accel_settings default_accel;
     accel_settings accel;
     //ship specific
+    float cannonball_power_coefficient;
     int initial_health;
     float max_accel;
     float min_accel;
@@ -95,10 +97,10 @@ void LoadShip(Ship *ship, const cJSON *shipState);
 void DestroyShip(Ship_data* ship_data, int id);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
-void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
+void UpdateCannonballState(Cannonball* cannonball, Sound splash, Animation* splash_anim,bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
 void *EndGame(void* arg);
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, bool sfx_en);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, bool sfx_en, Animation* explosion_anim);
 void CheckCollisionWithBounds(Ship *ship, BoundingBox bound);
 void CheckWin(Ship_data ship_data);
 

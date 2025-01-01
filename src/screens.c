@@ -207,8 +207,8 @@ void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
-        DrawText("SHIP 1: Bigger, More health, Slower movement & firing.", 5, 5, 20, BLUE);
-        DrawText("SHIP 2: Smaller, Less health, Faster movement & firing.", 5, 30, 20, RED); // next up is y 55
+        DrawText("SHIP 1: Bigger, More health, Slower movement & firing, More powerful shots.", 5, 5, 20, BLUE);
+        DrawText("SHIP 2: Smaller, Less health, Faster movement & firing, Less powerful shots.", 5, 30, 20, RED); // next up is y 55
         Rectangle Rec0 = (Rectangle){5, 55, WIDTH - 10, 22};
         Rectangle btn0;
         Rectangle btn1;

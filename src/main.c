@@ -3,11 +3,12 @@
 #include <unistd.h>
 
 #include "raylib.h"
+#include "raymath.h"
 #include "ship.h"
 #include "screens.h"
 #include "util.h"
 #include "game.h"
-#include "raymath.h"
+#include "anim.h"
 
 int main() {
     //SetTraceLogLevel(7);
@@ -54,7 +55,8 @@ int main() {
 	Texture2D heart_empty = LoadTexture("resources/sprites/heart_empty.png");
 
 	Texture2D sand_tex = LoadTexture("resources/sprites/8_BIT_Sand.png");
-	Model palm_tree = LoadModel("resources/models/low_poly_palm_tree.glb");
+	//https://www.cgtrader.com/free-3d-models/exterior/other/low-poly-palm-trees-162aed6c-6afd-4675-82d6-b36857c6b255
+	Model palm_tree = LoadModel("resources/models/palm_tree.glb");
 	Texture2D rock_tex = LoadTexture("resources/sprites/rock.png");
 
 	bool gen_obs = true;
@@ -72,6 +74,12 @@ int main() {
 	Sound game_sounds[3] = {fire, splash, explosion};
 	Texture2D game_textures[2] = {heart_empty, heart_full};
 	Model game_models[2] = {water_model, skybox_model};
+
+	Animation explosion_anim;
+	InitAnimation(&explosion_anim, "resources/sprites/explosion.gif", 8, 0.1f, (Vector3){0, 0, 0}, 1.0f);
+	Animation splash_anim;
+	InitAnimation(&explosion_anim, "resources/sprites/splash.gif", 14, 0.1f, (Vector3){0, 0, 0}, 1.0f);
+	Animation anim_list[2] = {splash_anim, explosion_anim};
 	
 
 	//Recalculate SkyBox bounds
@@ -122,7 +130,7 @@ int main() {
 					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
 					gen_ships = false;
 				}
-				DisplayRealTimeGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures); //Starts the real-time game
+				DisplayRealTimeGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
@@ -135,7 +143,7 @@ int main() {
 					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
 					gen_ships = false;
 				}
-				DisplayTurnBasedGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures); //Starts the turn-based game
+				DisplayTurnBasedGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:
@@ -184,6 +192,7 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
+	UnloadAnimation(&explosion_anim);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function
 	// TODO: properly unload island and rock models (throws an error if not)

@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "screens.h"
+#include "anim.h"
 #include "pthread.h"
 #include "unistd.h"
 // #include "stdlib.h" for pseudorandomness
@@ -52,6 +53,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
             ship_inst.max_accel = MAX_ACCEL * 0.7f;
             ship_inst.min_accel = MIN_ACCEL * 0.8f;
             ship_inst.accel_step = ACCEL_STEP * 0.9f;
+            ship_inst.cannonball_power_coefficient = 0.7;
 
             ship_inst.camera_distance_vector_tp = (Vector3){0.0f, 35.0f, -70.0f};
             ship_inst.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 16.0f};
@@ -66,6 +68,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
             ship_inst.max_accel = MAX_ACCEL * 1.5f;
             ship_inst.min_accel = MIN_ACCEL * 1.2f;
             ship_inst.accel_step = ACCEL_STEP * 1.1f;
+            ship_inst.cannonball_power_coefficient = 0.3;
 
             ship_inst.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
             ship_inst.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
@@ -328,7 +331,7 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
         if (ship->can_fire && ship->cannon->rotation.x > -MAX_TURN_UP && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999))
         {
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
-            ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
+            //ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
             ship->accel.fire_coefficient = (ship->accel.fire_coefficient < ship->max_accel)
                                                ? ship->accel.fire_coefficient + ship->accel_step
                                                : ship->max_accel;
@@ -359,13 +362,13 @@ void InitializeCannonball(Ship *ship)
         Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0, 1, 0}, ship->yaw));
     // see commemts on the transform of cannon rail
     Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
-    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2f}, speed_transform_matrix);
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2f - ship->cannonball_power_coefficient * ship->cannon->rotation.x}, speed_transform_matrix);
     ship->cannonball.accel = (Vector3){0, -0.005, 0};
     ship->cannonball.has_splashed = false;
     ship->cannonball.has_hit_enemy = false;
 }
 
-void UpdateCannonballState(Cannonball *cannonball, Sound splash, bool sfx_en)
+void UpdateCannonballState(Cannonball *cannonball, Sound splash, Animation* splash_anim, bool sfx_en)
 {
     if (cannonball->position.y < 0.0f)
     {
@@ -373,6 +376,8 @@ void UpdateCannonballState(Cannonball *cannonball, Sound splash, bool sfx_en)
         {
             if (sfx_en)
                 PlaySound(splash);
+            splash_anim->position = cannonball->position;
+            splash_anim->playing = true;
             cannonball->has_splashed = true;
         }
     }
@@ -410,7 +415,7 @@ void *EndGame(void *arg)
 }
 
 //TODO: Make function return int specifying player id of winner
-void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, bool sfx_en)
+void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, bool sfx_en, Animation* explosion_anim)
 {
     // adding small delay before stopping game to improve game feel. Maybe add game end animation by passing in here a pointer to the game state and changing it
     // to game_end = true for example, and then render in another way
@@ -421,6 +426,8 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
             {
                 enemy_ship->current_health -= 1;
                 if(sfx_en)PlaySound(explosion);
+                explosion_anim->position = enemy_ship->position;
+                explosion_anim->playing = true;
                 player_ship->cannonball.has_hit_enemy = true;
                 if (enemy_ship->current_health <= 0)
                 {   
