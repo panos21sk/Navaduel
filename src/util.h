@@ -2,9 +2,12 @@
 #define UTIL_H
 
 #include "raylib.h"
-#include "ship.h"
 #include <setjmp.h>
+#include "cJSON.h"
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+
+#include "screens.h"
+#include "ship.h"
 
 typedef struct {
     bool show_reticle;
@@ -26,5 +29,6 @@ void LoadSettings(bool* bgm_en);
 void UpdateSettingsConfig(setting settings);
 static int parseHandler(void* user, const char* section, const char* name, const char* value);
 cJSON *create_ship_json(Ship ship);
+Color ReturnColorFromTeamInt(int col_int);
 
 #endif //UTIL_H

@@ -160,3 +160,23 @@ cJSON *create_ship_json(const Ship ship) {
         return NULL;
     }
 }
+
+Color ReturnColorFromTeamInt(int col_int){
+    switch(col_int){
+        case 0:
+            return WHITE;
+            break;
+        case 1:
+            return RED;
+            break;
+        case 2:
+            return BLUE;
+            break;
+        case 3:
+            return GREEN;
+            break;
+        case 4: 
+            return YELLOW;
+            break;
+    }
+}

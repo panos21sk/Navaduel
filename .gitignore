@@ -5,6 +5,7 @@ bin/
 cmake-build-debug
 src/ini.c
 src/cJSON.c
+src/cJSON.h
 game.json
 NavalDuel.exe
 build/build_files

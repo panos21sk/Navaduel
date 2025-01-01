@@ -63,10 +63,15 @@ int main() {
 	int player_count = 2;
 	int* player_count_addr = &player_count; // pass onto gamemode screen
 	int type_list[8] = {0};
+	int team_list[8] = {0};
 	bool gen_ships;
 	Ship_data ship_data;
 	char real_or_turn;
 	char* real_or_turn_addr = &real_or_turn;
+
+	Sound game_sounds[3] = {fire, splash, explosion};
+	Texture2D game_textures[2] = {heart_empty, heart_full};
+	Model game_models[2] = {water_model, skybox_model};
 	
 
 	//Recalculate SkyBox bounds
@@ -104,6 +109,9 @@ int main() {
 				DisplayShipSelectScreen(click, &type_list[0], player_count, real_or_turn);
 				break;
 			}
+			case TEAM_SELECT:
+				DisplayTeamSelectScreen(click, &team_list[0], player_count, real_or_turn);
+				break;
 			case GAME_REAL:
 			{
 				if(gen_obs){
@@ -111,10 +119,10 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, &type_list[0]);
+					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
 					gen_ships = false;
 				}
-				DisplayRealTimeGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the real-time game
+				DisplayRealTimeGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
@@ -124,10 +132,10 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, &type_list[0]);
+					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
 					gen_ships = false;
 				}
-				DisplayTurnBasedGameScreen(ship_data, obstacles, water_model, skybox_model, splash, fire, explosion, heart_full, heart_empty); //Starts the turn-based game
+				DisplayTurnBasedGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:
@@ -137,6 +145,7 @@ int main() {
 			}
 			case GAME_OVER:
 			{
+				player_count = 2;
 				DisplayGameOverScreen(winner, click); //Ends the game (game over)
 				break;
 			}

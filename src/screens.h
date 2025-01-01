@@ -23,7 +23,8 @@ typedef enum
     ABOUT, // credits and basic gameplay
     GAME_MENU, // pressing esc in-game
     GAMEMODES, // choosing between real-time gameplay and turn-based gameplay
-    SHIP_SELECT
+    SHIP_SELECT, // ship selection screen for all players
+    TEAM_SELECT // ship selection screen for all players
 } screen;
 
 extern int success_save;
@@ -41,6 +42,7 @@ void DeinitMainWindow();
 void DisplayMainScreen(Sound click);
 void DisplayGamemodesScreen(Sound click, int* player_count_addr, char* real_or_turn_addr);
 void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char real_or_turn);
+void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char real_or_turn);
 void DisplayGameOverScreen(int winnerId, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);
 void DisplayControlsScreen(Sound click);

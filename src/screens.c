@@ -232,14 +232,14 @@ void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char
             {
                 DrawRectangleLines(btn0.x, btn0.y, btn0.width, btn0.height, RED);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                    type_list[i] = 0;
+                    {type_list[i] = 0; if(settings.enable_sfx) PlaySound(click);}
             }
             else DrawRectangleLines(btn0.x, btn0.y, btn0.width, btn0.height, BLACK);
             if (CheckCollisionPointRec(GetMousePosition(), btn1))
             {
                 DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, RED);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                    type_list[i] = 1;
+                    {type_list[i] = 1; if(settings.enable_sfx) PlaySound(click);}
             }
             else DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, BLACK);
             DrawRectangleRec(btn0, ((bool)type_list[i]) ? LIGHTGRAY : GRAY);
@@ -250,9 +250,66 @@ void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char
         bool tmp;
         if(real_or_turn == 'r') tmp = true;
         else if(real_or_turn == 't') tmp = false;
-        AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
+        if(player_count == 2){
+            AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
+        } else if(player_count > 2){
+            AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, TEAM_SELECT, settings.enable_sfx);
+        }
 
         AddScreenChangeBtn(return_to_main_button, "RETURN TO GAMEMODE", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
+    }
+    EndDrawing();
+}
+
+void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char real_or_turn){
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
+        DrawText("TEAM SELECT:", 5, 5, 20, BLUE);
+        Rectangle Rec0 = (Rectangle){5, 35, WIDTH - 8, 22};
+        Rectangle Btn0 = (Rectangle){WIDTH - 85, 35, 80, 20};
+        for(int i = 0; i < player_count; i++){
+            Rec0.y = 35 + 25*i;
+            DrawRectangleLinesEx(Rec0, 2, BLACK);
+            DrawText(TextFormat("Player %d:", i + 1), 5, Rec0.y, 20, BLACK);
+            for(int j = 0; j < 5; j++){
+                Btn0.y = Rec0.y;
+                Btn0.x = WIDTH - 85 - 80*j;
+                static char* team;
+                if(j == team_list[i]) DrawRectangleRec(Btn0, GRAY);
+                else DrawRectangleRec(Btn0, LIGHTGRAY);
+                if(CheckCollisionPointRec(GetMousePosition(), Btn0)) {
+                    DrawRectangleLinesEx(Btn0, 2, RED) ;
+                    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                        team_list[i] = j;
+                        if(settings.enable_sfx) PlaySound(click);
+                    }
+                } else DrawRectangleLinesEx(Btn0, 2, BLACK) ;
+                switch(j){
+                    case 0:
+                        team = "NONE";
+                        break;
+                    case 1:
+                        team = "RED";
+                        break;
+                    case 2:
+                        team = "BLUE";
+                        break;
+                    case 3:
+                        team = "GREEN";
+                        break;
+                    case 4: 
+                        team = "YELLOW";
+                        break;
+                }
+                DrawText(team, Btn0.x + 2, Btn0.y + 2, 20, (j == 0)? BLACK : ReturnColorFromTeamInt(j));
+            }
+        }
+
+        bool tmp;
+        if(real_or_turn == 'r') tmp = true;
+        else if(real_or_turn == 't') tmp = false;
+        AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
     }
     EndDrawing();
 }
@@ -478,8 +535,8 @@ void DeinitMainWindow()
 {
     UnloadRenderTexture(screenShip1);
     UnloadRenderTexture(screenShip2);
-    DestroyShip(&ship1);
-    DestroyShip(&ship2);
+    //DestroyShip(&ship1); //TODO: Update this
+    //DestroyShip(&ship2);
     //! destroy the window and cleanup the OpenGL context
     CloseWindow();
 }
