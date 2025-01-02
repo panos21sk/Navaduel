@@ -75,8 +75,8 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
 
     UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
 
-    UpdateAnimation(&anim_list[0], GetFrameTime());
-    UpdateAnimation(&anim_list[1], GetFrameTime());
+    UpdateAnim(&anim_list[0]);
+    UpdateAnim(&anim_list[1]);
 
     DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, game_models, ship_data.ship_list[0], game_textures, anim_list);
     DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, game_models, ship_data.ship_list[1], game_textures, anim_list);
@@ -184,8 +184,8 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
 
     UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
 
-    UpdateAnimation(&anim_list[0], GetFrameTime());
-    UpdateAnimation(&anim_list[1], GetFrameTime());
+    UpdateAnim(&anim_list[0]);
+    UpdateAnim(&anim_list[1]);
 
     DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, game_models, *current_turn, game_textures, anim_list);
 
@@ -307,8 +307,8 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
                 DrawModel(obstacles.rock_list[i].model, obstacles.rock_list[i].center_pos, 1, WHITE);
             }
 
-            DrawAnimation(&anim_list[0], *current_player_ship.camera);
-            DrawAnimation(&anim_list[1], *current_player_ship.camera);
+            DrawAnim(anim_list[0], *current_player_ship.camera);
+            DrawAnim(anim_list[1], *current_player_ship.camera);
         }
         EndMode3D();
 
@@ -326,7 +326,7 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
         }
 
         //Insert debugging text here when needed
-        DrawText(TextFormat("%d", anim_list[0].playing), 5, HEIGHT - 30, 20, RED);
+        DrawText(TextFormat("%d", anim_list[0].play), 5, HEIGHT - 30, 20, RED);
     }
     EndTextureMode();
 }

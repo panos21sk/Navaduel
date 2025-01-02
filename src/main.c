@@ -75,10 +75,8 @@ int main() {
 	Texture2D game_textures[2] = {heart_empty, heart_full};
 	Model game_models[2] = {water_model, skybox_model};
 
-	Animation explosion_anim;
-	InitAnimation(&explosion_anim, "resources/sprites/explosion.gif", 8, 0.1f, (Vector3){0, 0, 0}, 1.0f);
-	Animation splash_anim;
-	InitAnimation(&explosion_anim, "resources/sprites/splash.gif", 14, 0.1f, (Vector3){0, 0, 0}, 1.0f);
+	Animation explosion_anim = CreateAnim("resources/sprites/explosion_sheet.png", 8, 12, (Vector2){64, 64});
+	Animation splash_anim = CreateAnim("resources/sprites/splash_sheet.png", 15, 8, (Vector2){64, 64});
 	Animation anim_list[2] = {splash_anim, explosion_anim};
 	
 
@@ -192,7 +190,6 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
-	UnloadAnimation(&explosion_anim);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function
 	// TODO: properly unload island and rock models (throws an error if not)

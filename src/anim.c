@@ -4,53 +4,53 @@
 #include <stdio.h> // For sprintf
 #include <stdlib.h>
 
-// Initialize the animation
-void InitAnimation(Animation *anim, const char *gifPath, int maxFrames, float frameTime, Vector3 position, float size) {
-    anim->frames = (Texture2D *)malloc(sizeof(Texture2D) * maxFrames);
-    anim->frameCount = 0;
-    anim->currentFrame = 0;
-    anim->playing = false;
-    anim->frameTime = frameTime;
-    anim->timer = 0.0f;
-    anim->position = position;
-    anim->size = size;
+Animation CreateAnim(char* sprite_sheet_path, int animFrames, int frameDelay, Vector2 size)
+{
+    Animation anim_inst;
+    anim_inst.tex = LoadTexture(sprite_sheet_path);
 
-    // Load frames from the specified path
-    char framePath[128];
-    for (int i = 0; i < maxFrames; i++) {
-        sprintf(framePath, "%s_%02d.png", gifPath, i);
-        if (FileExists(framePath)) {
-            anim->frames[i] = LoadTexture(framePath);
-            anim->frameCount++;
-        } else {
-            break;
+    anim_inst.animFrames = animFrames;
+    anim_inst.frameDelay = frameDelay;
+    anim_inst.currentAnimFrame = 0;
+    anim_inst.frameCounter = 0;
+    anim_inst.frameRec = (Rectangle){0, 0, anim_inst.tex.width/anim_inst.animFrames, anim_inst.tex.height};
+
+    //filling so data isnt junk
+    anim_inst.play = false;
+    anim_inst.pos = (Vector3){0,0,0};
+    anim_inst.size = size;
+    
+    return anim_inst;
+}
+
+void UpdateAnim(Animation* anim)
+{
+    if (anim->play)
+    {
+        anim->frameCounter++;
+        if (anim->frameCounter >= anim->frameDelay)
+        {
+            // Move to next frame
+            anim->currentAnimFrame++;
+            // loop if total anim frames exceeded
+            if (anim->currentAnimFrame >= anim->animFrames){
+                anim->currentAnimFrame = 0;
+                anim->play = false;
+            }
+            anim->frameRec.x = (float)anim->currentAnimFrame*(float)anim->tex.width/anim->animFrames;
+            // reset frame counter
+            anim->frameCounter = 0;
         }
     }
 }
 
-// Update the animation's state
-void UpdateAnimation(Animation *anim, float deltaTime) {
-    if (!anim->playing || anim->frameCount <= 0) return;
-
-    anim->timer += deltaTime;
-    if (anim->timer >= anim->frameTime) {
-        anim->timer -= anim->frameTime;
-        anim->currentFrame = (anim->currentFrame + 1) % anim->frameCount;
-    }
+void StartAnim(Animation* anim, Vector3 pos){
+    anim->play = true; 
+    anim->pos = pos;
 }
 
-// Draw the animation in 3D space
-void DrawAnimation(Animation *anim, Camera cam) {
-    if (anim->playing && anim->frameCount > 0) {
-        DrawBillboard(cam, anim->frames[anim->currentFrame], anim->position, anim->size, WHITE);
+void DrawAnim(Animation anim, Camera cam){
+    if(anim.play){
+        DrawBillboardRec(cam, anim.tex, anim.frameRec, anim.pos, anim.size, WHITE);
     }
-}
-
-// Unload the animation's resources
-void UnloadAnimation(Animation *anim) {
-    for (int i = 0; i < anim->frameCount; i++) {
-        UnloadTexture(anim->frames[i]);
-    }
-    free(anim->frames);
-    anim->frames = NULL;
 }

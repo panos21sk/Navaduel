@@ -328,10 +328,10 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
     }
     if (IsKeyDown(ship->movement_buttons.fire))
     {
-        if (ship->can_fire && ship->cannon->rotation.x => -MAX_TURN_UP && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999))
+        if (ship->can_fire && ship->cannon->rotation.x >= -MAX_TURN_UP && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999))
         {
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
-            //ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
+            ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
             ship->accel.fire_coefficient = (ship->accel.fire_coefficient < ship->max_accel)
                                                ? ship->accel.fire_coefficient + ship->accel_step
                                                : ship->max_accel;
@@ -376,8 +376,7 @@ void UpdateCannonballState(Cannonball *cannonball, Sound splash, Animation* spla
         {
             if (sfx_en)
                 PlaySound(splash);
-            splash_anim->position = cannonball->position;
-            splash_anim->playing = true;
+                StartAnim(splash_anim, Vector3Add(cannonball->position, (Vector3){0, splash_anim->tex.height / 4, 0}));
             cannonball->has_splashed = true;
         }
     }
@@ -426,8 +425,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
             {
                 enemy_ship->current_health -= 1;
                 if(sfx_en)PlaySound(explosion);
-                explosion_anim->position = enemy_ship->position;
-                explosion_anim->playing = true;
+                StartAnim(explosion_anim, enemy_ship->position);
                 player_ship->cannonball.has_hit_enemy = true;
                 if (enemy_ship->current_health <= 0)
                 {   
