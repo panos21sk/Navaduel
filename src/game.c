@@ -6,9 +6,7 @@
 #include "anim.h"
 #include "screens.h"
 #include "obstacles.h"
-
 #include "util.h"
-#include "anim.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,22 +38,8 @@ pthread_t decrement_counter_thread;
 pthread_t decrement_move_time_thread;
 pthread_t decrement_fire_time_thread;
 
-/**
- * @brief Description to-do
- * @param ship1
- * @param ship2
- * @param obstacles
- * @param water_model
- * @param sky_model
- * @param splash
- * @param fire
- * @param explosion
- * @param heart_full
- * @param heart_empty
- * @returns void
- */
-void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
-        Model* game_models, Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
+void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstacles,
+        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
@@ -90,6 +74,8 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
 
     if (startup_counter > 0)
     {
+        ship_data.ship_list[0].can_fire = false;
+        ship_data.ship_list[1].can_fire = false;
         char *text = malloc(sizeof(char) * 2); // with null char
         BeginDrawing();
         {
@@ -152,48 +138,26 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
     }
 }
 
-/**
- * @brief Description to-do
- *
- * @param ship1
- * @param ship2
- * @param obstacles
- * @param water_model
- * @param sky_model
- * @param splash
- * @param fire
- * @param explosion
- * @param heart_full
- * @param heart_empty
- * @returns void
- */
-void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
-        Model* game_models, Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
+void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obstacles,
+        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
-    if(dice_state) { //"throws" a D10 (0-9) dice to declare the first turn
+    if(dice_state) {
         srand(time(0));
-        int number = rand() % ship_data.player_count;
-        dice_state = 0; //thrown
+        const int number = rand() % ship_data.player_count;
         current_turn = &ship_data.ship_list[number];
+        dice_state = 0; //thrown
     }
 
+
     if(reset_state) { //on 1, resets move_time and fire_time to default
-        cannonball.position = (Vector3){0, 1000, 0};
-        cannonball.velocity = Vector3Zero();
-        cannonball.accel = Vector3Zero();
-        cannonball.has_splashed = true;
-        cannonball.has_hit_enemy = true;
 
         move_time = MOVEMENT_TIME;
         fire_time = FIRE_TIME;
         startup_counter = GAME_STARTUP_COUNTER; //may remove
-      
         has_fired_once = false;
-        current_turn->accel = default_accel;
-        next_turn->accel = default_accel;
-        next_turn->cannonball = cannonball;
+        current_turn->accel = current_turn->default_accel;
         reset_state = 0; //reset
     }
 
@@ -222,21 +186,18 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
     //Game start
     if (startup_counter > 0)
     {
-        char *text = malloc(sizeof(char) * 2); // with null char
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
             DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
-            sprintf(text, "%d", startup_counter);
-            DrawText(text, WIDTH / 2, HEIGHT / 2, 50, WHITE);
+            DrawText(TextFormat("%d", startup_counter), WIDTH / 2, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
             DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
         }
         EndDrawing();
-        free(text);
 
         if(allow_next_loop) {
             allow_next_loop = 0;
@@ -305,11 +266,21 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
             current_turn->can_fire = false;
         }
         if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
+            next_turn = current_turn;
             if(current_turn->id < ship_data.player_count - 1){
                 current_turn = &ship_data.ship_list[current_turn->id + 1];
             } else {
                 current_turn = &ship_data.ship_list[0];
             }
+            cannonball.position = (Vector3){0, 1000, 0};
+            cannonball.velocity = Vector3Zero();
+            cannonball.accel = Vector3Zero();
+            cannonball.has_splashed = true;
+            cannonball.has_hit_enemy = true;
+
+            next_turn->accel = next_turn->default_accel;
+            next_turn->cannonball = cannonball;
+
             reset_state = 1;
         }
     }

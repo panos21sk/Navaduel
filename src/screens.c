@@ -326,9 +326,8 @@ void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char
             DrawRectangleRec(btn1, ((bool)type_list[i]) ? GRAY : LIGHTGRAY);
             DrawText("SHIP 2", btn1.x + 1, btn1.y + 1, 20, BLACK);
         }
-        bool tmp;
+        bool tmp = false;
         if(real_or_turn == 'r') tmp = true;
-        else if(real_or_turn == 't') tmp = false;
         if(player_count == 2){
             AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
         } else if(player_count > 2){
@@ -385,9 +384,8 @@ void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char
             }
         }
 
-        bool tmp;
+        bool tmp = false;
         if(real_or_turn == 'r') tmp = true;
-        else if(real_or_turn == 't') tmp = false;
         AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
     }
     EndDrawing();
@@ -450,7 +448,6 @@ void DisplayGameMenuScreen(const Sound click, const Obstacles obstacles) {
                     cJSON *gamemodeSt = cJSON_CreateString(gamemode == GAME_REAL ? "GAME_REAL" : "GAME_TURN");
                     cJSON *rock_count = cJSON_CreateNumber(obstacles.rock_count);
                     cJSON *island_count = cJSON_CreateNumber(obstacles.island_count);
-                    cJSON *rock_array = cJSON_CreateArray();
 
                     cJSON_AddItemToObject(jsonfinal, "ship1", jsonship1);
                     cJSON_AddItemToObject(jsonfinal, "ship2", jsonship2);

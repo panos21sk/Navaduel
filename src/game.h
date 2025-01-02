@@ -21,8 +21,8 @@ extern bool is_loaded;
 extern bool has_fired_once;
 extern BoundingBox game_bounds;
 
-void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
-void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
+void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
+void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
 void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, 
                         Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list);
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim);
