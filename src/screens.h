@@ -1,6 +1,7 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
+#include "obstacles.h"
 #include "raylib.h"
 #ifndef bool
 #include <stdbool.h>
@@ -23,7 +24,8 @@ typedef enum
     ABOUT, // credits and basic gameplay
     GAME_MENU, // pressing esc in-game
     GAMEMODES, // choosing between real-time gameplay and turn-based gameplay
-    SHIP_SELECT
+    SHIP_SELECT, // ship selection screen for all players
+    TEAM_SELECT // ship selection screen for all players
 } screen;
 
 extern int success_save;
@@ -38,13 +40,14 @@ extern RenderTexture screenCurrentShip;
 
 void InitMainWindow();
 void DeinitMainWindow();
-void DisplayMainScreen(Sound click);
+void DisplayMainScreen(Sound click, Obstacles *obstacles, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex);
 void DisplayGamemodesScreen(Sound click, int* player_count_addr, char* real_or_turn_addr);
-void DisplayShipSelectScreen(Sound click, void* ship_data_addr_v, char real_or_turn);
+void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char real_or_turn);
+void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char real_or_turn);
 void DisplayGameOverScreen(int winnerId, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);
 void DisplayControlsScreen(Sound click);
 void DisplayAboutScreen(Sound click);
-void DisplayGameMenuScreen(Sound click);
+void DisplayGameMenuScreen(Sound click, Obstacles obstacles);
 
 #endif //SCREENS_H

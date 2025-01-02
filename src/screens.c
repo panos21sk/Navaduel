@@ -1,10 +1,13 @@
 #include "screens.h"
+#include "obstacles.h"
 #include "ship.h"
 #include "util.h"
 #include "raylib.h"
+#include "raymath.h"
 #include "game.h"
 #include "rlgl.h"
 #include "cJSON.h"
+
 #include <stdio.h> //for snprintf for debugging
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +60,7 @@ void InitMainWindow()
     screenCurrentShip = LoadRenderTexture(WIDTH, HEIGHT);
 }
 
-void DisplayMainScreen(const Sound click)
+void DisplayMainScreen(const Sound click, Obstacles *obstacles, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex)
 {
     startup_counter = GAME_STARTUP_COUNTER;
     control_index = 0;
@@ -81,10 +84,9 @@ void DisplayMainScreen(const Sound click)
                 {
                     PlaySound(click);
 
-                    // TODO: (In the future) Let the user choose their desired game state
-                    if (success_load == 1)
-                    {
-                        // init
+                    // Loads the most recently saved game state
+                    if(success_load == 1) {
+                        //init
                         FILE *stateFile = fopen("game.json", "r");
                         if (stateFile == NULL)
                         {
@@ -106,6 +108,9 @@ void DisplayMainScreen(const Sound click)
                         const cJSON *ship1State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship1");
                         const cJSON *ship2State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship2");
                         const cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
+                        const cJSON *rock_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "rock_count");
+                        const cJSON *island_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "island_count");
+
                         gamemode = strcmp(gamemodeSt->valuestring, "GAME_REAL") == 0 ? GAME_REAL : GAME_TURN;
 
                         if(gamemode == GAME_TURN) {
@@ -113,12 +118,72 @@ void DisplayMainScreen(const Sound click)
                             const cJSON *fire_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "fire_time");
                             const cJSON *c_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "current_turn");
                             const cJSON *n_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "next_turn");
+                            const cJSON *has_fired = cJSON_GetObjectItemCaseSensitive(jsonstate, "has_fired");
                             
                             move_time = move_t->valueint;
                             fire_time = fire_t->valueint;
                             current_turn = getShipFromId(c_turn->valueint);
                             next_turn = getShipFromId(n_turn->valueint);
+                            has_fired_once = strtobool(has_fired->string);
                         }
+
+                        Island *island_list = malloc(sizeof(Island)*island_count->valueint);
+                        Rock *rock_list = malloc(sizeof(Island)*island_count->valueint);
+
+                        for(int i = 0; i < island_count->valueint; i++) {
+                            Island island;
+                            cJSON *island_info = cJSON_GetObjectItemCaseSensitive(jsonstate, TextFormat("island_%d", i));
+
+                            island.center_pos = (Vector3){
+                                (float)cJSON_GetArrayItem(island_info, 0)->valuedouble,
+                                (float)cJSON_GetArrayItem(island_info, 1)->valuedouble,
+                                (float)cJSON_GetArrayItem(island_info, 2)->valuedouble
+                            };
+                            island.radius = cJSON_GetArrayItem(island_info, 3)->valueint;
+                            island.palm_tree = palm_tree;
+                            Mesh sphere_mesh = GenMeshSphere((float)island.radius, 128, 128);
+                            island.island_sphere = LoadModelFromMesh(sphere_mesh);
+                            island.island_sphere.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = sand_tex;
+                            island.sand_tex = sand_tex;
+
+                            island_list[i] = island;
+                        }
+
+                        for(int i = 0; i < rock_count->valueint; i++) {
+                            Rock rock;
+                            cJSON *rock_info = cJSON_GetObjectItemCaseSensitive(jsonstate, TextFormat("rock_%d", i));
+
+                            rock.center_pos = (Vector3){
+                                (float)cJSON_GetArrayItem(rock_info, 0)->valuedouble,
+                                (float)cJSON_GetArrayItem(rock_info, 1)->valuedouble,
+                                (float)cJSON_GetArrayItem(rock_info, 2)->valuedouble,
+                            };
+                            rock.rotation_vec = (Vector3){
+                                (float)cJSON_GetArrayItem(rock_info, 3)->valuedouble,
+                                (float)cJSON_GetArrayItem(rock_info, 4)->valuedouble,
+                                (float)cJSON_GetArrayItem(rock_info, 5)->valuedouble
+                            };
+                            rock.height = cJSON_GetArrayItem(rock_info, 6)->valueint;
+                            rock.geometry_id = cJSON_GetArrayItem(rock_info, 7)->valueint;
+                            rock.rock_tex = rock_tex;
+                            if(rock.geometry_id == 1) {
+                                rock.model = LoadModelFromMesh(GenMeshCube(
+                                    (float)rock.height / 3 + (float)rock.model_coefficient * (float)rock.height / 8,
+                                    (float)rock.height,
+                                    (float)rock.height / 3 + (float)rock.model_coefficient * (float)rock.height / 8));
+                            } else {
+                                rock.model = LoadModelFromMesh(GenMeshSphere((float)rock.height, 64, 64));
+                            }
+                            rock.model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = rock_tex;
+                            rock.model.transform = MatrixRotateXYZ(rock.rotation_vec);
+
+                            rock_list[i] = rock;
+                        }
+
+                        obstacles->island_count = island_count->valueint;
+                        obstacles->rock_count = rock_count->valueint;
+                        obstacles->island_list = island_list;
+                        obstacles->rock_list = rock_list;
 
                         LoadShip(&ship1, ship1State);
                         LoadShip(&ship2, ship2State);
@@ -126,6 +191,7 @@ void DisplayMainScreen(const Sound click)
                         if (success_load)
                         {
                             is_loaded = true;
+                            reset_state = 1;
                             current_screen = gamemode;
                         }
                     }
@@ -210,19 +276,18 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
             AddScreenChangeBtn(turn_based_1v1_button, "TURN-BASED", GetMousePosition(), click, &current_screen, SHIP_SELECT, settings.enable_sfx);
         }
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
     EndDrawing();
 }
 
-void DisplayShipSelectScreen(Sound click, void *ship_data_addr_v, char real_or_turn)
+void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char real_or_turn)
 {
-    Ship_data *ship_data_addr = (Ship_data *)ship_data_addr_v;
-
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
-        DrawText("SHIP 1: Bigger, More health, Slower movement & firing.", 5, 5, 20, BLUE);
-        DrawText("SHIP 2: Smaller, Less health, Faster movement & firing.", 5, 30, 20, RED); // next up is y 55
+        DrawText("SHIP 1: Bigger, More health, Slower movement & firing, More powerful shots.", 5, 5, 20, BLUE);
+        DrawText("SHIP 2: Smaller, Less health, Faster movement & firing, Less powerful shots.", 5, 30, 20, RED); // next up is y 55
         Rectangle Rec0 = (Rectangle){5, 55, WIDTH - 10, 22};
         Rectangle btn0;
         Rectangle btn1;
@@ -232,43 +297,96 @@ void DisplayShipSelectScreen(Sound click, void *ship_data_addr_v, char real_or_t
         btn0.width = 80;
         btn1 = btn0;
         btn1.x += 80;
-        int type_list[8];
-        for (int i = 0; i < ship_data_addr->player_count; i++)
+        // size of typelist is 8
+        for (int i = 0; i < player_count; i++) //dont use ship_data_addr->player_count
         {
             // outer rec
             Rec0.y = 55 + 25 * i;
             DrawRectangleLines(Rec0.x - 1, Rec0.y - 1, Rec0.width + 2, Rec0.height + 2, BLACK);
-            DrawText(TextFormat("Player %d:", i + 1), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
+            DrawText(TextFormat("Player %d:", i), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
             // prep for buttons
             btn0.y = Rec0.y;
             btn1.y = btn0.y;
-            static bool is_ship_1_selected = true;
             if (CheckCollisionPointRec(GetMousePosition(), btn0))
             {
                 DrawRectangleLines(btn0.x, btn0.y, btn0.width, btn0.height, RED);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                    is_ship_1_selected = true;
+                    {type_list[i] = 0; if(settings.enable_sfx) PlaySound(click);}
             }
             else DrawRectangleLines(btn0.x, btn0.y, btn0.width, btn0.height, BLACK);
             if (CheckCollisionPointRec(GetMousePosition(), btn1))
             {
                 DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, RED);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                    is_ship_1_selected = false;
+                    {type_list[i] = 1; if(settings.enable_sfx) PlaySound(click);}
             }
             else DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, BLACK);
-            DrawRectangleRec(btn0, is_ship_1_selected ? GRAY : LIGHTGRAY);
+            DrawRectangleRec(btn0, ((bool)type_list[i]) ? LIGHTGRAY : GRAY);
             DrawText("SHIP 1", btn0.x + 1, btn0.y + 1, 20, BLACK);
-            DrawRectangleRec(btn1, is_ship_1_selected ? LIGHTGRAY : GRAY);
+            DrawRectangleRec(btn1, ((bool)type_list[i]) ? GRAY : LIGHTGRAY);
             DrawText("SHIP 2", btn1.x + 1, btn1.y + 1, 20, BLACK);
-            type_list[i] = (int)!is_ship_1_selected; // ship1 is 0, ship2 is 1, hence the !
         }
-        bool tmp;
+        bool tmp = false;
         if(real_or_turn == 'r') tmp = true;
-        else if(real_or_turn == 't') tmp = false;
-        AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
+        if(player_count == 2){
+            AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
+        } else if(player_count > 2){
+            AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, TEAM_SELECT, settings.enable_sfx);
+        }
 
         AddScreenChangeBtn(return_to_main_button, "RETURN TO GAMEMODE", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
+    }
+    EndDrawing();
+}
+
+void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char real_or_turn){
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
+        DrawText("TEAM SELECT:", 5, 5, 20, BLUE);
+        Rectangle Rec0 = (Rectangle){5, 35, WIDTH - 8, 22};
+        Rectangle Btn0 = (Rectangle){WIDTH - 85, 35, 80, 20};
+        for(int i = 0; i < player_count; i++){
+            Rec0.y = 35 + 25*i;
+            DrawRectangleLinesEx(Rec0, 2, BLACK);
+            DrawText(TextFormat("Player %d:", i + 1), 5, Rec0.y, 20, BLACK);
+            for(int j = 0; j < 5; j++){
+                Btn0.y = Rec0.y;
+                Btn0.x = WIDTH - 85 - 80*j;
+                static char* team;
+                if(j == team_list[i]) DrawRectangleRec(Btn0, GRAY);
+                else DrawRectangleRec(Btn0, LIGHTGRAY);
+                if(CheckCollisionPointRec(GetMousePosition(), Btn0)) {
+                    DrawRectangleLinesEx(Btn0, 2, RED) ;
+                    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                        team_list[i] = j;
+                        if(settings.enable_sfx) PlaySound(click);
+                    }
+                } else DrawRectangleLinesEx(Btn0, 2, BLACK) ;
+                switch(j){
+                    case 0:
+                        team = "NONE";
+                        break;
+                    case 1:
+                        team = "RED";
+                        break;
+                    case 2:
+                        team = "BLUE";
+                        break;
+                    case 3:
+                        team = "GREEN";
+                        break;
+                    case 4: 
+                        team = "YELLOW";
+                        break;
+                }
+                DrawText(team, Btn0.x + 2, Btn0.y + 2, 20, (j == 0)? BLACK : ReturnColorFromTeamInt(j));
+            }
+        }
+
+        bool tmp = false;
+        if(real_or_turn == 'r') tmp = true;
+        AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
     }
     EndDrawing();
 }
@@ -299,10 +417,8 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
     EndDrawing();
 }
 
-void DisplayGameMenuScreen(const Sound click)
-{
-    if (IsKeyPressed(KEY_ESCAPE))
-    {
+void DisplayGameMenuScreen(const Sound click, const Obstacles obstacles) {
+    if(IsKeyPressed(KEY_ESCAPE)) {
         current_screen = gamemode;
         success_save = 0;
     }
@@ -325,15 +441,43 @@ void DisplayGameMenuScreen(const Sound click)
                 {
                     PlaySound(click);
 
-                    // Saving ships' state
+                    // Saving data
                     cJSON *jsonship1 = create_ship_json(ship1);
                     cJSON *jsonship2 = create_ship_json(ship2);
                     cJSON *jsonfinal = cJSON_CreateObject();
                     cJSON *gamemodeSt = cJSON_CreateString(gamemode == GAME_REAL ? "GAME_REAL" : "GAME_TURN");
+                    cJSON *rock_count = cJSON_CreateNumber(obstacles.rock_count);
+                    cJSON *island_count = cJSON_CreateNumber(obstacles.island_count);
 
                     cJSON_AddItemToObject(jsonfinal, "ship1", jsonship1);
                     cJSON_AddItemToObject(jsonfinal, "ship2", jsonship2);
                     cJSON_AddItemToObject(jsonfinal, "gamemode", gamemodeSt);
+                    cJSON_AddItemToObject(jsonfinal, "rock_count", rock_count);
+                    cJSON_AddItemToObject(jsonfinal, "island_count", island_count);
+
+                    // Registering rocks to game.json
+                    for(int i = 0; i < obstacles.rock_count; i++) {
+                        cJSON *rock_info = cJSON_CreateArray();
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.x));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.y));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.z));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.x));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.y));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.z));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].height));
+                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].geometry_id));
+                        cJSON_AddItemToObject(jsonfinal, TextFormat("rock_%d", i), rock_info);
+                    }
+
+                    // Registering islands to game.json
+                    for(int i = 0; i < obstacles.island_count; i++) {
+                        cJSON *island_info = cJSON_CreateArray();
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.x));
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.y));
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.z));
+                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].radius));
+                        cJSON_AddItemToObject(jsonfinal, TextFormat("island_%d", i), island_info);
+                    }
 
                     if (gamemode == GAME_TURN)
                     {
@@ -341,11 +485,13 @@ void DisplayGameMenuScreen(const Sound click)
                         cJSON *fire_t = cJSON_CreateNumber(fire_time);
                         cJSON *c_turn = cJSON_CreateNumber(current_turn->id);
                         cJSON *n_turn = cJSON_CreateNumber(next_turn->id);
+                        cJSON *has_fired = cJSON_CreateString(booltostr(has_fired_once));
 
                         cJSON_AddItemToObject(jsonfinal, "move_time", move_t);
                         cJSON_AddItemToObject(jsonfinal, "fire_time", fire_t);
                         cJSON_AddItemToObject(jsonfinal, "current_turn", c_turn);
                         cJSON_AddItemToObject(jsonfinal, "next_turn", n_turn);
+                        cJSON_AddItemToObject(jsonfinal, "has_fired", has_fired);
                     }
 
                     const char *jsonstring = cJSON_Print(jsonfinal);
@@ -494,8 +640,8 @@ void DeinitMainWindow()
 {
     UnloadRenderTexture(screenShip1);
     UnloadRenderTexture(screenShip2);
-    DestroyShip(&ship1);
-    DestroyShip(&ship2);
+    //DestroyShip(&ship1); //TODO: Update this
+    //DestroyShip(&ship2);
     //! destroy the window and cleanup the OpenGL context
     CloseWindow();
 }

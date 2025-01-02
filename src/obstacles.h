@@ -2,7 +2,6 @@
 #define OBSTACLES_H
 
 #include "raylib.h"
-#include "raymath.h"
 
 #define MAX_ISLAND_RADIUS 24
 #define MAX_ISLANDS 15
@@ -23,6 +22,7 @@ typedef struct {
 
 typedef struct {
     int height;
+    int model_coefficient;
     Vector3 center_pos;
     Vector3 rotation_vec;
     Model model;

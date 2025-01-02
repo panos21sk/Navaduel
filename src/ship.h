@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "anim.h"
 #include "obstacles.h"
 #include "cJSON.h"
 #define MAX_ACCEL 1
@@ -50,6 +51,7 @@ typedef struct {
 
 typedef struct {
     int id; 
+    int team;
     float yaw;
     movement_buttons movement_buttons;
     Vector3 position;
@@ -61,10 +63,16 @@ typedef struct {
     BoundingBox boundary;
     bool can_fire;
     bool can_move;
+    bool is_spawn_valid;
     int current_health;
-    //ship specific
-    int initial_health;
+    accel_settings default_accel;
     accel_settings accel;
+    //ship specific
+    float cannonball_power_coefficient;
+    int initial_health;
+    float max_accel;
+    float min_accel;
+    float accel_step;
     Vector3 camera_distance_vector_fp;
     Vector3 camera_distance_vector_tp;
     float sphere_hitbox_radius;
@@ -73,6 +81,7 @@ typedef struct {
 typedef struct {
     Ship* ship_list;
     int* type_list;
+    int* team_list;
     int player_count;
 } Ship_data;
 
@@ -82,17 +91,17 @@ extern Ship ship2;
 extern Camera camera1;
 extern Camera camera2;
 
-Ship* SetupShips(int player_count, int* type_list);
-Ship_data CreateShipData(int player_count, int* type_list);
-void ResetShipsState();
+Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs);
+Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs);
 void LoadShip(Ship *ship, const cJSON *shipState);
-void DestroyShip(const Ship* ship);
+void DestroyShip(Ship_data* ship_data, int id);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
-void UpdateCannonballState(Cannonball* cannonball, Sound splash, bool sfx_en);
+void UpdateCannonballState(Cannonball* cannonball, Sound splash, Animation* splash_anim,bool sfx_en);
 void UpdateShipCamera(const Ship *ship, bool first_person);
 void *EndGame(void* arg);
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Obstacles obstacles, bool sfx_en);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, bool sfx_en, Animation* explosion_anim);
 void CheckCollisionWithBounds(Ship *ship, BoundingBox bound);
+void CheckWin(Ship_data ship_data);
 
 #endif // SHIP_H
