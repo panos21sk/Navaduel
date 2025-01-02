@@ -333,7 +333,7 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
         }
 
         //Insert debugging text here when needed
-        DrawText(TextFormat("%d", anim_list[0].play), 5, HEIGHT - 30, 20, RED);
+        DrawText(TextFormat("%f, %f, %f", current_player_ship.cannon->rotation.x, current_player_ship.cannon->rotation.x - MOVEMENT_STEP / 10 * current_player_ship.accel.fire_coefficient, -MAX_TURN_UP), 5, HEIGHT - 30, 20, RED);
     }
     EndTextureMode();
 }

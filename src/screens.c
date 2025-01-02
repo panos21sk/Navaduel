@@ -236,6 +236,7 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
     mouse_point = GetMousePosition();
     control_index = 0;
     static int letter_count;
+    player_count[0] = (char)*player_count_addr + 48;
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);

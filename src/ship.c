@@ -341,15 +341,13 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
         if (ship->can_fire && ship->cannon->rotation.x >= -MAX_TURN_UP && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999))
         {
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
-            ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
             ship->accel.fire_coefficient = (ship->accel.fire_coefficient < ship->max_accel)
                                                ? ship->accel.fire_coefficient + ship->accel_step
                                                : ship->max_accel;
         }
-        else
+        else if (ship->cannon->rotation.x <= 0 && !ship->can_fire)
         {
-            if (ship->cannon->rotation.x <= 0)
-                ship->cannon->rotation.x += MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
+                    ship->cannon->rotation.x += MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
         }
     }
     if (IsKeyReleased(ship->movement_buttons.fire))
