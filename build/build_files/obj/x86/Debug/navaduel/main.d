@@ -26,18 +26,22 @@ obj/x86/Debug/navaduel/main.o: ../../src/main.c \
  /usr/include/bits/pthreadtypes-arch.h \
  /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
  /usr/include/bits/struct_rwlock.h /usr/include/alloca.h \
- /usr/include/bits/stdlib-float.h ../../include/raylib.h \
+ /usr/include/bits/stdlib-float.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
+ /usr/include/bits/getopt_core.h /usr/include/bits/unistd_ext.h \
+ /usr/include/linux/close_range.h ../../include/raylib.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h \
- ../../src/ship.h ../../src/screens.h ../../src/obstacles.h \
  ../../include/raymath.h /usr/include/math.h \
  /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
  /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
  /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
- /usr/include/bits/iscanonical.h ../../include/cJSON.h ../../src/util.h \
- ../../src/game.h
+ /usr/include/bits/iscanonical.h ../../src/ship.h ../../src/screens.h \
+ ../../src/obstacles.h ../../src/anim.h ../../src/cJSON.h \
+ ../../src/util.h ../../src/game.h
 /usr/include/stdc-predef.h:
 /usr/include/setjmp.h:
 /usr/include/features.h:
@@ -87,12 +91,17 @@ obj/x86/Debug/navaduel/main.o: ../../src/main.c \
 /usr/include/bits/struct_rwlock.h:
 /usr/include/alloca.h:
 /usr/include/bits/stdlib-float.h:
+/usr/include/unistd.h:
+/usr/include/bits/posix_opt.h:
+/usr/include/bits/environments.h:
+/usr/include/bits/confname.h:
+/usr/include/bits/getopt_posix.h:
+/usr/include/bits/getopt_core.h:
+/usr/include/bits/unistd_ext.h:
+/usr/include/linux/close_range.h:
 ../../include/raylib.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h:
-../../src/ship.h:
-../../src/screens.h:
-../../src/obstacles.h:
 ../../include/raymath.h:
 /usr/include/math.h:
 /usr/include/bits/math-vector.h:
@@ -104,6 +113,10 @@ obj/x86/Debug/navaduel/main.o: ../../src/main.c \
 /usr/include/bits/mathcalls.h:
 /usr/include/bits/mathcalls-narrow.h:
 /usr/include/bits/iscanonical.h:
-../../include/cJSON.h:
+../../src/ship.h:
+../../src/screens.h:
+../../src/obstacles.h:
+../../src/anim.h:
+../../src/cJSON.h:
 ../../src/util.h:
 ../../src/game.h:

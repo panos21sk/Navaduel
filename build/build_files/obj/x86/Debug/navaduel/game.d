@@ -17,7 +17,7 @@ obj/x86/Debug/navaduel/game.o: ../../src/game.c \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
  /usr/include/bits/iscanonical.h ../../include/rlgl.h ../../src/game.h \
  ../../src/ship.h ../../src/screens.h ../../src/obstacles.h \
- ../../include/cJSON.h \
+ ../../src/anim.h ../../src/cJSON.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
  ../../src/util.h /usr/include/setjmp.h /usr/include/bits/setjmp.h \
  /usr/include/bits/types/struct___jmp_buf_tag.h \
@@ -87,7 +87,8 @@ obj/x86/Debug/navaduel/game.o: ../../src/game.c \
 ../../src/ship.h:
 ../../src/screens.h:
 ../../src/obstacles.h:
-../../include/cJSON.h:
+../../src/anim.h:
+../../src/cJSON.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
 ../../src/util.h:
 /usr/include/setjmp.h:

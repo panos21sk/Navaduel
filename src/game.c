@@ -152,7 +152,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
 
     if(reset_state) { //on 1, resets move_time and fire_time to default
-
         move_time = MOVEMENT_TIME;
         fire_time = FIRE_TIME;
         startup_counter = GAME_STARTUP_COUNTER; //may remove
@@ -247,7 +246,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
             pthread_detach(decrement_move_time_thread);
         }
-        pthread_cancel(decrement_move_time_thread);
         if(move_time == 0) {
             current_turn->can_move = false;
             current_turn->can_fire = true;
@@ -261,7 +259,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
             pthread_detach(decrement_fire_time_thread);
         }
-        pthread_cancel(decrement_fire_time_thread);
         if(fire_time == 0 || has_fired_once) {
             current_turn->can_fire = false;
         }

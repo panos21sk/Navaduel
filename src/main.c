@@ -13,7 +13,7 @@
 #define BOUNDS_SCALAR 900.0f
 
 int main() {
-    //SetTraceLogLevel(7);
+    //SetTraceLogLevel(6); //7 - nothing, 6 - fatal
 	//! Main window initialization
 	InitMainWindow();
 
