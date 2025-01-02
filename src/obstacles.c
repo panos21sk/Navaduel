@@ -78,3 +78,12 @@ Obstacles CreateObstactlesInstance(Island* island_list, int island_count, Rock* 
     obj_inst.rock_list = rock_list;
     return obj_inst;
 }
+
+Obstacles init_obs(Texture2D sand_tex, Texture2D rock_tex, Model palm_tree){
+    const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
+	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-500, -500}, (Vector2){500, 500}, island_count); //hardcoded bounds initially
+	const int rock_count = GetRandomValue(MIN_ROCKS, MAX_ROCKS);
+	Rock* rock_list = CreateAllRocks(rock_tex, (Vector2){-500, -500}, (Vector2){500, 500}, rock_count);
+	Obstacles obstacles = CreateObstactlesInstance(island_list, island_count, rock_list, rock_count);
+    return obstacles;
+}

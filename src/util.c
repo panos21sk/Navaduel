@@ -75,7 +75,6 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                     if(scr == MAIN) {
                         while(control_index < 1) {
                             ++control_index;
-                            longjmp(reset_point, 1);
                         }
                     }
                 }
@@ -87,7 +86,6 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                         }
                         ++control_index;
                         startup_counter = GAME_STARTUP_COUNTER;
-                        longjmp(reset_point, 1);
                     }
                 }
                 if(sfx_en) PlaySound(click);
@@ -109,7 +107,7 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     DrawRectangle(WIDTH - 40, (int)rec.y + 3, 17, 17, *setting ? BLUE : RED);
 }
 
-void LoadSettings() {
+void LoadSettings(bool* bgm_en) {
     settings.enable_bgm = NULL;
     settings.enable_sfx = NULL;
     settings.first_or_third_person_cam = NULL;
@@ -119,6 +117,8 @@ void LoadSettings() {
 
     if(ini_parse("config.ini", parseHandler, &settings) < 0) printf("\n\nSettings were not loaded\n\n");
     else printf("\n\nSettings were loaded\n\n");
+
+    *bgm_en = settings.enable_bgm;
 }
 
 void UpdateSettingsConfig(const setting settings) {
@@ -166,5 +166,25 @@ cJSON *create_ship_json(const Ship ship) {
     {
         cJSON_Delete(array);
         return NULL;
+    }
+}
+
+Color ReturnColorFromTeamInt(int col_int){
+    switch(col_int){
+        case 0:
+            return WHITE;
+            break;
+        case 1:
+            return RED;
+            break;
+        case 2:
+            return BLUE;
+            break;
+        case 3:
+            return GREEN;
+            break;
+        case 4: 
+            return YELLOW;
+            break;
     }
 }

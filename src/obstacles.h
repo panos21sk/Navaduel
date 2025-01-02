@@ -46,4 +46,6 @@ Rock* CreateAllRocks(Texture2D rock_tex, Vector2 corner_bound, Vector2 opp_corne
 
 Obstacles CreateObstactlesInstance(Island* island_list, int island_count, Rock* rock_list, int rock_count);
 
+Obstacles init_obs(Texture2D sand_tex, Texture2D rock_tex, Model palm_tree);
+
 #endif //OBSTACLES_H  
