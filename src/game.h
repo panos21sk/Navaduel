@@ -25,6 +25,7 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* 
 void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
 void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, 
                         Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list);
+void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip);
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim);
 
 #endif // GAME_H
