@@ -12,11 +12,13 @@
 extern int winner;
 extern int startup_counter;
 extern int dice_state;
+extern int reset_state;
 extern int move_time;
 extern int fire_time;
 extern Ship *current_turn;
 extern Ship *next_turn;
 extern bool is_loaded;
+extern bool has_fired_once;
 extern BoundingBox game_bounds;
 
 void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);

@@ -10,6 +10,8 @@
 #include "game.h"
 #include "anim.h"
 
+#define BOUNDS_SCALAR 900.0f
+
 int main() {
     //SetTraceLogLevel(7);
 	//! Main window initialization
@@ -31,7 +33,7 @@ int main() {
     //pause with StopMusicStream(bgm), resume with ResumeMusicStream(bgm);
 	
 	//! Iniatializing Models for rendering
-	const Texture2D water_tex = LoadTexture("resources/sprites/water.png");
+	const Texture2D water_tex = LoadTexture("resources/sprites/water-modified.png");
 	const Mesh water_cube = GenMeshCube(300, 1, 300);
 	Model water_model = LoadModelFromMesh(water_cube);
 	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex;
@@ -83,14 +85,15 @@ int main() {
 	//Recalculate SkyBox bounds
 	{
 		game_bounds = GetMeshBoundingBox(skybox_model.meshes[0]);
-		game_bounds.min = Vector3Scale(game_bounds.min, 900.0f);
-		game_bounds.max = Vector3Scale(game_bounds.max, 900.0f);
+		game_bounds.min = Vector3Scale(game_bounds.min, BOUNDS_SCALAR);
+		game_bounds.max = Vector3Scale(game_bounds.max, BOUNDS_SCALAR);
 	}
 
 	// Reset ships-players
 	// {
 	// 	if(setjmp(reset_point)) ResetShipsState(&ship_data);
 	// }
+  
 	//! Game loop
 	while (!exit_window)
 	{
@@ -100,7 +103,7 @@ int main() {
 		switch (current_screen) {
 			case MAIN:
 			{
-				DisplayMainScreen(click); //Displays the game's MAIN screen
+				DisplayMainScreen(click, &obstacles, sand_tex, palm_tree, rock_tex); //Displays the game's MAIN screen
 				break;
 			}
 			case GAMEMODES:
@@ -146,7 +149,7 @@ int main() {
 			}
 			case GAME_MENU:
 			{
-				DisplayGameMenuScreen(click);
+				DisplayGameMenuScreen(click, obstacles);
 				break;
 			}
 			case GAME_OVER:
@@ -180,6 +183,8 @@ int main() {
 	UnloadModel(skybox_model);
 	UnloadTexture(water_tex);
 	UnloadTexture(skybox_texture);
+	UnloadMaterial(skybox_material);
+	UnloadMesh(skybox_cube);
 	UnloadSound(click);
 	UnloadSound(fire);
 	UnloadSound(splash);
@@ -190,6 +195,8 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
+	UnloadModel(ship1.model);
+	UnloadModel(ship2.model);
 	CloseAudioDevice();
 	// TODO: add everything to 1 function
 	// TODO: properly unload island and rock models (throws an error if not)

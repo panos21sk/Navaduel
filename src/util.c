@@ -7,12 +7,19 @@
 #include "cJSON.h"
 #include <setjmp.h>
 #include <stdlib.h>
-#include <time.h> //for srand
 #include <string.h>
 
 int control_index = 0;
 jmp_buf reset_point;
 setting settings;
+
+Ship *getShipFromId(const int id) {
+    switch(id) {
+        case 1: return &ship1;
+        case 2: return &ship2;
+        default: return NULL;
+    }
+}
 
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
@@ -60,6 +67,7 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
                 if(*current_screen == GAMEMODES && scr != MAIN) {
                     gamemode = scr; //saves selected gamemode
                     dice_state = 1;
+                    reset_state = 1;
                 }
                 if(*current_screen != MAIN) success_load = 1;
                 if(*current_screen == GAME_MENU) {

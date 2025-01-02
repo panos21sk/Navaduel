@@ -24,14 +24,21 @@ BoundingBox game_bounds;
 int allow_next_loop = 1; //controls loops, DO NOT DELETE IN ANY CASE (the program will hang up)
 
 /* Turn-based gameplay declarations */
-// move_time and fire_time are external -> to be saved in every game state
+Cannonball cannonball;
 int move_time = MOVEMENT_TIME;
 int fire_time = FIRE_TIME;
 Ship *current_turn;
 Ship *next_turn;
 int dice_state = 1; //dice = choosing randomly a player for turn-based gameplay
-int reset_state = 0;
+int reset_state = 1;
+bool has_fired_once = false;
 void *DecreaseTime(void *arg);
+void *DecreaseCounter(void *arg);
+
+/* Threads */
+pthread_t decrement_counter_thread;
+pthread_t decrement_move_time_thread;
+pthread_t decrement_fire_time_thread;
 
 /**
  * @brief Description to-do
@@ -95,10 +102,13 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
             sprintf(text, "%d", startup_counter);
             DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
             DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            --startup_counter;
+            while(allow_next_loop) { //decreasing startup count
+                allow_next_loop = 0;
+                pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+                pthread_detach(decrement_counter_thread);
+            }
         }
         EndDrawing();
-        sleep(1);
         free(text);
     }
     else if (startup_counter == 0)
@@ -113,12 +123,17 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
 
             DrawText("Begin!", WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
             DrawText("Begin!", 3 * WIDTH / 4 - 70, HEIGHT / 2, 50, WHITE);
+
             ship_data.ship_list[0].can_move = true;
             ship_data.ship_list[1].can_move = true;
-            --startup_counter; // game starts
+            ship_data.ship_list[0].can_fire = true;
+            ship_data.ship_list[1].can_fire = true;
+
+            pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+            pthread_detach(decrement_counter_thread);
+
         }
         EndDrawing();
-        sleep(1); //TODO: Find solution without using sleep
     }
     else
     {
@@ -129,6 +144,9 @@ void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles,
             DrawTextureRec(screenShip1.texture, splitScreenRect, (Vector2){0, 0}, WHITE);
             DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
+
+            ship_data.ship_list[0].can_fire = true;
+            ship_data.ship_list[1].can_fire = true;
         }
         EndDrawing();
     }
@@ -162,10 +180,20 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
     }
 
     if(reset_state) { //on 1, resets move_time and fire_time to default
+        cannonball.position = (Vector3){0, 1000, 0};
+        cannonball.velocity = Vector3Zero();
+        cannonball.accel = Vector3Zero();
+        cannonball.has_splashed = true;
+        cannonball.has_hit_enemy = true;
+
         move_time = MOVEMENT_TIME;
         fire_time = FIRE_TIME;
         startup_counter = GAME_STARTUP_COUNTER; //may remove
-        current_turn->accel = current_turn->default_accel;
+      
+        has_fired_once = false;
+        current_turn->accel = default_accel;
+        next_turn->accel = default_accel;
+        next_turn->cannonball = cannonball;
         reset_state = 0; //reset
     }
 
@@ -206,11 +234,15 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
             DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
-            --startup_counter;
         }
         EndDrawing();
-        sleep(1);
         free(text);
+
+        if(allow_next_loop) {
+            allow_next_loop = 0;
+            pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+            pthread_detach(decrement_counter_thread);
+        }
     }
     else if (startup_counter == 0)
     {
@@ -225,10 +257,14 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
             DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
             current_turn->can_move = true;
-            --startup_counter; // game starts
         }
         EndDrawing();
-        sleep(1);
+
+        if(allow_next_loop) {
+            allow_next_loop = 0;
+            pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
+            pthread_detach(decrement_counter_thread);
+        }
     }
     else
     {
@@ -241,38 +277,41 @@ void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles,
             DrawText(TextFormat("Player %d", current_turn-> id + 1), WIDTH-150, 30, 20, RED);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-
-            while(move_time > 0 && allow_next_loop) {
-                current_turn->can_fire = false;
-                allow_next_loop = 0;
-                pthread_t decrement_thread;
-                pthread_create(&decrement_thread, NULL, DecreaseTime, &move_time);
-                pthread_detach(decrement_thread);
-            }
-            if(move_time == 0) {
-                current_turn->can_move = false;
-                if(fire_time != 0) current_turn->can_fire = true;
-            }
-
-            while(move_time == 0 && fire_time > 0 && allow_next_loop) {
-                allow_next_loop = 0;
-                pthread_t decrement_thread;
-                pthread_create(&decrement_thread, NULL, DecreaseTime, &fire_time);
-                pthread_detach(decrement_thread);
-            }
-            if(fire_time == 0) {
-                current_turn->can_fire = false;
-            }
-            if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
-                if(current_turn->id < ship_data.player_count - 1){
-                    current_turn = &ship_data.ship_list[current_turn->id + 1];
-                } else {
-                    current_turn = &ship_data.ship_list[0];
-                }
-                reset_state = 1;
-            }
         }
         EndDrawing();
+
+        while(move_time > 0 && allow_next_loop) {
+            current_turn->can_fire = false;
+            allow_next_loop = 0;
+            pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
+            pthread_detach(decrement_move_time_thread);
+        }
+        pthread_cancel(decrement_move_time_thread);
+        if(move_time == 0) {
+            current_turn->can_move = false;
+            current_turn->can_fire = true;
+        }
+
+        if(current_turn->cannonball.position.y < 0) {
+            has_fired_once = true;
+        }
+        while(move_time == 0 && fire_time > 0 && allow_next_loop) {
+            allow_next_loop = 0;
+            pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
+            pthread_detach(decrement_fire_time_thread);
+        }
+        pthread_cancel(decrement_fire_time_thread);
+        if(fire_time == 0 || has_fired_once) {
+            current_turn->can_fire = false;
+        }
+        if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
+            if(current_turn->id < ship_data.player_count - 1){
+                current_turn = &ship_data.ship_list[current_turn->id + 1];
+            } else {
+                current_turn = &ship_data.ship_list[0];
+            }
+            reset_state = 1;
+        }
     }
 }
 
@@ -354,3 +393,9 @@ void *DecreaseTime(void *arg) {
     allow_next_loop = 1;
 }
 
+void *DecreaseCounter(void *arg) {
+    int *input = (int *)arg;
+    sleep(1);
+    (*input)--;
+    allow_next_loop = 1;
+}

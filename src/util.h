@@ -22,7 +22,10 @@ extern int control_index;
 extern jmp_buf reset_point;
 extern setting settings;
 
+Ship *getShipFromId(int id);
 bool isEvenNumber(int number);
+bool strtobool(const char *input);
+char *booltostr(bool input);
 void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mouse_point, const Sound click, screen* current_screen, const screen scr, const bool sfx_en);
 void AddSetting(bool* setting, const char* setting_name, Rectangle rec, Sound click, bool sfx_en);
 void LoadSettings(bool* bgm_en);
