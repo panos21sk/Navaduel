@@ -50,10 +50,10 @@ typedef struct {
 } Cannon;
 
 typedef struct {
-    int id; 
-    int team;
-    float yaw;
-    movement_buttons movement_buttons;
+    int id; //d
+    int team; //d
+    float yaw; //d
+    movement_buttons movement_buttons; //d
     Vector3 position;
     Vector3 prev_position;
     Camera *camera;
@@ -90,10 +90,11 @@ extern Ship ship1;
 extern Ship ship2;
 extern Camera camera1;
 extern Camera camera2;
+extern Ship_data ship_data;
 
 Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs);
 Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs);
-void LoadShip(Ship *ship, const cJSON *shipState);
+Ship LoadShip(int type, const cJSON *shipState, int playercount);
 void DestroyShip(Ship_data* ship_data, int id);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);

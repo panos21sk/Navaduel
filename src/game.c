@@ -38,10 +38,19 @@ pthread_t decrement_counter_thread;
 pthread_t decrement_move_time_thread;
 pthread_t decrement_fire_time_thread;
 
+void FixShipPosition() { // potential fix for ship position offset
+    for(int i = 0; i<ship_data.player_count; i++) {
+        const float check = ship_data.type_list[i] == 0 ? 17.0f : 8.0f;
+        if(ship_data.ship_list[i].position.y < check) ship_data.ship_list[i].position.y = check;
+    }
+}
+
 void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstacles,
         Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
+
+    FixShipPosition();
 
     HideCursor();
 
@@ -76,7 +85,6 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
     {
         ship_data.ship_list[0].can_fire = false;
         ship_data.ship_list[1].can_fire = false;
-        char *text = malloc(sizeof(char) * 2); // with null char
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -85,9 +93,8 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
             DrawTextureRec(screenShip2.texture, splitScreenRect, (Vector2){WIDTH / 2.0f, 0}, WHITE);
             DrawLine(WIDTH / 2, 0, WIDTH / 2, HEIGHT, BLACK);
 
-            sprintf(text, "%d", startup_counter);
-            DrawText(text, WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            DrawText(text, 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
+            DrawText(TextFormat("%d", startup_counter), WIDTH / 4, HEIGHT / 2, 50, WHITE);
+            DrawText(TextFormat("%d", startup_counter), 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
             while(allow_next_loop) { //decreasing startup count
                 allow_next_loop = 0;
                 pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
@@ -95,7 +102,6 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
             }
         }
         EndDrawing();
-        free(text);
     }
     else if (startup_counter == 0)
     {
@@ -143,16 +149,17 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
+    FixShipPosition();
+
     if(dice_state) {
         srand(time(0));
         const int number = rand() % ship_data.player_count;
         current_turn = &ship_data.ship_list[number];
+        next_turn = &ship_data.ship_list[number + 1];
         dice_state = 0; //thrown
     }
 
-
     if(reset_state) { //on 1, resets move_time and fire_time to default
-
         move_time = MOVEMENT_TIME;
         fire_time = FIRE_TIME;
         startup_counter = GAME_STARTUP_COUNTER; //may remove
@@ -247,7 +254,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
             pthread_detach(decrement_move_time_thread);
         }
-        pthread_cancel(decrement_move_time_thread);
         if(move_time == 0) {
             current_turn->can_move = false;
             current_turn->can_fire = true;
@@ -261,7 +267,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
             pthread_detach(decrement_fire_time_thread);
         }
-        pthread_cancel(decrement_fire_time_thread);
         if(fire_time == 0 || has_fired_once) {
             current_turn->can_fire = false;
         }
@@ -356,6 +361,7 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
         }
     }
 }
+
 
 void *DecreaseTime(void *arg) {
     int *input = (int *)arg;
