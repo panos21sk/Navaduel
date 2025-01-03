@@ -324,6 +324,17 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
 
             DrawAnim(anim_list[0], *current_player_ship.camera);
             DrawAnim(anim_list[1], *current_player_ship.camera);
+
+            if(settings.show_reticle){
+                //draw sightline: starting point is cannons position at y = 0.1, end point is, from start point, the result of 
+                // the addition of start point and 0,0,2000, rotated such that it aligns with where cannon points
+                DrawLine3D(
+                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, 
+                                Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), 
+                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, 
+                                    Vector3Add(Vector3RotateByAxisAngle((Vector3){0,0,3000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
+                                                Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
+            }
         }
         EndMode3D();
 
@@ -335,8 +346,8 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
 
 void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip){
     if(settings.show_fps) DrawFPS(
-            gamemode == GAME_REAL ? WIDTH/2-100 : WIDTH-100,
-            HEIGHT-30);
+            screenShip.texture.width - 100,
+            30);
 
         //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
         for(int i = 0; i < current_player_ship.initial_health; i++){
