@@ -336,7 +336,7 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
 void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip){
     if(settings.show_fps) DrawFPS(
             gamemode == GAME_REAL ? WIDTH/2-100 : WIDTH-100,
-            HEIGHT-30);
+            20);
 
         //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
         for(int i = 0; i < current_player_ship.initial_health; i++){
@@ -373,7 +373,6 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
         }
     }
 }
-
 
 void *DecreaseTime(void *arg) {
     int *input = (int *)arg;
