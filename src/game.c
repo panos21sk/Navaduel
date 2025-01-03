@@ -401,7 +401,6 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
     }
 }
 
-
 void *DecreaseTime(void *arg) {
     int *input = (int *)arg;
     (*input)--;
