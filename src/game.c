@@ -202,7 +202,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             DrawText(TextFormat("%d", startup_counter), WIDTH / 2, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, ReturnColorFromTeamInt(current_turn->team));
         }
         EndDrawing();
 
@@ -225,7 +225,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             DrawText("Begin!", WIDTH / 2 - 70, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, ReturnColorFromTeamInt(current_turn->team));
             current_turn->can_move = true;
         }
         EndDrawing();
@@ -244,9 +244,9 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
             DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
-            DrawText(TextFormat("Player %d", current_turn-> id + 1), WIDTH-150, 30, 20, RED);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
+            DrawText(TextFormat("Player %d", current_turn-> id + 1), WIDTH-150, 30, 20, ReturnColorFromTeamInt(current_turn->team));
         }
         EndDrawing();
 
@@ -382,7 +382,7 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
                   YELLOW);
 
         //Insert debugging text here when needed
-        DrawText(TextFormat("Curr:%f, Prev:%f", current_player_ship.position.z, current_player_ship.prev_position_turn.z), 5, HEIGHT - 30, 20, RED);
+        //DrawText(TextFormat("Curr:%f, Prev:%f", current_player_ship.position.z, current_player_ship.prev_position_turn.z), 5, HEIGHT - 30, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){

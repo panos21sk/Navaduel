@@ -6,8 +6,8 @@
 #include "obstacles.h"
 #include "anim.h"
 
-#define MOVEMENT_TIME 4 //time allowed for the current ship to move (turn-based gm, in seconds)
-#define FIRE_TIME 3 //time allowed for the current ship to fire (turn-based gm, in seconds)
+#define MOVEMENT_TIME 3 //time allowed for the current ship to move (turn-based gm, in seconds)
+#define FIRE_TIME 4 //time allowed for the current ship to fire (turn-based gm, in seconds)
 
 extern int winner;
 extern int startup_counter;
