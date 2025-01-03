@@ -33,13 +33,13 @@ int main() {
     //pause with StopMusicStream(bgm), resume with ResumeMusicStream(bgm);
 
 	//! Iniatializing Models for rendering
-	const Texture2D water_tex = LoadTexture("resources/sprites/water-modified.png");
-	const Mesh water_cube = GenMeshCube(300, 1, 300);
+	Texture2D water_tex = LoadTexture("resources/sprites/water-modified.png");
+	Mesh water_cube = GenMeshCube(300, 1, 300);
 	Model water_model = LoadModelFromMesh(water_cube);
 	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex;
 	//skybox model
-	const Texture2D skybox_texture = LoadTexture("resources/sprites/sky.png");
-	const Material skybox_material = LoadMaterialDefault();
+	Texture2D skybox_texture = LoadTexture("resources/sprites/sky.png");
+	Material skybox_material = LoadMaterialDefault();
 	skybox_material.maps[MATERIAL_MAP_DIFFUSE].texture = skybox_texture;
 	Mesh skybox_cube = GenMeshCube(1, 1, 1);
 	Model skybox_model = LoadModelFromMesh(skybox_cube);
@@ -178,9 +178,7 @@ int main() {
 				break;
 		}
 	}
-	UnloadMesh(water_cube);
 	UnloadModel(water_model);
-	UnloadModel(skybox_model);
 	UnloadTexture(water_tex);
 	UnloadTexture(skybox_texture);
 	UnloadMaterial(skybox_material);
