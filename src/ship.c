@@ -78,12 +78,15 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         }
         ship_inst.default_accel = (accel_settings){ship_inst.min_accel, ship_inst.min_accel, ship_inst.min_accel, ship_inst.min_accel, ship_inst.min_accel, ship_inst.min_accel, ship_inst.min_accel};
         ship_inst.accel = ship_inst.default_accel;
+        ship_inst.prev_position = (Vector3){0.0f,  0.0f, 0.0f};
+        ship_inst.prev_position_turn = (Vector3){0.0f, 1000.0f, 0.0f};
+        ship_inst.prev_shot_release = 0;
         //VALIDATING SPAWN POS
         while(!ship_inst.is_spawn_valid){
             //randomize position and set spawn to be valid until proven otherwise
             ship_inst.is_spawn_valid = true;
             ship_inst.position = (Vector3){
-                    (float)GetRandomValue(-500, 500), init_y, (float)GetRandomValue(-500, 500) //add it via ref to bounds later
+                    (float)GetRandomValue(-495, 495), init_y, (float)GetRandomValue(-495, 495) //add it via ref to bounds later
                 };
             //check if ship spawns on island
             for(int i1 = 0; i1 < obs.island_count; i1++){
@@ -124,7 +127,6 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
             }
         }
         //END OF SPAWN POS VALIDATION
-        ship_inst.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
         ship_inst.cannon = cannon_addr;
         *ship_inst.cannon = cannon_inst;
         ship_inst.cannonball = initcannonball;
@@ -419,6 +421,7 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
             if (sfx_en)
                 PlaySound(fire);
             ship->can_fire = false;
+            ship->prev_shot_release = ship->cannon->rotation.x;
         }
     }
 }
@@ -442,10 +445,10 @@ void UpdateCannonballState(Cannonball *cannonball, Sound splash, Animation* spla
     if (cannonball->position.y < 0.0f)
     {
         if (!cannonball->has_splashed)
-        {
+        {   
+            StartAnim(splash_anim, Vector3Add(cannonball->position, (Vector3){0, splash_anim->tex.height / 4, 0}));
             if (sfx_en) {
                 PlaySound(splash);
-                StartAnim(splash_anim, Vector3Add(cannonball->position, (Vector3){0, splash_anim->tex.height / 4, 0}));
             }
             cannonball->has_splashed = true;
         }
@@ -494,8 +497,8 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, screen *state, Sound explosio
             if (player_ship->cannonball.has_hit_enemy == false)
             {
                 enemy_ship->current_health -= 1;
-                if(sfx_en)PlaySound(explosion);
                 StartAnim(explosion_anim, enemy_ship->position);
+                if(sfx_en) PlaySound(explosion);
                 player_ship->cannonball.has_hit_enemy = true;
                 if (enemy_ship->current_health <= 0)
                 {   
