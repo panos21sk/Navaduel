@@ -68,7 +68,6 @@ int main() {
 	int type_list[8] = {0};
 	int team_list[8] = {0};
 	bool gen_ships = false;
-	Ship_data ship_data;
 	char real_or_turn;
 	char* real_or_turn_addr = &real_or_turn;
 
@@ -129,6 +128,7 @@ int main() {
 					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
 					gen_ships = false;
 				}
+				gamemode = GAME_REAL;
 				DisplayRealTimeGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list); //Starts the real-time game
 				break;
 			}
@@ -142,6 +142,7 @@ int main() {
 					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
 					gen_ships = false;
 				}
+				gamemode = GAME_TURN;
 				DisplayTurnBasedGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list); //Starts the turn-based game
 				break;
 			}

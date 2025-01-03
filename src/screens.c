@@ -85,124 +85,14 @@ void DisplayMainScreen(const Sound click, Obstacles *obstacles, Texture2D sand_t
                     PlaySound(click);
 
                     // Loads the most recently saved game state
-                    if(success_load == 1) {
-                        //init
-                        FILE *stateFile = fopen("game.json", "r");
-                        if (stateFile == NULL)
-                        {
-                            printf("An error occurred");
-                            success_load = 0;
-                            return;
-                        }
-
-                        char buffer[1024];
-                        fread(buffer, 1, sizeof(buffer), stateFile);
-                        cJSON *jsonstate = cJSON_Parse(buffer);
-                        if (jsonstate == NULL)
-                        {
-                            puts("No saved game state");
-                            success_load = 0;
-                            return;
-                        }
-
-                        const cJSON *ship1State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship1");
-                        const cJSON *ship2State = cJSON_GetObjectItemCaseSensitive(jsonstate, "ship2");
-                        const cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
-                        const cJSON *rock_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "rock_count");
-                        const cJSON *island_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "island_count");
-
-                        gamemode = strcmp(gamemodeSt->valuestring, "GAME_REAL") == 0 ? GAME_REAL : GAME_TURN;
-
-                        if(gamemode == GAME_TURN) {
-                            const cJSON *move_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "move_time");
-                            const cJSON *fire_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "fire_time");
-                            const cJSON *c_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "current_turn");
-                            const cJSON *n_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "next_turn");
-                            const cJSON *has_fired = cJSON_GetObjectItemCaseSensitive(jsonstate, "has_fired");
-                            
-                            move_time = move_t->valueint;
-                            fire_time = fire_t->valueint;
-                            current_turn = getShipFromId(c_turn->valueint);
-                            next_turn = getShipFromId(n_turn->valueint);
-                            has_fired_once = strtobool(has_fired->string);
-                        }
-
-                        Island *island_list = malloc(sizeof(Island)*island_count->valueint);
-                        Rock *rock_list = malloc(sizeof(Island)*island_count->valueint);
-
-                        for(int i = 0; i < island_count->valueint; i++) {
-                            Island island;
-                            cJSON *island_info = cJSON_GetObjectItemCaseSensitive(jsonstate, TextFormat("island_%d", i));
-
-                            island.center_pos = (Vector3){
-                                (float)cJSON_GetArrayItem(island_info, 0)->valuedouble,
-                                (float)cJSON_GetArrayItem(island_info, 1)->valuedouble,
-                                (float)cJSON_GetArrayItem(island_info, 2)->valuedouble
-                            };
-                            island.radius = cJSON_GetArrayItem(island_info, 3)->valueint;
-                            island.palm_tree = palm_tree;
-                            Mesh sphere_mesh = GenMeshSphere((float)island.radius, 128, 128);
-                            island.island_sphere = LoadModelFromMesh(sphere_mesh);
-                            island.island_sphere.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = sand_tex;
-                            island.sand_tex = sand_tex;
-
-                            island_list[i] = island;
-                        }
-
-                        for(int i = 0; i < rock_count->valueint; i++) {
-                            Rock rock;
-                            cJSON *rock_info = cJSON_GetObjectItemCaseSensitive(jsonstate, TextFormat("rock_%d", i));
-
-                            rock.center_pos = (Vector3){
-                                (float)cJSON_GetArrayItem(rock_info, 0)->valuedouble,
-                                (float)cJSON_GetArrayItem(rock_info, 1)->valuedouble,
-                                (float)cJSON_GetArrayItem(rock_info, 2)->valuedouble,
-                            };
-                            rock.rotation_vec = (Vector3){
-                                (float)cJSON_GetArrayItem(rock_info, 3)->valuedouble,
-                                (float)cJSON_GetArrayItem(rock_info, 4)->valuedouble,
-                                (float)cJSON_GetArrayItem(rock_info, 5)->valuedouble
-                            };
-                            rock.height = cJSON_GetArrayItem(rock_info, 6)->valueint;
-                            rock.geometry_id = cJSON_GetArrayItem(rock_info, 7)->valueint;
-                            rock.rock_tex = rock_tex;
-                            if(rock.geometry_id == 1) {
-                                rock.model = LoadModelFromMesh(GenMeshCube(
-                                    (float)rock.height / 3 + (float)rock.model_coefficient * (float)rock.height / 8,
-                                    (float)rock.height,
-                                    (float)rock.height / 3 + (float)rock.model_coefficient * (float)rock.height / 8));
-                            } else {
-                                rock.model = LoadModelFromMesh(GenMeshSphere((float)rock.height, 64, 64));
-                            }
-                            rock.model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = rock_tex;
-                            rock.model.transform = MatrixRotateXYZ(rock.rotation_vec);
-
-                            rock_list[i] = rock;
-                        }
-
-                        obstacles->island_count = island_count->valueint;
-                        obstacles->rock_count = rock_count->valueint;
-                        obstacles->island_list = island_list;
-                        obstacles->rock_list = rock_list;
-
-                        LoadShip(&ship1, ship1State);
-                        LoadShip(&ship2, ship2State);
-                        success_load = !fclose(stateFile);
-                        if (success_load)
-                        {
-                            is_loaded = true;
-                            reset_state = 1;
-                            current_screen = gamemode;
-                        }
-                    }
-                    else
-                        goto escape;
+                    if(!LoadGameState(obstacles, &ship_data, sand_tex, palm_tree, rock_tex)) goto escape;
                 }
                 DrawRectangleRec(play_load_button, RED);
             }
             DrawText("LOAD GAME", (int)play_load_button.x + 5, (int)play_load_button.y + 10, 20, WHITE);
-            {
+
             escape:
+            {
                 if (!success_load)
                 {
                     DrawText("No saved game state", WIDTH / 2 - 107, HEIGHT - 30, 20, RED);
@@ -242,11 +132,11 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
         ClearBackground(RAYWHITE);
         DrawText("GAMEMODES", 20, 20, 30, BLUE);
         DrawRectangleRec(player_count_button, LIGHTGRAY);
-        int key = 50;
         if (CheckCollisionPointRec(mouse_point, player_count_button))
         {
+            int key = 50;
             SetMouseCursor(MOUSE_CURSOR_IBEAM);
-            DrawRectangleLines(player_count_button.x, player_count_button.y, player_count_button.width, player_count_button.height, RED);
+            DrawRectangleLines((int)player_count_button.x, (int)player_count_button.y, (int)player_count_button.width, (int)player_count_button.height, RED);
             key = GetCharPressed();
             while (key > 0)
             {
@@ -405,16 +295,7 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
         AddScreenChangeBtn(play_again_button, "PLAY AGAIN", mouse_point, click, &current_screen, GAMEMODES, settings.enable_sfx);
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
 
-        char *winnerstr = malloc(sizeof(char) * strlen("The winner is Player N!") + 1);
-        strcpy(winnerstr, "The winner is ");
-        if (winnerId == 1)
-            strcat(winnerstr, "Player 1!");
-        else if (winnerId == 2)
-            strcat(winnerstr, "Player 2!");
-        else
-            strcat(winnerstr, "no one!");
-        DrawText(winnerstr, WIDTH / 2 - 170, 70, 30, LIME);
-        free(winnerstr);
+        DrawText(TextFormat("The winner is %s!", winnerId > 0 ? TextFormat("Player %d", winnerId) : "no one"), WIDTH / 2 - 170, 70, 30, LIME);
     }
     EndDrawing();
 }
@@ -443,65 +324,7 @@ void DisplayGameMenuScreen(const Sound click, const Obstacles obstacles) {
                 {
                     PlaySound(click);
 
-                    // Saving data
-                    cJSON *jsonship1 = create_ship_json(ship1);
-                    cJSON *jsonship2 = create_ship_json(ship2);
-                    cJSON *jsonfinal = cJSON_CreateObject();
-                    cJSON *gamemodeSt = cJSON_CreateString(gamemode == GAME_REAL ? "GAME_REAL" : "GAME_TURN");
-                    cJSON *rock_count = cJSON_CreateNumber(obstacles.rock_count);
-                    cJSON *island_count = cJSON_CreateNumber(obstacles.island_count);
-
-                    cJSON_AddItemToObject(jsonfinal, "ship1", jsonship1);
-                    cJSON_AddItemToObject(jsonfinal, "ship2", jsonship2);
-                    cJSON_AddItemToObject(jsonfinal, "gamemode", gamemodeSt);
-                    cJSON_AddItemToObject(jsonfinal, "rock_count", rock_count);
-                    cJSON_AddItemToObject(jsonfinal, "island_count", island_count);
-
-                    // Registering rocks to game.json
-                    for(int i = 0; i < obstacles.rock_count; i++) {
-                        cJSON *rock_info = cJSON_CreateArray();
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.x));
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.y));
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].center_pos.z));
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.x));
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.y));
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.z));
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].height));
-                        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].geometry_id));
-                        cJSON_AddItemToObject(jsonfinal, TextFormat("rock_%d", i), rock_info);
-                    }
-
-                    // Registering islands to game.json
-                    for(int i = 0; i < obstacles.island_count; i++) {
-                        cJSON *island_info = cJSON_CreateArray();
-                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.x));
-                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.y));
-                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].center_pos.z));
-                        cJSON_AddItemToArray(island_info, cJSON_CreateNumber(obstacles.island_list[i].radius));
-                        cJSON_AddItemToObject(jsonfinal, TextFormat("island_%d", i), island_info);
-                    }
-
-                    if (gamemode == GAME_TURN)
-                    {
-                        cJSON *move_t = cJSON_CreateNumber(move_time);
-                        cJSON *fire_t = cJSON_CreateNumber(fire_time);
-                        cJSON *c_turn = cJSON_CreateNumber(current_turn->id);
-                        cJSON *n_turn = cJSON_CreateNumber(next_turn->id);
-                        cJSON *has_fired = cJSON_CreateString(booltostr(has_fired_once));
-
-                        cJSON_AddItemToObject(jsonfinal, "move_time", move_t);
-                        cJSON_AddItemToObject(jsonfinal, "fire_time", fire_t);
-                        cJSON_AddItemToObject(jsonfinal, "current_turn", c_turn);
-                        cJSON_AddItemToObject(jsonfinal, "next_turn", n_turn);
-                        cJSON_AddItemToObject(jsonfinal, "has_fired", has_fired);
-                    }
-
-                    const char *jsonstring = cJSON_Print(jsonfinal);
-                    FILE *stateFile = fopen("game.json", "w");
-                    fprintf(stateFile, "%s", jsonstring);
-
-                    success_save = !fclose(stateFile);
-                    cJSON_Delete(jsonfinal);
+                    SaveGameState(obstacles);
                 }
                 DrawRectangleRec(save_button, RED);
             }

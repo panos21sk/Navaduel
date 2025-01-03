@@ -22,8 +22,6 @@ extern int control_index;
 extern jmp_buf reset_point;
 extern setting settings;
 
-Ship *getShipFromId(int id);
-bool isEvenNumber(int number);
 bool strtobool(const char *input);
 char *booltostr(bool input);
 void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mouse_point, const Sound click, screen* current_screen, const screen scr, const bool sfx_en);
@@ -31,7 +29,9 @@ void AddSetting(bool* setting, const char* setting_name, Rectangle rec, Sound cl
 void LoadSettings(bool* bgm_en);
 void UpdateSettingsConfig(setting settings);
 static int parseHandler(void* user, const char* section, const char* name, const char* value);
-cJSON *create_ship_json(Ship ship);
+cJSON *create_ship_json(Ship ship, int type);
 Color ReturnColorFromTeamInt(int col_int);
+void SaveGameState(Obstacles obstacles);
+int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex);
 
 #endif //UTIL_H

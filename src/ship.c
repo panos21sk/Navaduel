@@ -18,6 +18,7 @@ Ship ship2;
 Cannon cannon1;
 Cannon cannon2;
 Cannonball initcannonball;
+Ship_data ship_data;
 
 Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs)
 {
@@ -35,9 +36,9 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
 
     for(int i = 0; i < player_count; i++){
         Cannon cannon_inst;
-        Cannon* cannon_addr = (Cannon*)MemAlloc(sizeof(Cannon));
+        Cannon* cannon_addr = MemAlloc(sizeof(Cannon));
         Ship ship_inst;
-        Camera* camera_addr = (Camera*)MemAlloc(sizeof(Camera));
+        Camera* camera_addr = MemAlloc(sizeof(Camera));
         float init_y = 0.0f;
 
         ship_inst.is_spawn_valid = false;
@@ -68,7 +69,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
             ship_inst.max_accel = MAX_ACCEL * 1.5f;
             ship_inst.min_accel = MIN_ACCEL * 1.2f;
             ship_inst.accel_step = ACCEL_STEP * 1.1f;
-            ship_inst.cannonball_power_coefficient = 0.3;
+            ship_inst.cannonball_power_coefficient = 0.3f;
 
             ship_inst.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
             ship_inst.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
@@ -157,38 +158,98 @@ Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obsta
     return ship_data;
 }
 
-void LoadShip(Ship *ship, const cJSON *shipState) {
+Ship LoadShip(const int type, const cJSON *shipState, const int playercount) {
+    const movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
+    const movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
+    Cannon cannon_inst;
+    Cannon* cannon_addr = MemAlloc(sizeof(Cannon));
+    Camera* camera_addr = MemAlloc(sizeof(Camera));
+    Ship ship;
+
     const cJSON *id = cJSON_GetArrayItem(shipState, 0);
-    ship = id->valueint == 1 ? &ship1 : &ship2;
+    ship.id = id->valueint;
 
-    const cJSON *yaw = cJSON_GetArrayItem(shipState, 1);
-    ship->yaw = (float)yaw->valuedouble;
+    const cJSON *teamnum = cJSON_GetArrayItem(shipState, 2);
+    ship.team = teamnum->valueint;
 
-    const cJSON *positionState = cJSON_GetArrayItem(shipState, 2);
+    if(playercount == 2) ship.movement_buttons = ship.id == 0 ? btns1 : btns2;
+    else ship.movement_buttons = btns1;
+
+    const cJSON *yaw = cJSON_GetArrayItem(shipState, 3);
+    ship.yaw = (float)yaw->valuedouble;
+
+    const cJSON *positionState = cJSON_GetArrayItem(shipState, 4);
     const float x = (float)cJSON_GetArrayItem(positionState, 0)->valuedouble;
     const float y = (float)cJSON_GetArrayItem(positionState, 1)->valuedouble;
     const float z = (float)cJSON_GetArrayItem(positionState, 2)->valuedouble;
     const Vector3 position = {x, y, z};
-    ship->position = position;
+    ship.position = position;
 
-    const cJSON *cannon_rel_pos = cJSON_GetArrayItem(shipState, 3);
-    Cannon *cannon = id->valueint == 1 ? &cannon1 : &cannon2;
+    const cJSON *cannon_rel_pos = cJSON_GetArrayItem(shipState, 5);
     const float rx = (float)cJSON_GetArrayItem(cannon_rel_pos, 0)->valuedouble;
     const float ry = (float)cJSON_GetArrayItem(cannon_rel_pos, 1)->valuedouble;
     const float rz = (float)cJSON_GetArrayItem(cannon_rel_pos, 2)->valuedouble;
-    cannon->relative_position = (Vector3){rx, ry, rz};
-    ship->cannon = cannon;
+    cannon_inst.relative_position = (Vector3){rx, ry, rz};
 
-    const cJSON *health = cJSON_GetArrayItem(shipState, 4);
-    ship->current_health = health->valueint;
+    const cJSON *health = cJSON_GetArrayItem(shipState, 6);
+    ship.current_health = health->valueint;
 
     initcannonball.position = (Vector3){0,1000,0};
     initcannonball.velocity = Vector3Zero();
     initcannonball.accel = Vector3Zero();
     initcannonball.has_splashed = true;
-    ship->cannonball = initcannonball;
+    ship.cannonball = initcannonball;
 
-    ship->can_move = false;
+    ship.can_fire = false;
+    ship.can_move = false;
+
+    cannon_inst.rotation = Vector3Zero();
+    cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
+    cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
+    ship.default_accel = (accel_settings){ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel};
+    ship.accel = ship.default_accel;
+    ship.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
+    ship.cannon = cannon_addr;
+    *ship.cannon = cannon_inst;
+    ship.cannonball = initcannonball;
+
+    ship.camera = camera_addr;
+    ship.camera->up = (Vector3){0,0,1};
+    ship.camera->fovy = 45.0f;
+    ship.camera->projection = CAMERA_PERSPECTIVE;
+
+    float init_y = 0.0f;
+    if(type == 0){
+        init_y = 17.0f; //17 for ship 1
+        cannon_inst.relative_position = (Vector3){0, -8, 20};
+        ship.model = LoadModel("resources/models/ship1edited.glb");
+        ship.max_accel = MAX_ACCEL * 0.7f;
+        ship.min_accel = MIN_ACCEL * 0.8f;
+        ship.accel_step = ACCEL_STEP * 0.9f;
+        ship.cannonball_power_coefficient = 0.7f;
+
+        ship.camera_distance_vector_tp = (Vector3){0.0f, 35.0f, -70.0f};
+        ship.camera_distance_vector_fp = (Vector3){0.0f, -4.0f, 16.0f};
+        ship.sphere_hitbox_radius = 15;
+        ship.initial_health = 4;
+    }
+    //init for small ship
+    else if(type == 1){
+        init_y = 8.0f;
+        cannon_inst.relative_position = (Vector3){0, 1, 7};
+        ship.model = LoadModel("resources/models/ship2edited.glb");
+        ship.max_accel = MAX_ACCEL * 1.5f;
+        ship.min_accel = MIN_ACCEL * 1.2f;
+        ship.accel_step = ACCEL_STEP * 1.1f;
+        ship.cannonball_power_coefficient = 0.3f;
+
+        ship.camera_distance_vector_tp = (Vector3){0.0f, 25.0f, -50.0f};
+        ship.camera_distance_vector_fp = (Vector3){0.0f, 5.0f, 3.0f};
+        ship.sphere_hitbox_radius = 10;
+        ship.initial_health = 3;
+    }
+
+    return ship;
 }
 
 void DestroyShip(Ship_data* ship_data, int id){
