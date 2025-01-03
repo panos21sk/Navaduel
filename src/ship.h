@@ -94,8 +94,8 @@ extern Camera camera1;
 extern Camera camera2;
 extern Ship_data ship_data;
 
-Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs);
-Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs);
+Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models);
+Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models);
 Ship LoadShip(int type, const cJSON *shipState, int playercount);
 void DestroyShip(Ship_data* ship_data, int id);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);

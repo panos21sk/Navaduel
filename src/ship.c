@@ -20,7 +20,7 @@ Cannon cannon2;
 Cannonball initcannonball;
 Ship_data ship_data;
 
-Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs)
+Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models)
 {
     static Ship ship_list[8]; //8 is the num of max players
     // Variable init
@@ -44,13 +44,13 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         ship_inst.is_spawn_valid = false;
 
         cannon_inst.rotation = Vector3Zero();
-        cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
-        cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
+        cannon_inst.stand_model = ship_models[2];
+        cannon_inst.rail_model = ship_models[3];
         //init for big ship
         if(type_list[i] == 0){
             init_y = 17.0f; //17 for ship 1
             cannon_inst.relative_position = (Vector3){0, -8, 20};
-            ship_inst.model = LoadModel("resources/models/ship1edited.glb");
+            ship_inst.model = ship_models[0];
             ship_inst.max_accel = MAX_ACCEL * 0.7f;
             ship_inst.min_accel = MIN_ACCEL * 0.8f;
             ship_inst.accel_step = ACCEL_STEP * 0.9f;
@@ -65,7 +65,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         else if(type_list[i] == 1){
             init_y = 8.0f;
             cannon_inst.relative_position = (Vector3){0, 1, 7};
-            ship_inst.model = LoadModel("resources/models/ship2edited.glb");
+            ship_inst.model = ship_models[1];
             ship_inst.max_accel = MAX_ACCEL * 1.5f;
             ship_inst.min_accel = MIN_ACCEL * 1.2f;
             ship_inst.accel_step = ACCEL_STEP * 1.1f;
@@ -152,9 +152,9 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
     return ship_list;
 }
 
-Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs){
+Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models){
 	Ship_data ship_data;
-	ship_data.ship_list = SetupShips(player_count, type_list, team_list, obs);
+	ship_data.ship_list = SetupShips(player_count, type_list, team_list, obs, ship_models);
 	ship_data.player_count = player_count;
 	ship_data.type_list = type_list;
     return ship_data;

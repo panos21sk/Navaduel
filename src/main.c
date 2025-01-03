@@ -45,6 +45,12 @@ int main() {
 	Model skybox_model = LoadModelFromMesh(skybox_cube);
 	skybox_model.materials[0] = skybox_material;
 
+	Model ship1 = LoadModel("resources/models/ship1edited.glb");
+	Model ship2 = LoadModel("resources/models/ship2edited.glb");
+	Model cannon_stand = LoadModel("resources/models/cannon_stand.glb");
+	Model cannon_rail = LoadModel("resources/models/cannon_rail.glb");
+	Model ship_models[4] = {ship1, ship2, cannon_stand, cannon_rail};
+
 	//Sound Effect by 
 	//<a href="https://pixabay.com/users/soundreality-31074404/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=233951">Jurij</a> from 
 	//<a href="https://pixabay.com/sound-effects//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=233951">Pixabay</a>
@@ -86,11 +92,6 @@ int main() {
 		game_bounds.max = Vector3Scale(game_bounds.max, BOUNDS_SCALAR);
 	}
 
-	// Reset ships-players
-	// {
-	// 	if(setjmp(reset_point)) ResetShipsState(&ship_data);
-	// }
-
 	//! Game loop
 	while (!exit_window)
 	{
@@ -125,7 +126,7 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
+					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles, ship_models);
 					gen_ships = false;
 				}
 				gamemode = GAME_REAL;
@@ -139,7 +140,7 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
+					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles, ship_models);
 					gen_ships = false;
 				}
 				gamemode = GAME_TURN;
@@ -179,6 +180,10 @@ int main() {
 	UnloadMesh(water_cube);
 	UnloadModel(water_model);
 	UnloadModel(skybox_model);
+	UnloadModel(ship1);
+	UnloadModel(ship2);
+	UnloadModel(cannon_stand);
+	UnloadModel(cannon_rail);
 	UnloadTexture(water_tex);
 	UnloadTexture(skybox_texture);
 	UnloadMaterial(skybox_material);
