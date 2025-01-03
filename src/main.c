@@ -61,7 +61,7 @@ int main() {
 	Model palm_tree = LoadModel("resources/models/palm_tree.glb");
 	Texture2D rock_tex = LoadTexture("resources/sprites/rock.png");
 
-	bool gen_obs = true;
+	bool gen_obs = false;
 	Obstacles obstacles;
 	int player_count = 2;
 	int* player_count_addr = &player_count; // pass onto gamemode screen
@@ -90,6 +90,8 @@ int main() {
 	// {
 	// 	if(setjmp(reset_point)) ResetShipsState(&ship_data);
 	// }
+
+	success_load = 1;
 
 	//! Game loop
 	while (!exit_window)
@@ -193,15 +195,6 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
-	for(int i = 0; i<obstacles.island_count; i++) {
-		UnloadModel(obstacles.island_list[i].island_sphere);
-		UnloadModel(obstacles.island_list[i].palm_tree);
-		UnloadTexture(obstacles.island_list[i].sand_tex);
-	}
-	for(int i = 0; i<obstacles.rock_count; i++) {
-		UnloadModel(obstacles.rock_list[i].model);
-		UnloadTexture(obstacles.rock_list[i].rock_tex);
-	}
 	CloseAudioDevice();
 	DeinitMainWindow(); //Main window de-initialization
 	// TODO: add everything to 1 function

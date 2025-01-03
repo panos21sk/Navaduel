@@ -96,7 +96,7 @@ void SaveGameState(const Obstacles obstacles) {
         cJSON *fire_t = cJSON_CreateNumber(fire_time);
         cJSON *c_turn = cJSON_CreateNumber(current_turn->id);
         cJSON *n_turn = cJSON_CreateNumber(next_turn->id);
-        cJSON *has_fired = cJSON_CreateString(booltostr(has_fired_once));
+        cJSON *has_fired = cJSON_CreateBool(has_fired_once);
 
         cJSON_AddItemToObject(jsonfinal, "move_time", move_t);
         cJSON_AddItemToObject(jsonfinal, "fire_time", fire_t);
@@ -123,7 +123,8 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
     }
 
     char buffer[1024];
-    fread(buffer, 1, sizeof(buffer), stateFile);
+    size_t len = fread(buffer, sizeof(char), sizeof(buffer), stateFile);
+    buffer[len] = '\0';
     cJSON *jsonstate = cJSON_Parse(buffer);
     if (jsonstate == NULL)
     {
@@ -132,7 +133,7 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
         return 1;
     }
 
-    const cJSON *playercount = cJSON_GetObjectItemCaseSensitive(jsonstate, "player_count");
+    cJSON *playercount = cJSON_GetObjectItemCaseSensitive(jsonstate, "player_count");
     Ship *ship_list = malloc(sizeof(Ship)*playercount->valueint);
     int *type_list = malloc(sizeof(int)*playercount->valueint);
     int *team_list = malloc(sizeof(int)*playercount->valueint);
@@ -150,24 +151,24 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
     ship_data->team_list = team_list;
     ship_data->type_list = type_list;
 
-    const cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
-    const cJSON *rock_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "rock_count");
-    const cJSON *island_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "island_count");
+    cJSON *gamemodeSt = cJSON_GetObjectItemCaseSensitive(jsonstate, "gamemode");
+    cJSON *rock_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "rock_count");
+    cJSON *island_count = cJSON_GetObjectItemCaseSensitive(jsonstate, "island_count");
 
     gamemode = strcmp(gamemodeSt->valuestring, "GAME_REAL") == 0 ? GAME_REAL : GAME_TURN;
 
     if(gamemode == GAME_TURN) {
-        const cJSON *move_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "move_time");
-        const cJSON *fire_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "fire_time");
-        const cJSON *c_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "current_turn");
-        const cJSON *n_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "next_turn");
-        const cJSON *has_fired = cJSON_GetObjectItemCaseSensitive(jsonstate, "has_fired");
+        cJSON *move_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "move_time");
+        cJSON *fire_t = cJSON_GetObjectItemCaseSensitive(jsonstate, "fire_time");
+        cJSON *c_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "current_turn");
+        cJSON *n_turn = cJSON_GetObjectItemCaseSensitive(jsonstate, "next_turn");
+        cJSON *has_fired = cJSON_GetObjectItemCaseSensitive(jsonstate, "has_fired");
 
         move_time = move_t->valueint;
         fire_time = fire_t->valueint;
         current_turn = &ship_data->ship_list[c_turn->valueint];
         next_turn = &ship_data->ship_list[n_turn->valueint];
-        has_fired_once = strtobool(has_fired->string);
+        has_fired_once = has_fired->type ? true : false;
     }
 
     Island *island_list = malloc(sizeof(Island)*island_count->valueint);
@@ -222,18 +223,20 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
 
         rock_list[i] = rock;
     }
-
     obstacles->island_count = island_count->valueint;
     obstacles->rock_count = rock_count->valueint;
     obstacles->island_list = island_list;
     obstacles->rock_list = rock_list;
 
     success_load = !fclose(stateFile);
+
     if (success_load)
     {
         is_loaded = true;
         reset_state = 0;
         current_screen = gamemode;
+        printf("%s", booltostr(has_fired_once));
+        return 1;
     }
     return 0;
 }
