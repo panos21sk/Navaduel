@@ -80,37 +80,46 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         ship_inst.accel = ship_inst.default_accel;
         //VALIDATING SPAWN POS
         while(!ship_inst.is_spawn_valid){
+            //randomize position and set spawn to be valid until proven otherwise
             ship_inst.is_spawn_valid = true;
             ship_inst.position = (Vector3){
                     (float)GetRandomValue(-500, 500), init_y, (float)GetRandomValue(-500, 500) //add it via ref to bounds later
                 };
+            //check if ship spawns on island
             for(int i1 = 0; i1 < obs.island_count; i1++){
                 if(CheckCollisionSpheres(obs.island_list[i1].center_pos, obs.island_list[i1].radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
                     ship_inst.is_spawn_valid = false;
                 }
-                for(int j = 0; j < obs.rock_count; j++){
-                    switch (obs.rock_list[j].geometry_id)
-                    {
-                        case 1: //cube
-                            //assuming the origin of the mesh from genmeshcube is the geometrical center, where its relative coordinates are (0,0,0) when drawn in other words
-                            if(CheckCollisionBoxSphere((BoundingBox){
-                                (Vector3){obs.rock_list[i1].center_pos.x - (float)obs.rock_list[i1].height / 6,
-                                    obs.rock_list[i1].center_pos. y - (float)obs.rock_list[i1].height / 2,
-                                    obs.rock_list[i1].center_pos.z - (float)obs.rock_list[i1].height / 6},
-                                (Vector3){obs.rock_list[i1].center_pos.x + (float)obs.rock_list[i1].height / 6,
-                                    obs.rock_list[i1].center_pos. y + (float)obs.rock_list[i1].height / 2,
-                                    obs.rock_list[i1].center_pos.z + (float)obs.rock_list[i1].height / 6}
-                                    }, ship_inst.position, ship_inst.sphere_hitbox_radius)){
-                                        ship_inst.is_spawn_valid = false;
-                                    }
-                        break;
-                        case 2:
-                            if(CheckCollisionSpheres(obs.rock_list[i1].center_pos, obs.rock_list[i1].height, ship_inst.position, ship_inst.sphere_hitbox_radius)){
-                                ship_inst.is_spawn_valid = false;
-                            }
-                        break;
-                        default: break;
-                    }
+            }
+            //check if ship spawns on rock
+            for(int i2 = 0; i2 < obs.rock_count; i2++){
+                switch (obs.rock_list[i2].geometry_id)
+                {
+                    case 1: //cube
+                        //assuming the origin of the mesh from genmeshcube is the geometrical center, where its relative coordinates are (0,0,0) when drawn in other words
+                        if(CheckCollisionBoxSphere((BoundingBox){
+                            (Vector3){obs.rock_list[i2].center_pos.x - (float)obs.rock_list[i2].height / 6,
+                                obs.rock_list[i2].center_pos. y - (float)obs.rock_list[i2].height / 2,
+                                obs.rock_list[i2].center_pos.z - (float)obs.rock_list[i2].height / 6},
+                            (Vector3){obs.rock_list[i2].center_pos.x + (float)obs.rock_list[i2].height / 6,
+                                obs.rock_list[i2].center_pos. y + (float)obs.rock_list[i2].height / 2,
+                                obs.rock_list[i2].center_pos.z + (float)obs.rock_list[i2].height / 6}
+                                }, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+                                    ship_inst.is_spawn_valid = false;
+                                }
+                    break;
+                    case 2:
+                        if(CheckCollisionSpheres(obs.rock_list[i2].center_pos, obs.rock_list[i2].height, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+                            ship_inst.is_spawn_valid = false;
+                        }
+                    break;
+                    default: break;
+                }
+            }
+            //check if ship positions overlap
+            for(int i3 = 0; i3 < i - 1; i3++){
+                if(CheckCollisionSpheres(ship_list[i3].position, ship_list[i3].sphere_hitbox_radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+                    ship_inst.is_spawn_valid = false;
                 }
             }
         }
@@ -393,15 +402,13 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
         if (ship->can_fire && ship->cannon->rotation.x >= -MAX_TURN_UP && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999))
         {
             ship->cannon->rotation.x -= MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
-            ship->cannon->rotation.x = (ship->cannon->rotation.x < -MAX_TURN_UP) ? (float)-MAX_TURN_UP : ship->cannon->rotation.x;
             ship->accel.fire_coefficient = (ship->accel.fire_coefficient < ship->max_accel)
                                                ? ship->accel.fire_coefficient + ship->accel_step
                                                : ship->max_accel;
         }
-        else
+        else if (ship->cannon->rotation.x <= 0 && !ship->can_fire)
         {
-            if (ship->cannon->rotation.x <= 0)
-                ship->cannon->rotation.x += MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
+                    ship->cannon->rotation.x += MOVEMENT_STEP / 10 * ship->accel.fire_coefficient;
         }
     }
     if (IsKeyReleased(ship->movement_buttons.fire))
@@ -424,7 +431,7 @@ void InitializeCannonball(Ship *ship)
         Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0, 1, 0}, ship->yaw));
     // see commemts on the transform of cannon rail
     Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
-    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.2f - ship->cannonball_power_coefficient * ship->cannon->rotation.x}, speed_transform_matrix);
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.5f - ship->cannonball_power_coefficient * ship->cannon->rotation.x}, speed_transform_matrix);
     ship->cannonball.accel = (Vector3){0, -0.005, 0};
     ship->cannonball.has_splashed = false;
     ship->cannonball.has_hit_enemy = false;

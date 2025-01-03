@@ -327,7 +327,14 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
         }
         EndMode3D();
 
-        if(settings.show_fps) DrawFPS(
+        DrawUI(current_player_ship, game_textures, screenShip);
+        
+    }
+    EndTextureMode();
+}
+
+void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip){
+    if(settings.show_fps) DrawFPS(
             gamemode == GAME_REAL ? WIDTH/2-100 : WIDTH-100,
             HEIGHT-30);
 
@@ -340,10 +347,15 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
             }
         }
 
+        Rectangle powerbar_rec = (Rectangle){screenShip.texture.width - 85, screenShip.texture.height - 25, 80, 20};
+        DrawRectangleLinesEx((Rectangle){powerbar_rec.x - 2, powerbar_rec.y - 2, powerbar_rec.width + 4, powerbar_rec.height + 4}, 2, LIME);
+        //percentage=(value−min)/(max−min) ​×100
+        DrawRectangleRec((Rectangle){powerbar_rec.x, powerbar_rec.y, 
+                        powerbar_rec.width * (current_player_ship.cannon->rotation.x / - MAX_TURN_UP) * 5
+                        , powerbar_rec.height}, MAROON);
+
         //Insert debugging text here when needed
-        DrawText(TextFormat("%d", anim_list[0].play), 5, HEIGHT - 30, 20, RED);
-    }
-    EndTextureMode();
+        //DrawText(TextFormat("%f", current_player_ship.cannon->rotation.x), 5, HEIGHT - 30, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){

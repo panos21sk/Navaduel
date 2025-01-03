@@ -126,6 +126,7 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
     mouse_point = GetMousePosition();
     control_index = 0;
     static int letter_count;
+    player_count[0] = (char)*player_count_addr + 48;
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -277,6 +278,7 @@ void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char
         bool tmp = false;
         if(real_or_turn == 'r') tmp = true;
         AddScreenChangeBtn(game_button, "GAME!", GetMousePosition(), click, &current_screen, (tmp) ? GAME_REAL : GAME_TURN, settings.enable_sfx);
+        AddScreenChangeBtn(return_to_main_button, "SHIP SELECT SCREEN", GetMousePosition(), click, &current_screen, SHIP_SELECT, settings.enable_sfx);
     }
     EndDrawing();
 }
