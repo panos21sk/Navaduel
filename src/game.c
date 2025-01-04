@@ -46,7 +46,7 @@ void FixShipPosition() { // potential fix for ship position offset
 }
 
 void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstacles,
-        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
+        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
@@ -78,8 +78,8 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
     UpdateAnim(&anim_list[0]);
     UpdateAnim(&anim_list[1]);
 
-    DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, 'r', game_models, ship_data.ship_list[0], game_textures, anim_list);
-    DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, 'r',game_models, ship_data.ship_list[1], game_textures, anim_list);
+    DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, 'r', game_models, ship_data.ship_list[0], game_textures, anim_list, water_textures);
+    DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, 'r',game_models, ship_data.ship_list[1], game_textures, anim_list, water_textures);
 
     if (startup_counter > 0)
     {
@@ -145,7 +145,7 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
 }
 
 void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obstacles,
-        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list)
+        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
@@ -186,7 +186,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
     UpdateAnim(&anim_list[0]);
     UpdateAnim(&anim_list[1]);
 
-    DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, 't',game_models, *current_turn, game_textures, anim_list);
+    DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, 't',game_models, *current_turn, game_textures, anim_list, water_textures);
 
     const Rectangle screenRec = {0.0f, 0.0f, (float)screenCurrentShip.texture.width, (float)-screenCurrentShip.texture.height};
 
@@ -300,7 +300,20 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 }
 
 void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, char real_or_turn,
-                    Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list){
+                    Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures){
+    static int water_anim_index = 0;
+    static int frame = 0;
+    int delay_per_frame = 24;
+    ++frame;
+    if(frame >= delay_per_frame - 1){
+        frame = 0;
+        ++water_anim_index;
+    }
+    if(water_anim_index >= 5){
+        water_anim_index = 0;
+    }
+    game_models[0].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_textures[water_anim_index];
+
     BeginTextureMode(screenShip);
     {
         ClearBackground(RAYWHITE);
@@ -345,18 +358,35 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
                 //draw sightline: starting point is cannons position at y = 0.1, end point is, from start point, the result of 
                 // the addition of start point and 0,0,2000, rotated such that it aligns with where cannon points
                 DrawLine3D(
-                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, 
+                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
                                 Vector3Add(current_player_ship.position, 
                                             Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), 
-                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, 
-                                    Vector3Add(Vector3RotateByAxisAngle((Vector3){0,0,3000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
+                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
+                                    Vector3Add(Vector3RotateByAxisAngle((Vector3){0,0,1000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
                                                 Vector3Add(current_player_ship.position, 
                                                             Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), 
                     PURPLE);
-                //endpoint offset by +-0 .1x, to thicken line
-                DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){0.1,0,3000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
-                DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){-0.1,0,3000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
-                }
+                //endpoint offset by +-0.8 x, to thicken line
+                DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){1,0,1000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
+                DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){-1,0,1000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
+
+                //for the reticle itself, assume cannon rel pos as the origin O(0,0,0)
+                //Approach 1: simulate particle motion. Approach 2: Asynchronously calculate pos using a looping thread.
+                //Formula: R = 2*tanf*u0^2*cos^2(f) / g -> R = u0^2*sin2f/g, T = 2*sinf*u0/g 
+                DrawCircle3D( 
+                    /*center_pos:*/ 
+                    Vector3Add(/*origin*/Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
+                                Vector3Add(current_player_ship.position, 
+                                            Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))),
+
+                            /*displacement vec*/
+                                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
+                                    Vector3Add(Vector3RotateByAxisAngle((Vector3){/*0,0,pow(1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x, 2) * sin(2 * current_player_ship.cannon->rotation.x) / -current_player_ship.cannonball.accel.y*/0,0,50}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
+                                                Vector3Add(current_player_ship.position, 
+                                                            Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))))), 
+                            1, //radius 
+                            /*rotation axis is x axis*/(Vector3){1, 0, 0}, 3.1415/2, ReturnColorFromTeamInt(current_player_ship.id));
+            }
         }
         EndMode3D();
 
@@ -390,8 +420,25 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
                   powerbar_rec.x + powerbar_rec.width * (current_player_ship.prev_shot_release / - MAX_TURN_UP) * 5, powerbar_rec.y + powerbar_rec.height,
                   YELLOW);
 
+        Rectangle reload_rec = (Rectangle){screenShip.texture.width - 85, screenShip.texture.height - 55, 80, 20};
+        DrawRectangleLinesEx((Rectangle){reload_rec.x - 2, reload_rec.y - 2, reload_rec.width + 4, reload_rec.height + 4}, 2, BLUE);
+        //Angle theta is current_player_ship.prev_shot_release, max angle theta is 80deg or max_turn_up
+        //u0 is initial vel 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x
+        //initial h is current_player_ship.position.y + current_player_ship.cannon->relative_position.y
+        //g is -current_player_ship.cannonball.accel.y
+        float u0 = 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x; float theta = current_player_ship.prev_shot_release;
+        float init_h = current_player_ship.position.y + current_player_ship.cannon->relative_position.y; float g = -current_player_ship.cannonball.accel.y * 58;
+        
+        float max_T = 2 * u0 * sin(MAX_TURN_UP) / g;
+        float min_T = 0;
+        float percentage = (current_player_ship.time_to_reload_since_last_shot - min_T)/(max_T-min_T) * 0.6;
+        DrawRectangleRec((Rectangle){reload_rec.x, reload_rec.y, 
+                        reload_rec.width * percentage
+                        , reload_rec.height}, YELLOW);
+
+
         //Insert debugging text here when needed
-        //DrawText(TextFormat("Curr:%f, Prev:%f", current_player_ship.position.z, current_player_ship.prev_position_turn.z), 5, HEIGHT - 30, 20, RED);
+        DrawText(TextFormat("Time:%f", current_player_ship.time_to_reload_since_last_shot), 5, HEIGHT - 30, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
@@ -409,7 +456,6 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
         }
     }
 }
-
 
 void *DecreaseTime(void *arg) {
     int *input = (int *)arg;

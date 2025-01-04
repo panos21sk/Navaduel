@@ -81,12 +81,13 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         ship_inst.prev_position = (Vector3){0.0f,  0.0f, 0.0f};
         ship_inst.prev_position_turn = (Vector3){0.0f, 1000.0f, 0.0f};
         ship_inst.prev_shot_release = 0;
+        ship_inst.time_to_reload_since_last_shot = 0;
         //VALIDATING SPAWN POS
         while(!ship_inst.is_spawn_valid){
             //randomize position and set spawn to be valid until proven otherwise
             ship_inst.is_spawn_valid = true;
             ship_inst.position = (Vector3){
-                    (float)GetRandomValue(-375, 375), init_y, (float)GetRandomValue(-375, 375) //add it via ref to bounds later
+                    (float)GetRandomValue(-370, 370), init_y, (float)GetRandomValue(-375, 375) //add it via ref to bounds later
                 };
             //check if ship spawns on island
             for(int i1 = 0; i1 < obs.island_count; i1++){
@@ -422,7 +423,20 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
                 PlaySound(fire);
             ship->can_fire = false;
             ship->prev_shot_release = ship->cannon->rotation.x;
+            //assuming that the projectiles initial and final heights are the same, which they nearly are
+            //Angle theta is current_player_ship.prev_shot_release, max angle theta is 80deg or max_turn_up
+            //u0 is initial vel 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x
+            //initial h is current_player_ship.position.y + current_player_ship.cannon->relative_position.y
+            //g is -current_player_ship.cannonball.accel.y
+            float u0 = 1.25f - ship->cannonball_power_coefficient * ship->cannon->rotation.x; float theta = ship->prev_shot_release;
+            float init_h = ship->position.y + ship->cannon->relative_position.y; float g = ship->cannonball.accel.y * 58; //so that it tends to g im guessing
+            //float T = u0 * sin(theta) / g + sqrt(2 * init_h / g + pow(u0 * sin(theta) / g, 2));
+            float T = 2 * u0 * sin(theta) / g;
+            ship->time_to_reload_since_last_shot = T;
         }
+    }
+    if(ship->time_to_reload_since_last_shot >= 0){ //this should be run every frame
+        ship->time_to_reload_since_last_shot -= GetFrameTime();
     }
 }
 

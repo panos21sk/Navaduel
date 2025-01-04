@@ -58,6 +58,7 @@ typedef struct {
     Vector3 prev_position;
     Vector3 prev_position_turn; 
     float prev_shot_release;
+    float time_to_reload_since_last_shot;
     Camera *camera;
     Model model;
     Cannon* cannon;
