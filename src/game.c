@@ -373,19 +373,19 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
                 //for the reticle itself, assume cannon rel pos as the origin O(0,0,0)
                 //Approach 1: simulate particle motion. Approach 2: Asynchronously calculate pos using a looping thread.
                 //Formula: R = 2*tanf*u0^2*cos^2(f) / g -> R = u0^2*sin2f/g, T = 2*sinf*u0/g 
-                DrawCircle3D( 
-                    /*center_pos:*/ 
-                    Vector3Add(/*origin*/Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
-                                Vector3Add(current_player_ship.position, 
-                                            Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))),
+                // DrawCircle3D( 
+                //     /*center_pos:*/ 
+                //     Vector3Add(/*origin*/Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
+                //                 Vector3Add(current_player_ship.position, 
+                //                             Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))),
 
-                            /*displacement vec*/
-                                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
-                                    Vector3Add(Vector3RotateByAxisAngle((Vector3){/*0,0,pow(1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x, 2) * sin(2 * current_player_ship.cannon->rotation.x) / -current_player_ship.cannonball.accel.y*/0,0,50}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
-                                                Vector3Add(current_player_ship.position, 
-                                                            Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))))), 
-                            1, //radius 
-                            /*rotation axis is x axis*/(Vector3){1, 0, 0}, 3.1415/2, ReturnColorFromTeamInt(current_player_ship.id));
+                //             /*displacement vec*/
+                //                     Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
+                //                     Vector3Add(Vector3RotateByAxisAngle((Vector3){/*0,0,pow(1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x, 2) * sin(2 * current_player_ship.cannon->rotation.x) / -current_player_ship.cannonball.accel.y*/0,0,50}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
+                //                                 Vector3Add(current_player_ship.position, 
+                //                                             Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))))), 
+                //             1, //radius 
+                //             /*rotation axis is x axis*/(Vector3){1, 0, 0}, 3.1415/2, ReturnColorFromTeamInt(current_player_ship.id));
             }
         }
         EndMode3D();
