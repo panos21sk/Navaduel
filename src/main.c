@@ -10,7 +10,7 @@
 #include "game.h"
 #include "anim.h"
 
-#define BOUNDS_SCALAR 900.0f
+#define BOUNDS_SCALAR 650.0f
 
 int main() {
     //SetTraceLogLevel(6); //7 - nothing, 6 - fatal

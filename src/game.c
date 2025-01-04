@@ -308,7 +308,7 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
             DrawModel(game_models[0], (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
             rlDisableBackfaceCulling();
-            DrawModel(game_models[1], (Vector3){0.0f, 350.0f, 0.0f}, 1000.0f, WHITE);
+            DrawModel(game_models[1], (Vector3){0.0f, 350.0f, 0.0f}, 750.0f, WHITE);
             rlEnableBackfaceCulling();
 
             for(int i = 0; i < ship_data.player_count; i++){

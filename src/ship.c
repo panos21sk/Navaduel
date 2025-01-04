@@ -431,8 +431,8 @@ void InitializeCannonball(Ship *ship)
         Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0, 1, 0}, ship->yaw));
     // see commemts on the transform of cannon rail
     Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
-    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.5f - ship->cannonball_power_coefficient * ship->cannon->rotation.x}, speed_transform_matrix);
-    ship->cannonball.accel = (Vector3){0, -0.005, 0};
+    ship->cannonball.velocity = Vector3Transform((Vector3){0,0,1.25f - ship->cannonball_power_coefficient * ship->cannon->rotation.x}, speed_transform_matrix);
+    ship->cannonball.accel = (Vector3){0, -0.005f, 0};
     ship->cannonball.has_splashed = false;
     ship->cannonball.has_hit_enemy = false;
 }
