@@ -80,7 +80,6 @@ int main() {
 	int* player_count_addr = &player_count; // pass onto gamemode screen
 	int type_list[8] = {0};
 	int team_list[8] = {0};
-	bool reset_teams = false;
 	bool gen_ships = false;
 	char real_or_turn;
 	char* real_or_turn_addr = &real_or_turn;
