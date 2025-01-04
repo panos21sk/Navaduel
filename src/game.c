@@ -202,9 +202,11 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             DrawText(TextFormat("%d", startup_counter), WIDTH / 2, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-110, 30, 20, RED);
         }
         EndDrawing();
+
+        current_turn->can_fire = false;
 
         if(allow_next_loop) {
             allow_next_loop = 0;
@@ -225,10 +227,12 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             DrawText("Begin!", WIDTH / 2 - 70, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
-            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-150, 30, 20, RED);
-            current_turn->can_move = true;
+            DrawText(TextFormat("Player %d", current_turn->id + 1), WIDTH-110, 30, 20, RED);
+            if(move_time > 0) current_turn->can_move = true;
         }
         EndDrawing();
+
+        current_turn->can_fire = false;
 
         if(allow_next_loop) {
             allow_next_loop = 0;
@@ -244,11 +248,13 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
             DrawTextureRec(screenCurrentShip.texture, screenRec, (Vector2){0.0f, 0.0f}, WHITE);
 
-            DrawText(TextFormat("Player %d", current_turn-> id + 1), WIDTH-150, 30, 20, RED);
+            DrawText(TextFormat("Player %d", current_turn-> id + 1), WIDTH-110, 30, 20, RED);
             DrawText(TextFormat("Move time: %d", move_time), WIDTH-200, HEIGHT/2, 20, ORANGE);
             DrawText(TextFormat("Fire time: %d", fire_time), WIDTH-200, HEIGHT/2+50, 20, ORANGE);
         }
         EndDrawing();
+
+        if(has_fired_once) current_turn->can_fire = false;
 
         while(move_time > 0 && allow_next_loop) {
             current_turn->can_fire = false;
@@ -258,7 +264,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
         }
         if(move_time == 0) {
             current_turn->can_move = false;
-            current_turn->can_fire = true;
+            if(!has_fired_once) current_turn->can_fire = true;
         }
 
         if(current_turn->cannonball.position.y < 0) {
@@ -269,7 +275,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
             pthread_detach(decrement_fire_time_thread);
         }
-        if(fire_time == 0 || has_fired_once) {
+        if(fire_time == 0) {
             current_turn->can_fire = false;
         }
         if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
@@ -304,7 +310,7 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
             DrawModel(game_models[0], (Vector3){-100, 0, -100}, 10.0f, WHITE);
 
             rlDisableBackfaceCulling();
-            DrawModel(game_models[1], (Vector3){0.0f, 350.0f, 0.0f}, 1000.0f, WHITE);
+            DrawModel(game_models[1], (Vector3){0.0f, 350.0f, 0.0f}, 750.0f, WHITE);
             rlEnableBackfaceCulling();
 
             for(int i = 0; i < ship_data.player_count; i++){
@@ -360,7 +366,7 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
 void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip){
     if(settings.show_fps) DrawFPS(
             screenShip.texture.width - 100,
-            50);
+            gamemode == GAME_REAL ? 20 : 60);
 
         //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
         for(int i = 0; i < current_player_ship.initial_health; i++){

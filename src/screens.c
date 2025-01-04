@@ -465,6 +465,7 @@ void DeinitMainWindow()
 {
     UnloadRenderTexture(screenShip1);
     UnloadRenderTexture(screenShip2);
+    UnloadRenderTexture(screenCurrentShip);
     //DestroyShip(&ship1); //TODO: Update this
     //DestroyShip(&ship2);
     //! destroy the window and cleanup the OpenGL context

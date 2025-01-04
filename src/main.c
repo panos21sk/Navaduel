@@ -10,7 +10,7 @@
 #include "game.h"
 #include "anim.h"
 
-#define BOUNDS_SCALAR 900.0f
+#define BOUNDS_SCALAR 650.0f
 
 int main() {
     //SetTraceLogLevel(6); //7 - nothing, 6 - fatal
@@ -33,13 +33,13 @@ int main() {
     //pause with StopMusicStream(bgm), resume with ResumeMusicStream(bgm);
 
 	//! Iniatializing Models for rendering
-	const Texture2D water_tex = LoadTexture("resources/sprites/water-modified.png");
-	const Mesh water_cube = GenMeshCube(300, 1, 300);
+	Texture2D water_tex = LoadTexture("resources/sprites/water-modified.png");
+	Mesh water_cube = GenMeshCube(300, 1, 300);
 	Model water_model = LoadModelFromMesh(water_cube);
 	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex;
 	//skybox model
-	const Texture2D skybox_texture = LoadTexture("resources/sprites/sky.png");
-	const Material skybox_material = LoadMaterialDefault();
+	Texture2D skybox_texture = LoadTexture("resources/sprites/sky.png");
+	Material skybox_material = LoadMaterialDefault();
 	skybox_material.maps[MATERIAL_MAP_DIFFUSE].texture = skybox_texture;
 	Mesh skybox_cube = GenMeshCube(1, 1, 1);
 	Model skybox_model = LoadModelFromMesh(skybox_cube);
@@ -61,7 +61,7 @@ int main() {
 	Model palm_tree = LoadModel("resources/models/palm_tree.glb");
 	Texture2D rock_tex = LoadTexture("resources/sprites/rock.png");
 
-	bool gen_obs = true;
+	bool gen_obs = false;
 	Obstacles obstacles;
 	int player_count = 2;
 	int* player_count_addr = &player_count; // pass onto gamemode screen
@@ -90,6 +90,8 @@ int main() {
 	// {
 	// 	if(setjmp(reset_point)) ResetShipsState(&ship_data);
 	// }
+
+	success_load = 1;
 
 	//! Game loop
 	while (!exit_window)
@@ -176,9 +178,7 @@ int main() {
 				break;
 		}
 	}
-	UnloadMesh(water_cube);
 	UnloadModel(water_model);
-	UnloadModel(skybox_model);
 	UnloadTexture(water_tex);
 	UnloadTexture(skybox_texture);
 	UnloadMaterial(skybox_material);
@@ -193,15 +193,6 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
-	for(int i = 0; i<obstacles.island_count; i++) {
-		UnloadModel(obstacles.island_list[i].island_sphere);
-		UnloadModel(obstacles.island_list[i].palm_tree);
-		UnloadTexture(obstacles.island_list[i].sand_tex);
-	}
-	for(int i = 0; i<obstacles.rock_count; i++) {
-		UnloadModel(obstacles.rock_list[i].model);
-		UnloadTexture(obstacles.rock_list[i].rock_tex);
-	}
 	CloseAudioDevice();
 	DeinitMainWindow(); //Main window de-initialization
 	// TODO: add everything to 1 function
