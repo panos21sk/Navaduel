@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "cJSON.h"
+#include "util.h"
 
 accel_settings bounds_accel;
 
@@ -24,8 +25,9 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
 {
     static Ship ship_list[8]; //8 is the num of max players
     // Variable init
-    const movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
-    const movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
+    const movement_buttons btns1 = settings.player_one_buttons;
+    const movement_buttons btns2 = settings.player_two_buttons;
+    const movement_buttons btns3 = settings.player_indep_buttons;
 
     // Cannonball init
     initcannonball.position = (Vector3){0, 1000, 0};
@@ -151,7 +153,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
             if(i == 1){
                 ship_inst.movement_buttons = btns2;
             } else ship_inst.movement_buttons = btns1;
-        } else ship_inst.movement_buttons = btns1;
+        } else ship_inst.movement_buttons = btns3;
 
         ship_list[i] = ship_inst;
     }

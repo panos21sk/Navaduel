@@ -16,6 +16,9 @@ typedef struct {
     bool enable_sfx;
     bool enable_bgm;
     bool show_fps;
+    movement_buttons player_one_buttons;
+    movement_buttons player_two_buttons;
+    movement_buttons player_indep_buttons; //independent
 } setting;
 
 extern int control_index;
@@ -24,8 +27,9 @@ extern setting settings;
 
 bool strtobool(const char *input);
 char *booltostr(bool input);
-void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mouse_point, const Sound click, screen* current_screen, const screen scr, const bool sfx_en);
+void AddScreenChangeBtn(Rectangle rec, const char* text, Vector2 mouse_point, Sound click, screen* current_screen, screen scr, bool sfx_en);
 void AddSetting(bool* setting, const char* setting_name, Rectangle rec, Sound click, bool sfx_en);
+void AddButtonSetting(int *key, const Rectangle rec, const char *setting_name);
 void LoadSettings(bool* bgm_en);
 void UpdateSettingsConfig(setting settings);
 static int parseHandler(void* user, const char* section, const char* name, const char* value);

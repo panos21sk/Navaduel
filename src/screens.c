@@ -3,14 +3,8 @@
 #include "ship.h"
 #include "util.h"
 #include "raylib.h"
-#include "raymath.h"
 #include "game.h"
 #include "rlgl.h"
-#include "cJSON.h"
-
-#include <stdio.h> //for snprintf for debugging
-#include <stdlib.h>
-#include <string.h>
 
 bool exit_window = false;
 
@@ -368,11 +362,16 @@ void DisplayOptionsScreen(const Sound click, bool *bgm_en)
     Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
     Rectangle fps_rec = {17, 217, WIDTH - 37, 23};
 
+    Rectangle up_btn_p1 = {(float)WIDTH/3 - 70, 250, 40, 40};
+
     bool tmp = settings.fullscreen;
 
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
+
+        DrawLine(WIDTH/3, 0, WIDTH/3, HEIGHT, BLACK);
+        DrawLine(2*WIDTH/3, 0, 2*WIDTH/3, HEIGHT, BLACK);
 
         AddSetting(&settings.fullscreen, "FULLSCREEN:", fullscreen_rec, click, settings.enable_sfx);
         AddSetting(&settings.enable_bgm, "ENABLE BACKGROUND MUSIC:", bgm_rec, click, settings.enable_sfx);
@@ -381,6 +380,8 @@ void DisplayOptionsScreen(const Sound click, bool *bgm_en)
         AddSetting(&settings.show_reticle, "SHOW TARGET RETICLE:", reticle_rec, click, settings.enable_sfx);
         AddSetting(&settings.first_or_third_person_cam, "FIRST PERSON", first_person_rec, click, settings.enable_sfx);
         AddSetting(&settings.show_fps, "SHOW FPS:", fps_rec, click, settings.enable_sfx);
+
+        AddButtonSetting(&settings.player_one_buttons.forward, up_btn_p1, "MOVE UP BUTTON");
 
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
