@@ -86,7 +86,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
             //randomize position and set spawn to be valid until proven otherwise
             ship_inst.is_spawn_valid = true;
             ship_inst.position = (Vector3){
-                    (float)GetRandomValue(-495, 495), init_y, (float)GetRandomValue(-495, 495) //add it via ref to bounds later
+                    (float)GetRandomValue(-375, 375), init_y, (float)GetRandomValue(-375, 375) //add it via ref to bounds later
                 };
             //check if ship spawns on island
             for(int i1 = 0; i1 < obs.island_count; i1++){

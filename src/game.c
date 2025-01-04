@@ -353,7 +353,10 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
                                                 Vector3Add(current_player_ship.position, 
                                                             Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), 
                     PURPLE);
-            }
+                //endpoint offset by +-0 .1x, to thicken line
+                DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){0.1,0,3000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
+                DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){-0.1,0,3000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
+                }
         }
         EndMode3D();
 
