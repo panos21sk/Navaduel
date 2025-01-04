@@ -110,6 +110,7 @@ void SaveGameState(const Obstacles obstacles) {
     fprintf(stateFile, "%s", jsonstring);
 
     success_save = !fclose(stateFile);
+    cJSON_Delete(jsonfinal);
 }
 
 int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex) {
@@ -122,14 +123,21 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
         return 1;
     }
 
-    char buffer[1024];
-    size_t len = fread(buffer, sizeof(char), sizeof(buffer), stateFile);
+    //File's exact length
+    fseek(stateFile, 0, SEEK_END);
+    long len = ftell(stateFile);
+    fseek(stateFile, 0, SEEK_SET);
+
+    char *buffer = malloc(len+1);
+    fread(buffer, sizeof(char), len, stateFile);
     buffer[len] = '\0';
     cJSON *jsonstate = cJSON_Parse(buffer);
     if (jsonstate == NULL)
     {
         puts("No saved game state");
         success_load = 0;
+        fclose(stateFile);
+        free(buffer);
         return 1;
     }
 
@@ -230,6 +238,8 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
     obstacles->rock_list = rock_list;
 
     success_load = !fclose(stateFile);
+    free(buffer);
+    cJSON_Delete(jsonstate);
 
     if (success_load)
     {

@@ -81,16 +81,17 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         ship_inst.prev_position = (Vector3){0.0f,  0.0f, 0.0f};
         ship_inst.prev_position_turn = (Vector3){0.0f, 1000.0f, 0.0f};
         ship_inst.prev_shot_release = 0;
+        ship_inst.boundary = GetMeshBoundingBox(ship_inst.model.meshes[0]);
         //VALIDATING SPAWN POS
         while(!ship_inst.is_spawn_valid){
             //randomize position and set spawn to be valid until proven otherwise
             ship_inst.is_spawn_valid = true;
             ship_inst.position = (Vector3){
-                    (float)GetRandomValue(-495, 495), init_y, (float)GetRandomValue(-495, 495) //add it via ref to bounds later
+                    (float)GetRandomValue(-324, 324), init_y, (float)GetRandomValue(-324, 324) //add it via ref to bounds later
                 };
             //check if ship spawns on island
             for(int i1 = 0; i1 < obs.island_count; i1++){
-                if(CheckCollisionSpheres(obs.island_list[i1].center_pos, obs.island_list[i1].radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+                if(CheckCollisionSpheres(obs.island_list[i1].center_pos, (float)obs.island_list[i1].radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
                     ship_inst.is_spawn_valid = false;
                 }
             }
@@ -120,8 +121,13 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
                 }
             }
             //check if ship positions overlap
-            for(int i3 = 0; i3 < i - 1; i3++){
-                if(CheckCollisionSpheres(ship_list[i3].position, ship_list[i3].sphere_hitbox_radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+            for(int i3 = 0; i3 < i; i3++){
+                /*if(CheckCollisionSpheres(ship_list[i3].position, ship_list[i3].sphere_hitbox_radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+                    ship_inst.is_spawn_valid = false;
+                    printf("\n\ncrashed\n\n");
+                }*/
+                if((ship_list[i].position.x <= ship_inst.position.x + ship_inst.sphere_hitbox_radius/2 && ship_inst.position.x >= ship_inst.position.x - ship_inst.sphere_hitbox_radius/2)
+                    || (ship_list[i].position.z <= ship_inst.position.z + ship_inst.sphere_hitbox_radius/2 && ship_inst.position.z >= ship_inst.position.z - ship_inst.sphere_hitbox_radius/2)) {
                     ship_inst.is_spawn_valid = false;
                 }
             }

@@ -121,8 +121,7 @@ void DisplayMainScreen(const Sound click, Obstacles *obstacles, Texture2D sand_t
 }
 
 char player_count[2] = {'2', '\0'};
-void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* real_or_turn_addr)
-{
+void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* real_or_turn_addr) {
     mouse_point = GetMousePosition();
     control_index = 0;
     static int letter_count;
