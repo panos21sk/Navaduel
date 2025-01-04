@@ -223,6 +223,7 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
 
         rock_list[i] = rock;
     }
+  
     obstacles->island_count = island_count->valueint;
     obstacles->rock_count = rock_count->valueint;
     obstacles->island_list = island_list;
@@ -235,7 +236,6 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
         is_loaded = true;
         reset_state = 0;
         current_screen = gamemode;
-        printf("%s", booltostr(has_fired_once));
         return 1;
     }
     return 0;

@@ -6,8 +6,8 @@
 #include "obstacles.h"
 #include "anim.h"
 
-#define MOVEMENT_TIME 6 //time allowed for the current ship to move (turn-based gm, in seconds)
-#define FIRE_TIME 10 //time allowed for the current ship to fire (turn-based gm, in seconds)
+#define MOVEMENT_TIME 4 //time allowed for the current ship to move (turn-based gm, in seconds)
+#define FIRE_TIME 3 //time allowed for the current ship to fire (turn-based gm, in seconds)
 
 extern int winner;
 extern int startup_counter;
@@ -23,7 +23,7 @@ extern BoundingBox game_bounds;
 
 void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
 void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
-void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, 
+void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, char real_or_turn,
                         Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list);
 void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip);
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim);

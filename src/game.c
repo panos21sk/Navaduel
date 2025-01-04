@@ -41,7 +41,7 @@ pthread_t decrement_fire_time_thread;
 void FixShipPosition() { // potential fix for ship position offset
     for(int i = 0; i<ship_data.player_count; i++) {
         const float check = ship_data.type_list[i] == 0 ? 17.0f : 8.0f;
-        if(ship_data.ship_list[i].position.y < check) ship_data.ship_list[i].position.y = check;
+        if(ship_data.ship_list[i].position.y < check || ship_data.ship_list[i].position.y > check) ship_data.ship_list[i].position.y = check;
     }
 }
 
@@ -78,8 +78,8 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
     UpdateAnim(&anim_list[0]);
     UpdateAnim(&anim_list[1]);
 
-    DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, game_models, ship_data.ship_list[0], game_textures, anim_list);
-    DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, game_models, ship_data.ship_list[1], game_textures, anim_list);
+    DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, 'r', game_models, ship_data.ship_list[0], game_textures, anim_list);
+    DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, 'r',game_models, ship_data.ship_list[1], game_textures, anim_list);
 
     if (startup_counter > 0)
     {
@@ -186,7 +186,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
     UpdateAnim(&anim_list[0]);
     UpdateAnim(&anim_list[1]);
 
-    DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, game_models, *current_turn, game_textures, anim_list);
+    DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, 't',game_models, *current_turn, game_textures, anim_list);
 
     const Rectangle screenRec = {0.0f, 0.0f, (float)screenCurrentShip.texture.width, (float)-screenCurrentShip.texture.height};
 
@@ -216,6 +216,8 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
     }
     else if (startup_counter == 0)
     {
+        current_turn->prev_position_turn = current_turn->position;
+
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -297,7 +299,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
     }
 }
 
-void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles,
+void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, char real_or_turn,
                     Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list){
     BeginTextureMode(screenShip);
     {
@@ -312,10 +314,18 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
             rlEnableBackfaceCulling();
 
             for(int i = 0; i < ship_data.player_count; i++){
-                DrawModel(ship_data.ship_list[i].model, ship_data.ship_list[i].position, 1.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                DrawModel(ship_data.ship_list[i].cannon->rail_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                DrawModel(ship_data.ship_list[i].cannon->stand_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                DrawSphere(ship_data.ship_list[i].cannonball.position, 1, BLACK);
+                if(i == current_player_ship.id || real_or_turn == 'r'){
+                    DrawModel(ship_data.ship_list[i].model, ship_data.ship_list[i].position, 1.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                    DrawModel(ship_data.ship_list[i].cannon->rail_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                    DrawModel(ship_data.ship_list[i].cannon->stand_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                    DrawSphere(ship_data.ship_list[i].cannonball.position, 1, BLACK);
+                } else {
+                    if(!Vector3Equals(ship_data.ship_list[i].prev_position_turn, (Vector3){0, 1000, 0})){
+                        DrawModelWires(ship_data.ship_list[i].model, ship_data.ship_list[i].prev_position_turn, 1.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                        DrawModelWires(ship_data.ship_list[i].cannon->rail_model, Vector3Add(ship_data.ship_list[i].prev_position_turn, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                        DrawModelWires(ship_data.ship_list[i].cannon->stand_model, Vector3Add(ship_data.ship_list[i].prev_position_turn, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                    }
+                }
             }
 
             for(int i = 0; i < obstacles.island_count; i++){
@@ -330,6 +340,20 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
 
             DrawAnim(anim_list[0], *current_player_ship.camera);
             DrawAnim(anim_list[1], *current_player_ship.camera);
+
+            if(settings.show_reticle){
+                //draw sightline: starting point is cannons position at y = 0.1, end point is, from start point, the result of 
+                // the addition of start point and 0,0,2000, rotated such that it aligns with where cannon points
+                DrawLine3D(
+                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, 
+                                Vector3Add(current_player_ship.position, 
+                                            Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), 
+                    Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 5, 0}, 
+                                    Vector3Add(Vector3RotateByAxisAngle((Vector3){0,0,3000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
+                                                Vector3Add(current_player_ship.position, 
+                                                            Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), 
+                    PURPLE);
+            }
         }
         EndMode3D();
 
@@ -341,7 +365,7 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
 
 void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip){
     if(settings.show_fps) DrawFPS(
-            gamemode == GAME_REAL ? WIDTH/2-100 : WIDTH-100,
+            screenShip.texture.width - 100,
             gamemode == GAME_REAL ? 20 : 60);
 
         //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
@@ -359,9 +383,12 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
         DrawRectangleRec((Rectangle){powerbar_rec.x, powerbar_rec.y, 
                         powerbar_rec.width * (current_player_ship.cannon->rotation.x / - MAX_TURN_UP) * 5
                         , powerbar_rec.height}, MAROON);
+        DrawLine(powerbar_rec.x + powerbar_rec.width * (current_player_ship.prev_shot_release / - MAX_TURN_UP) * 5, powerbar_rec.y,
+                  powerbar_rec.x + powerbar_rec.width * (current_player_ship.prev_shot_release / - MAX_TURN_UP) * 5, powerbar_rec.y + powerbar_rec.height,
+                  YELLOW);
 
         //Insert debugging text here when needed
-        //DrawText(TextFormat("%f", current_player_ship.cannon->rotation.x), 5, HEIGHT - 30, 20, RED);
+        DrawText(TextFormat("Curr:%f, Prev:%f", current_player_ship.position.z, current_player_ship.prev_position_turn.z), 5, HEIGHT - 30, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
@@ -379,6 +406,7 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
         }
     }
 }
+
 
 void *DecreaseTime(void *arg) {
     int *input = (int *)arg;

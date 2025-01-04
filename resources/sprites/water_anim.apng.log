@@ -1,0 +1,16 @@
+/usr/bin/ffmpeg -hide_banner -y -y -r 6 -start_number 0 -start_number_range 1 -i /home/panos/Documents/pGames/navaduel/resources/sprites/frame%04d.png -f apng -pred none -plays 0 /home/panos/Documents/pGames/navaduel/resources/sprites/water_anim.apng
+=====================================================
+Input #0, image2, from '/home/panos/Documents/pGames/navaduel/resources/sprites/frame%04d.png':
+  Duration: 00:00:00.24, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: png, rgba(pc, gbr/unknown/unknown), 64x64 [SAR 39:39 DAR 1:1], 25 fps, 25 tbr, 25 tbn
+Stream mapping:
+  Stream #0:0 -> #0:0 (png (native) -> apng (native))
+Press [q] to stop, [?] for help
+Output #0, apng, to '/home/panos/Documents/pGames/navaduel/resources/sprites/water_anim.apng':
+  Metadata:
+    encoder         : Lavf61.7.100
+  Stream #0:0: Video: apng, rgba(pc, gbr/unknown/unknown, progressive), 64x64 [SAR 39:39 DAR 1:1], q=2-31, 200 kb/s, 6 fps, 6 tbn
+      Metadata:
+        encoder         : Lavc61.19.100 apng
+[out#0/apng @ 0x588b3632cf40] video:2KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 3.679932%
+frame=    6 fps=0.0 q=-0.0 Lsize=       2KiB time=00:00:01.00 bitrate=  19.4kbits/s speed= 173x    

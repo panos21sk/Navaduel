@@ -56,6 +56,8 @@ typedef struct {
     movement_buttons movement_buttons; //d
     Vector3 position;
     Vector3 prev_position;
+    Vector3 prev_position_turn; 
+    float prev_shot_release;
     Camera *camera;
     Model model;
     Cannon* cannon;
