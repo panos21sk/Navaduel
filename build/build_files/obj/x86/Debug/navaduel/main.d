@@ -30,7 +30,8 @@ obj/x86/Debug/navaduel/main.o: ../../src/main.c \
  /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
  /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
  /usr/include/bits/getopt_core.h /usr/include/bits/unistd_ext.h \
- /usr/include/linux/close_range.h ../../include/raylib.h \
+ /usr/include/linux/close_range.h /usr/include/string.h \
+ /usr/include/strings.h ../../include/raylib.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h \
  ../../include/raymath.h /usr/include/math.h \
@@ -99,6 +100,8 @@ obj/x86/Debug/navaduel/main.o: ../../src/main.c \
 /usr/include/bits/getopt_core.h:
 /usr/include/bits/unistd_ext.h:
 /usr/include/linux/close_range.h:
+/usr/include/string.h:
+/usr/include/strings.h:
 ../../include/raylib.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h:
