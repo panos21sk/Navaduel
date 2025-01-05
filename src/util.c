@@ -5,15 +5,17 @@
 #include "ship.h"
 #include "game.h"
 #include "cJSON.h"
+#include "raymath.h"
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "raymath.h"
+#include <ctype.h>
 
 int control_index = 0;
+bool mouse_control;
 jmp_buf reset_point;
 setting settings;
+
 
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
@@ -29,18 +31,67 @@ char *booltostr(const bool input) {
 static int parseHandler(void* user, const char* section, const char* name, const char* value) {
     setting* settings = user;
 
-    if (MATCH("settings", "show_reticle")) {
+    //game settings
+    if (MATCH("Game", "show_reticle")) {
         settings->show_reticle = strtobool(value);
-    } else if (MATCH("settings", "first_or_third_person_cam")) {
+    } else if (MATCH("Game", "first_or_third_person_cam")) {
         settings->first_or_third_person_cam = strtobool(value);
-    } else if (MATCH("settings", "enable_sfx")) {
+    } else if (MATCH("Game", "enable_sfx")) {
         settings->enable_sfx = strtobool(value);
-    }else if (MATCH("settings", "enable_bgm")) {
+    }else if (MATCH("Game", "enable_bgm")) {
         settings->enable_bgm = strtobool(value);
-    } else if (MATCH("settings", "fullscreen")) {
+    } else if (MATCH("Game", "fullscreen")) {
         settings->fullscreen = strtobool(value);
-    } else if (MATCH("settings", "show_fps")) {
+    } else if (MATCH("Game", "show_fps")) {
         settings->show_fps = strtobool(value);
+    }
+    //player one btns
+    else if (MATCH("PlayerOneButtons", "move_key_up")) {
+        settings->player_one_buttons.forward = atoi(value);
+    } else if (MATCH("PlayerOneButtons", "move_key_down")) {
+        settings->player_one_buttons.backwards = atoi(value);
+    } else if (MATCH("PlayerOneButtons", "move_key_left")) {
+        settings->player_one_buttons.left = atoi(value);
+    } else if (MATCH("PlayerOneButtons", "move_key_right")) {
+        settings->player_one_buttons.right = atoi(value);
+    } else if (MATCH("PlayerOneButtons", "move_key_cannon_left")) {
+        settings->player_one_buttons.turn_cannon_left = atoi(value);
+    } else if (MATCH("PlayerOneButtons", "move_key_cannon_right")) {
+        settings->player_one_buttons.turn_cannon_right = atoi(value);
+    } else if (MATCH("PlayerOneButtons", "fire_key")) {
+        settings->player_one_buttons.fire = atoi(value);
+    }
+    //player two btns
+    else if (MATCH("PlayerTwoButtons", "move_key_up")) {
+        settings->player_two_buttons.forward = atoi(value);
+    } else if (MATCH("PlayerTwoButtons", "move_key_down")) {
+        settings->player_two_buttons.backwards = atoi(value);
+    } else if (MATCH("PlayerTwoButtons", "move_key_left")) {
+        settings->player_two_buttons.left = atoi(value);
+    } else if (MATCH("PlayerTwoButtons", "move_key_right")) {
+        settings->player_two_buttons.right = atoi(value);
+    } else if (MATCH("PlayerTwoButtons", "move_key_cannon_left")) {
+        settings->player_two_buttons.turn_cannon_left = atoi(value);
+    } else if (MATCH("PlayerTwoButtons", "move_key_cannon_right")) {
+        settings->player_two_buttons.turn_cannon_right = atoi(value);
+    } else if (MATCH("PlayerTwoButtons", "fire_key")) {
+        settings->player_two_buttons.fire = atoi(value);
+    }
+    //player indep btns
+    else if (MATCH("PlayerIndependentButtons", "move_key_up")) {
+        settings->player_indep_buttons.forward = atoi(value);
+    } else if (MATCH("PlayerIndependentButtons", "move_key_down")) {
+        settings->player_indep_buttons.backwards = atoi(value);
+    } else if (MATCH("PlayerIndependentButtons", "move_key_left")) {
+        settings->player_indep_buttons.left = atoi(value);
+    } else if (MATCH("PlayerIndependentButtons", "move_key_right")) {
+        settings->player_indep_buttons.right = atoi(value);
+    } else if (MATCH("PlayerIndependentButtons", "move_key_cannon_left")) {
+        settings->player_indep_buttons.turn_cannon_left = atoi(value);
+    } else if (MATCH("PlayerIndependentButtons", "move_key_cannon_right")) {
+        settings->player_indep_buttons.turn_cannon_right = atoi(value);
+    } else if (MATCH("PlayerIndependentButtons", "fire_key")) {
+        settings->player_indep_buttons.fire = atoi(value);
     } else {
         return 0;  /* unknown section/name, error */
     }
@@ -110,6 +161,7 @@ void SaveGameState(const Obstacles obstacles) {
     fprintf(stateFile, "%s", jsonstring);
 
     success_save = !fclose(stateFile);
+    cJSON_Delete(jsonfinal);
 }
 
 int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex) {
@@ -122,14 +174,21 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
         return 1;
     }
 
-    char buffer[1024];
-    size_t len = fread(buffer, sizeof(char), sizeof(buffer), stateFile);
+    //File's exact length
+    fseek(stateFile, 0, SEEK_END);
+    long len = ftell(stateFile);
+    fseek(stateFile, 0, SEEK_SET);
+
+    char *buffer = malloc(len+1);
+    fread(buffer, sizeof(char), len, stateFile);
     buffer[len] = '\0';
     cJSON *jsonstate = cJSON_Parse(buffer);
     if (jsonstate == NULL)
     {
         puts("No saved game state");
         success_load = 0;
+        fclose(stateFile);
+        free(buffer);
         return 1;
     }
 
@@ -230,6 +289,8 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
     obstacles->rock_list = rock_list;
 
     success_load = !fclose(stateFile);
+    free(buffer);
+    cJSON_Delete(jsonstate);
 
     if (success_load)
     {
@@ -289,13 +350,44 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     DrawRectangle(WIDTH - 40, (int)rec.y + 3, 17, 17, *setting ? BLUE : RED);
 }
 
+char btn_control[2] = {'\0', '\0'};
+void AddButtonSetting(int *key, const Rectangle rec, const char *setting_name) {
+    btn_control[0] = (char)*key;
+    if(mouse_control) {
+        if(CheckCollisionPointRec(GetMousePosition(), rec)) {
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+            int new_key = GetKeyPressed();
+            while(isalnum(new_key) || ispunct(new_key)) {
+                *key = toupper(new_key);
+                btn_control[0] = (char)toupper(new_key);
+                new_key = GetKeyPressed();
+            }
+            DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GREEN);
+        } else {
+            mouse_control = false;
+            SetMouseCursor(MOUSE_CURSOR_ARROW);
+            UpdateSettingsConfig(settings);
+        }
+    } else {
+        mouse_control = CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+        DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GRAY);
+    }
+    DrawText(btn_control, (int)rec.x + 10, (int)rec.y + 8, 25, BLACK);
+    DrawText(setting_name, (int)rec.x - 400, (int)rec.y + 10, 20, BLACK);
+}
+
 void LoadSettings(bool* bgm_en) {
+    movement_buttons init_btns = {0};
+
     settings.enable_bgm = NULL;
     settings.enable_sfx = NULL;
     settings.first_or_third_person_cam = NULL;
     settings.fullscreen = NULL;
     settings.show_reticle = NULL;
     settings.show_fps = NULL;
+    settings.player_indep_buttons = init_btns;
+    settings.player_one_buttons = init_btns;
+    settings.player_two_buttons = init_btns;
 
     if(ini_parse("config.ini", parseHandler, &settings) < 0) printf("\n\nSettings were not loaded\n\n");
     else printf("\n\nSettings were loaded\n\n");
@@ -304,11 +396,36 @@ void LoadSettings(bool* bgm_en) {
 }
 
 void UpdateSettingsConfig(const setting settings) {
-    FILE *config = fopen("config.ini", "w");
-    fprintf(config,"[settings] ; Game settings\nshow_reticle = %s\nfirst_or_third_person_cam = %s ; true = first person, false = third person\nfullscreen = %s\nenable_sfx = %s\nenable_bgm = %s\nshow_fps = %s",
+    const char *game = TextFormat("[Game] ; Game settings\nshow_reticle = %s\nfirst_or_third_person_cam = %s ; true = first person, false = third person\nfullscreen = %s\nenable_sfx = %s\nenable_bgm = %s\nshow_fps = %s\n\n",
         booltostr(settings.show_reticle), booltostr(settings.first_or_third_person_cam),
         booltostr(settings.fullscreen), booltostr(settings.enable_sfx), booltostr(settings.enable_bgm),
         booltostr(settings.show_fps));
+
+    const char *p1 = TextFormat("[PlayerOneButtons]\nmove_key_up = %d\nmove_key_down = %d\nmove_key_right = %d\nmove_key_left = %d\nmove_key_cannon_right = %d\nmove_key_cannon_left = %d\nfire_key = %d\n\n",
+        settings.player_one_buttons.forward, settings.player_one_buttons.backwards,
+        settings.player_one_buttons.right, settings.player_one_buttons.left,
+        settings.player_one_buttons.turn_cannon_right, settings.player_one_buttons.turn_cannon_left,
+        settings.player_one_buttons.fire);
+
+    const char *p2 = TextFormat("[PlayerTwoButtons]\nmove_key_up = %d\nmove_key_down = %d\nmove_key_right = %d\nmove_key_left = %d\nmove_key_cannon_right = %d\nmove_key_cannon_left = %d\nfire_key = %d\n\n",
+        settings.player_two_buttons.forward, settings.player_two_buttons.backwards,
+        settings.player_two_buttons.right, settings.player_two_buttons.left,
+        settings.player_two_buttons.turn_cannon_right, settings.player_two_buttons.turn_cannon_left,
+        settings.player_two_buttons.fire);
+
+    const char *pi = TextFormat("[PlayerIndependentButtons]\nmove_key_up = %d\nmove_key_down = %d\nmove_key_right = %d\nmove_key_left = %d\nmove_key_cannon_right = %d\nmove_key_cannon_left = %d\nfire_key = %d\n\n",
+        settings.player_indep_buttons.forward, settings.player_indep_buttons.backwards,
+        settings.player_indep_buttons.right, settings.player_indep_buttons.left,
+        settings.player_indep_buttons.turn_cannon_right, settings.player_indep_buttons.turn_cannon_left,
+        settings.player_indep_buttons.fire);
+
+    fclose(fopen("config.ini", "w")); //clears the file
+
+    FILE *config = fopen("config.ini", "a");
+    fputs(game, config);
+    fputs(p1, config);
+    fputs(p2, config);
+    fputs(pi, config);
     fclose(config);
 }
 
