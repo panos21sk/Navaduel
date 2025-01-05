@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "cJSON.h"
+#include "util.h"
 
 accel_settings bounds_accel;
 
@@ -24,8 +25,9 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
 {
     static Ship ship_list[8]; //8 is the num of max players
     // Variable init
-    const movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
-    const movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
+    const movement_buttons btns1 = settings.player_one_buttons;
+    const movement_buttons btns2 = settings.player_two_buttons;
+    const movement_buttons btns3 = settings.player_indep_buttons;
 
     // Cannonball init
     initcannonball.position = (Vector3){0, 1000, 0};
@@ -82,16 +84,17 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         ship_inst.prev_position_turn = (Vector3){0.0f, 1000.0f, 0.0f};
         ship_inst.prev_shot_release = 0;
         ship_inst.time_to_reload_since_last_shot = 0;
+        ship_inst.boundary = GetMeshBoundingBox(ship_inst.model.meshes[0]);
         //VALIDATING SPAWN POS
         while(!ship_inst.is_spawn_valid){
             //randomize position and set spawn to be valid until proven otherwise
             ship_inst.is_spawn_valid = true;
             ship_inst.position = (Vector3){
-                    (float)GetRandomValue(-370, 370), init_y, (float)GetRandomValue(-375, 375) //add it via ref to bounds later
+                    (float)GetRandomValue(-324, 324), init_y, (float)GetRandomValue(-324, 324) //add it via ref to bounds later
                 };
             //check if ship spawns on island
             for(int i1 = 0; i1 < obs.island_count; i1++){
-                if(CheckCollisionSpheres(obs.island_list[i1].center_pos, obs.island_list[i1].radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+                if(CheckCollisionSpheres(obs.island_list[i1].center_pos, (float)obs.island_list[i1].radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
                     ship_inst.is_spawn_valid = false;
                 }
             }
@@ -121,8 +124,13 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
                 }
             }
             //check if ship positions overlap
-            for(int i3 = 0; i3 < i - 1; i3++){
-                if(CheckCollisionSpheres(ship_list[i3].position, ship_list[i3].sphere_hitbox_radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+            for(int i3 = 0; i3 < i; i3++){
+                /*if(CheckCollisionSpheres(ship_list[i3].position, ship_list[i3].sphere_hitbox_radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
+                    ship_inst.is_spawn_valid = false;
+                    printf("\n\ncrashed\n\n");
+                }*/
+                if((ship_list[i].position.x <= ship_inst.position.x + ship_inst.sphere_hitbox_radius/2 && ship_inst.position.x >= ship_inst.position.x - ship_inst.sphere_hitbox_radius/2)
+                    || (ship_list[i].position.z <= ship_inst.position.z + ship_inst.sphere_hitbox_radius/2 && ship_inst.position.z >= ship_inst.position.z - ship_inst.sphere_hitbox_radius/2)) {
                     ship_inst.is_spawn_valid = false;
                 }
             }
@@ -146,7 +154,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
             if(i == 1){
                 ship_inst.movement_buttons = btns2;
             } else ship_inst.movement_buttons = btns1;
-        } else ship_inst.movement_buttons = btns1;
+        } else ship_inst.movement_buttons = btns3;
 
         ship_list[i] = ship_inst;
     }
