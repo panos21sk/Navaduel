@@ -5,19 +5,17 @@
 #include "ship.h"
 #include "game.h"
 #include "cJSON.h"
+#include "raymath.h"
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <pthread.h>
-#include "raymath.h"
 
 int control_index = 0;
 bool mouse_control;
 jmp_buf reset_point;
 setting settings;
 
-pthread_t mouse_control_thread;
 
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
@@ -352,8 +350,9 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     DrawRectangle(WIDTH - 40, (int)rec.y + 3, 17, 17, *setting ? BLUE : RED);
 }
 
+char btn_control[2] = {'\0', '\0'};
 void AddButtonSetting(int *key, const Rectangle rec, const char *setting_name) {
-    char btn_control[2] = {(char)*key, '\0'};
+    btn_control[0] = (char)*key;
     if(mouse_control) {
         if(CheckCollisionPointRec(GetMousePosition(), rec)) {
             SetMouseCursor(MOUSE_CURSOR_IBEAM);
@@ -363,13 +362,16 @@ void AddButtonSetting(int *key, const Rectangle rec, const char *setting_name) {
                 btn_control[0] = (char)toupper(new_key);
                 new_key = GetKeyPressed();
             }
+            DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GREEN);
         } else {
             mouse_control = false;
             SetMouseCursor(MOUSE_CURSOR_ARROW);
             UpdateSettingsConfig(settings);
         }
-    } else mouse_control = CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
-    DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GRAY);
+    } else {
+        mouse_control = CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+        DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GRAY);
+    }
     DrawText(btn_control, (int)rec.x + 10, (int)rec.y + 8, 25, BLACK);
     DrawText(setting_name, (int)rec.x - 400, (int)rec.y + 10, 20, BLACK);
 }
