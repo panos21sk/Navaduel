@@ -13,11 +13,6 @@
 #include "util.h"
 
 accel_settings bounds_accel;
-
-Ship ship1;
-Ship ship2;
-Cannon cannon1;
-Cannon cannon2;
 Cannonball initcannonball;
 Ship_data ship_data;
 

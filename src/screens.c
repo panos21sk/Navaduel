@@ -119,7 +119,7 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
     mouse_point = GetMousePosition();
     control_index = 0;
     static int letter_count;
-    player_count[0] = (char)*player_count_addr + 48;
+    player_count[0] = (char)(*player_count_addr + 48);
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -334,19 +334,13 @@ void DisplayControlsScreen(const Sound click)
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
-        DrawText("REAL TIME: ", 5, 5, 20, BLACK);
-        DrawText("Player 1 controls: ", 15, 35, 20, BLACK);
-        DrawText("W/S - Move forward/backward", 25, 65, 20, BLACK);
-        DrawText("A/D - Turn Ship left/right", 25, 95, 20, BLACK);
-        DrawText("Q/E - Turn Cannon left/right", 25, 125, 20, BLACK);
-        DrawText("Space - Fire Cannon", 25, 155, 20, BLACK);
-        DrawText("Player 2 controls: ", 15, 185, 20, BLACK);
-        DrawText("Up arrow/Down arrow - Move forward/backward", 25, 215, 20, BLACK);
-        DrawText("Left arrow/Right arrow - Turn Ship left/right", 25, 245, 20, BLACK);
-        DrawText("Semicolon/Apostrophe - Turn Cannon left/right", 25, 275, 20, BLACK);
-        DrawText("Enter - Fire Cannon", 25, 305, 20, BLACK);
-        DrawText("TURN BASED", 5, 335, 20, BLACK);
-        DrawText("Each Player has the same controls as Player 1 in the Real time mode.", 15, 365, 20, BLACK);
+
+        DrawLine(WIDTH/3, 0, WIDTH/3, HEIGHT, BLACK);
+        DrawLine(2*WIDTH/3, 0, 2*WIDTH/3, HEIGHT, BLACK);
+
+        DrawText("PLAYER 1", WIDTH/6 - 65, 20, 30, BROWN);
+        DrawText("PLAYER 2", WIDTH/2 - 65, 20, 30, BROWN);
+        DrawText(">2 PLAYERS", 5*WIDTH/6 - 80, 20, 30, BROWN);
 
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
@@ -362,16 +356,11 @@ void DisplayOptionsScreen(const Sound click, bool *bgm_en)
     Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
     Rectangle fps_rec = {17, 217, WIDTH - 37, 23};
 
-    Rectangle up_btn_p1 = {(float)WIDTH/3 - 70, 250, 40, 40};
-
     bool tmp = settings.fullscreen;
 
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
-
-        DrawLine(WIDTH/3, 0, WIDTH/3, HEIGHT, BLACK);
-        DrawLine(2*WIDTH/3, 0, 2*WIDTH/3, HEIGHT, BLACK);
 
         AddSetting(&settings.fullscreen, "FULLSCREEN:", fullscreen_rec, click, settings.enable_sfx);
         AddSetting(&settings.enable_bgm, "ENABLE BACKGROUND MUSIC:", bgm_rec, click, settings.enable_sfx);
@@ -380,8 +369,6 @@ void DisplayOptionsScreen(const Sound click, bool *bgm_en)
         AddSetting(&settings.show_reticle, "SHOW TARGET RETICLE:", reticle_rec, click, settings.enable_sfx);
         AddSetting(&settings.first_or_third_person_cam, "FIRST PERSON", first_person_rec, click, settings.enable_sfx);
         AddSetting(&settings.show_fps, "SHOW FPS:", fps_rec, click, settings.enable_sfx);
-
-        AddButtonSetting(&settings.player_one_buttons.forward, up_btn_p1, "MOVE UP BUTTON");
 
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
