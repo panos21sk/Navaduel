@@ -438,7 +438,7 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
 
 
         //Insert debugging text here when needed
-        DrawText(TextFormat("Time:%f", current_player_ship.time_to_reload_since_last_shot), 5, HEIGHT - 30, 20, RED);
+        DrawText(TextFormat("cpx:%f,bm:%f,bM:%f", current_player_ship.camera->position.x, game_bounds.min.x, game_bounds.max.x), 5, HEIGHT - 30, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
