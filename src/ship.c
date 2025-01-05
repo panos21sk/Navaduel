@@ -21,7 +21,7 @@ Cannon cannon2;
 Cannonball initcannonball;
 Ship_data ship_data;
 
-Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs)
+Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models)
 {
     static Ship ship_list[8]; //8 is the num of max players
     // Variable init
@@ -46,13 +46,13 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         ship_inst.is_spawn_valid = false;
 
         cannon_inst.rotation = Vector3Zero();
-        cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
-        cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
+        cannon_inst.stand_model = ship_models[2];
+        cannon_inst.rail_model = ship_models[3];
         //init for big ship
         if(type_list[i] == 0){
             init_y = 17.0f; //17 for ship 1
             cannon_inst.relative_position = (Vector3){0, -8, 20};
-            ship_inst.model = LoadModel("resources/models/ship1edited.glb");
+            ship_inst.model = ship_models[0];
             ship_inst.max_accel = MAX_ACCEL * 0.7f;
             ship_inst.min_accel = MIN_ACCEL * 0.8f;
             ship_inst.accel_step = ACCEL_STEP * 0.9f;
@@ -67,7 +67,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         else if(type_list[i] == 1){
             init_y = 8.0f;
             cannon_inst.relative_position = (Vector3){0, 1, 7};
-            ship_inst.model = LoadModel("resources/models/ship2edited.glb");
+            ship_inst.model = ship_models[1];
             ship_inst.max_accel = MAX_ACCEL * 1.5f;
             ship_inst.min_accel = MIN_ACCEL * 1.2f;
             ship_inst.accel_step = ACCEL_STEP * 1.1f;
@@ -83,6 +83,7 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
         ship_inst.prev_position = (Vector3){0.0f,  0.0f, 0.0f};
         ship_inst.prev_position_turn = (Vector3){0.0f, 1000.0f, 0.0f};
         ship_inst.prev_shot_release = 0;
+        ship_inst.time_to_reload_since_last_shot = 0;
         ship_inst.boundary = GetMeshBoundingBox(ship_inst.model.meshes[0]);
         //VALIDATING SPAWN POS
         while(!ship_inst.is_spawn_valid){
@@ -160,9 +161,9 @@ Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs
     return ship_list;
 }
 
-Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs){
+Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models){
 	Ship_data ship_data;
-	ship_data.ship_list = SetupShips(player_count, type_list, team_list, obs);
+	ship_data.ship_list = SetupShips(player_count, type_list, team_list, obs, ship_models);
 	ship_data.player_count = player_count;
 	ship_data.type_list = type_list;
     return ship_data;
@@ -430,7 +431,20 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
                 PlaySound(fire);
             ship->can_fire = false;
             ship->prev_shot_release = ship->cannon->rotation.x;
+            //assuming that the projectiles initial and final heights are the same, which they nearly are
+            //Angle theta is current_player_ship.prev_shot_release, max angle theta is 80deg or max_turn_up
+            //u0 is initial vel 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x
+            //initial h is current_player_ship.position.y + current_player_ship.cannon->relative_position.y
+            //g is -current_player_ship.cannonball.accel.y
+            float u0 = 1.25f - ship->cannonball_power_coefficient * ship->cannon->rotation.x; float theta = ship->prev_shot_release;
+            float init_h = ship->position.y + ship->cannon->relative_position.y; float g = ship->cannonball.accel.y * 58; //so that it tends to g im guessing
+            //float T = u0 * sin(theta) / g + sqrt(2 * init_h / g + pow(u0 * sin(theta) / g, 2));
+            float T = 2 * u0 * sin(theta) / g;
+            ship->time_to_reload_since_last_shot = T;
         }
+    }
+    if(ship->time_to_reload_since_last_shot >= 0){ //this should be run every frame
+        ship->time_to_reload_since_last_shot -= GetFrameTime();
     }
 }
 

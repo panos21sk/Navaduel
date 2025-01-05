@@ -315,7 +315,7 @@ void DisplayGameMenuScreen(const Sound click, const Obstacles obstacles) {
             {
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                 {
-                    PlaySound(click);
+                    if(settings.enable_sfx) PlaySound(click);
 
                     SaveGameState(obstacles);
                 }

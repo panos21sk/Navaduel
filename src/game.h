@@ -6,8 +6,8 @@
 #include "obstacles.h"
 #include "anim.h"
 
-#define MOVEMENT_TIME 4 //time allowed for the current ship to move (turn-based gm, in seconds)
-#define FIRE_TIME 3 //time allowed for the current ship to fire (turn-based gm, in seconds)
+#define MOVEMENT_TIME 3 //time allowed for the current ship to move (turn-based gm, in seconds)
+#define FIRE_TIME 4 //time allowed for the current ship to fire (turn-based gm, in seconds)
 
 extern int winner;
 extern int startup_counter;
@@ -21,10 +21,10 @@ extern bool is_loaded;
 extern bool has_fired_once;
 extern BoundingBox game_bounds;
 
-void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
-void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list);
+void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures);
+void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures);
 void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, char real_or_turn,
-                        Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list);
+                        Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures);
 void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip);
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim);
 

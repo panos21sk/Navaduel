@@ -23,6 +23,7 @@ int main() {
 	if(access("config.ini", F_OK) == 0){
 		LoadSettings(&bgm_en);
 	}
+	if(settings.fullscreen)ToggleFullscreen();
 	//! Initalize Audio and start bgm
 	InitAudioDevice();
 	//start bgm
@@ -33,10 +34,15 @@ int main() {
     //pause with StopMusicStream(bgm), resume with ResumeMusicStream(bgm);
 
 	//! Iniatializing Models for rendering
-	Texture2D water_tex = LoadTexture("resources/sprites/water-modified.png");
+	Texture2D water_tex[6] = {LoadTexture("resources/sprites/water_anim/image_grid_24x24_01.png"), 
+	LoadTexture("resources/sprites/water_anim/image_grid_24x24_02.png"),
+	LoadTexture("resources/sprites/water_anim/image_grid_24x24_03.png"),
+	LoadTexture("resources/sprites/water_anim/image_grid_24x24_04.png"),
+	LoadTexture("resources/sprites/water_anim/image_grid_24x24_05.png"),
+	LoadTexture("resources/sprites/water_anim/image_grid_24x24_06.png")};
 	Mesh water_cube = GenMeshCube(300, 1, 300);
 	Model water_model = LoadModelFromMesh(water_cube);
-	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex;
+	water_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = water_tex[0];
 	//skybox model
 	Texture2D skybox_texture = LoadTexture("resources/sprites/sky.png");
 	Material skybox_material = LoadMaterialDefault();
@@ -44,6 +50,12 @@ int main() {
 	Mesh skybox_cube = GenMeshCube(1, 1, 1);
 	Model skybox_model = LoadModelFromMesh(skybox_cube);
 	skybox_model.materials[0] = skybox_material;
+
+	Model ship1 = LoadModel("resources/models/ship1edited.glb");
+	Model ship2 = LoadModel("resources/models/ship2edited.glb");
+	Model cannon_stand = LoadModel("resources/models/cannon_stand.glb");
+	Model cannon_rail = LoadModel("resources/models/cannon_rail.glb");
+	Model ship_models[4] = {ship1, ship2, cannon_stand, cannon_rail};
 
 	//Sound Effect by 
 	//<a href="https://pixabay.com/users/soundreality-31074404/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=233951">Jurij</a> from 
@@ -77,6 +89,7 @@ int main() {
 
 	Animation explosion_anim = CreateAnim("resources/sprites/explosion_sheet.png", 8, 12, (Vector2){64, 64});
 	Animation splash_anim = CreateAnim("resources/sprites/splash_sheet.png", 15, 8, (Vector2){64, 64});
+	Animation water_anim = CreateAnim("resources/sprites/water_spritesheet.png", 6, 15, (Vector2){64,64});
 	Animation anim_list[2] = {splash_anim, explosion_anim};
 
 	//Recalculate SkyBox bounds
@@ -85,13 +98,6 @@ int main() {
 		game_bounds.min = Vector3Scale(game_bounds.min, BOUNDS_SCALAR);
 		game_bounds.max = Vector3Scale(game_bounds.max, BOUNDS_SCALAR);
 	}
-
-	// Reset ships-players
-	// {
-	// 	if(setjmp(reset_point)) ResetShipsState(&ship_data);
-	// }
-
-	success_load = 1;
 
 	//! Game loop
 	while (!exit_window)
@@ -127,11 +133,11 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
+					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles, ship_models);
 					gen_ships = false;
 				}
 				gamemode = GAME_REAL;
-				DisplayRealTimeGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list); //Starts the real-time game
+				DisplayRealTimeGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list, water_tex); //Starts the real-time game
 				break;
 			}
 			case GAME_TURN:
@@ -141,11 +147,11 @@ int main() {
 					gen_obs = false;
 				}
 				if(gen_ships){
-					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles);
+					ship_data = CreateShipData(player_count, &type_list[0], &team_list[0], obstacles, ship_models);
 					gen_ships = false;
 				}
 				gamemode = GAME_TURN;
-				DisplayTurnBasedGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list); //Starts the turn-based game
+				DisplayTurnBasedGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list, water_tex); //Starts the turn-based game
 				break;
 			}
 			case GAME_MENU:
@@ -179,7 +185,13 @@ int main() {
 		}
 	}
 	UnloadModel(water_model);
-	UnloadTexture(water_tex);
+	UnloadModel(ship1);
+	UnloadModel(ship2);
+	UnloadModel(cannon_stand);
+	UnloadModel(cannon_rail);
+	for(int i = 0; i < 6; i++){
+		UnloadTexture(water_tex[i]);
+	}
 	UnloadTexture(skybox_texture);
 	UnloadMaterial(skybox_material);
 	UnloadMesh(skybox_cube);
