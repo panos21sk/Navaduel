@@ -208,6 +208,5 @@ int main() {
 	CloseAudioDevice();
 	DeinitMainWindow(); //Main window de-initialization
 	// TODO: add everything to 1 function
-	// TODO: properly unload island and rock models (throws an error if not)
 	return 0;
 }

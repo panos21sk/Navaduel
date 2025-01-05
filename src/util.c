@@ -6,16 +6,13 @@
 #include "game.h"
 #include "cJSON.h"
 #include "raymath.h"
-#include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 int control_index = 0;
 bool mouse_control;
-jmp_buf reset_point;
 setting settings;
-
 
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
