@@ -9,7 +9,7 @@
 #define DISPLAY GetCurrentMonitor()
 #define WIDTH 1600
 #define HEIGHT 700 //setting to 700 cuz shit doesnt fit to my screen T-T
-#define GAME_STARTUP_COUNTER 2 // in seconds
+#define GAME_STARTUP_COUNTER 3 // in seconds
 #define CAMERA_DISTANCE_VECTOR_TP (Vector3){0.0f, 25.0f, -50.0f}
 #define CAMERA_DISTANCE_VECTOR_FP (Vector3){0.0f, 15.0f, 25.0f}
 

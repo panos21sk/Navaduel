@@ -353,12 +353,12 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
         if (IsKeyDown(ship->movement_buttons.turn_cannon_left))
         {
             ship->cannon->rotation.y = (ship->cannon->rotation.y < MAX_TURN) ? ship->cannon->rotation.y + MOVEMENT_STEP / 10.0f * ship->accel.turn_l_coefficient : (float)MAX_TURN;
-            ship->accel.turn_l_coefficient = (ship->accel.l_coefficient < ship->max_accel) ? (ship->accel.turn_l_coefficient + ship->accel_step) : ship->max_accel;
+            ship->accel.turn_l_coefficient = (ship->accel.turn_l_coefficient < ship->max_accel) ? (ship->accel.turn_l_coefficient + ship->accel_step) : ship->max_accel;
         }
         if (IsKeyDown(ship->movement_buttons.turn_cannon_right))
         {
             ship->cannon->rotation.y = (ship->cannon->rotation.y > -MAX_TURN) ? (ship->cannon->rotation.y - MOVEMENT_STEP / 10.0f * ship->accel.turn_r_coefficient) : (float)-MAX_TURN;
-            ship->accel.turn_r_coefficient = (ship->accel.r_coefficient < ship->max_accel) ? (ship->accel.turn_r_coefficient + ship->accel_step) : ship->max_accel;
+            ship->accel.turn_r_coefficient = (ship->accel.turn_r_coefficient < ship->max_accel) ? (ship->accel.turn_r_coefficient + ship->accel_step) : ship->max_accel;
         }
         if (IsKeyUp(ship->movement_buttons.turn_cannon_left))
         {
