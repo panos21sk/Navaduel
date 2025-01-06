@@ -11,9 +11,6 @@
 #include <ctype.h>
 
 int control_index = 0;
-bool mouse_control[21] = {0};
-char button_control[21][2] = {0};
-int error[21] = {0};
 setting settings;
 
 bool strtobool(const char *input) {
@@ -349,7 +346,11 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     DrawRectangle(WIDTH - 40, (int)rec.y + 3, 17, 17, *setting ? BLUE : RED);
 }
 
-void AddButtonSetting(int *key, const Rectangle rec, const char *label_name, const int btn_id) {
+void AddButtonSetting(int *key, const Rectangle rec, char *label_name, const int btn_id) {
+    static bool mouse_control[21] = {0};
+    static char button_control[21][2] = {0};
+    static int error[21] = {0};
+
     switch(*key) {
         case 257:
             button_control[btn_id][0] = (char)0;
@@ -383,10 +384,12 @@ void AddButtonSetting(int *key, const Rectangle rec, const char *label_name, con
                 else if (new_key == 265) temp = (char)4;
                 else temp = (char)toupper(new_key);
 
-                int j = 14;
-                if(btn_id < 7) j=0;
-                else if (btn_id < 13) j=7;
-                for(int i=0; i<7; i++) {
+                int c=14, j=0;
+                if(btn_id > 13) {
+                    c=7;
+                    j=14;
+                }
+                for(int i=0; i<c; i++) {
                     if(temp == button_control[i+j][0]) error[btn_id] += 1;
                 }
                 if(error[btn_id]) break;
@@ -394,7 +397,11 @@ void AddButtonSetting(int *key, const Rectangle rec, const char *label_name, con
                 *key = toupper(new_key);
                 new_key = GetKeyPressed();
             }
-            if(error[btn_id]) DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, RED);
+            if(error[btn_id]) {
+                DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, RED);
+                DrawText("KEY ALREADY IN USE", WIDTH/2 - 163, HEIGHT - 50, 30, RED);
+                if(btn_id < 14) DrawText("Note: Player 1 and Player 2 MUST have different controls", 5*WIDTH/6-250, HEIGHT-30, 18, DARKBLUE);
+            }
             else DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GREEN);
             DrawText(label_name, 30, HEIGHT - 100, 30, GREEN);
         } else {
@@ -422,7 +429,6 @@ void AddButtonSetting(int *key, const Rectangle rec, const char *label_name, con
         break;
         case 3:
             DrawText("DA", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);
-
         break;
         case 4:
             DrawText("UA", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);

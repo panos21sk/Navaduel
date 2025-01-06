@@ -214,8 +214,6 @@ Ship LoadShip(const int type, const cJSON *shipState, const int playercount) {
     cannon_inst.rotation = Vector3Zero();
     cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
     cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
-    ship.default_accel = (accel_settings){ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel};
-    ship.accel = ship.default_accel;
     ship.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
     ship.cannon = cannon_addr;
     *ship.cannon = cannon_inst;
@@ -226,9 +224,7 @@ Ship LoadShip(const int type, const cJSON *shipState, const int playercount) {
     ship.camera->fovy = 45.0f;
     ship.camera->projection = CAMERA_PERSPECTIVE;
 
-    float init_y = 0.0f;
     if(type == 0){
-        init_y = 17.0f; //17 for ship 1
         cannon_inst.relative_position = (Vector3){0, -8, 20};
         ship.model = LoadModel("resources/models/ship1edited.glb");
         ship.max_accel = MAX_ACCEL * 0.7f;
@@ -242,8 +238,7 @@ Ship LoadShip(const int type, const cJSON *shipState, const int playercount) {
         ship.initial_health = 4;
     }
     //init for small ship
-    else if(type == 1){
-        init_y = 8.0f;
+    else {
         cannon_inst.relative_position = (Vector3){0, 1, 7};
         ship.model = LoadModel("resources/models/ship2edited.glb");
         ship.max_accel = MAX_ACCEL * 1.5f;
@@ -256,6 +251,9 @@ Ship LoadShip(const int type, const cJSON *shipState, const int playercount) {
         ship.sphere_hitbox_radius = 10;
         ship.initial_health = 3;
     }
+
+    ship.default_accel = (accel_settings){ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel, ship.min_accel};
+    ship.accel = ship.default_accel;
 
     return ship;
 }

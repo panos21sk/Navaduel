@@ -422,8 +422,8 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
         //u0 is initial vel 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x
         //initial h is current_player_ship.position.y + current_player_ship.cannon->relative_position.y
         //g is -current_player_ship.cannonball.accel.y
-        float u0 = 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x; float theta = current_player_ship.prev_shot_release;
-        float init_h = current_player_ship.position.y + current_player_ship.cannon->relative_position.y; float g = -current_player_ship.cannonball.accel.y * 58;
+        float u0 = 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x;
+        float g = -current_player_ship.cannonball.accel.y * 58;
         
         float max_T = 2 * u0 * sin(MAX_TURN_UP) / g;
         float min_T = 0;
@@ -431,10 +431,6 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
         DrawRectangleRec((Rectangle){reload_rec.x, reload_rec.y, 
                         reload_rec.width * percentage
                         , reload_rec.height}, YELLOW);
-
-
-        //Insert debugging text here when needed
-        //DrawText(TextFormat("R:%f", pow(u0, 2) * sin(2 * current_player_ship.cannon->rotation.x) / -0.005f), 5, HEIGHT - 30, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
