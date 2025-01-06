@@ -50,10 +50,10 @@ typedef struct {
 } Cannon;
 
 typedef struct {
-    int id; //d
-    int team; //d
-    float yaw; //d
-    movement_buttons movement_buttons; //d
+    int id;
+    int team;
+    float yaw;
+    movement_buttons movement_buttons;
     Vector3 position;
     Vector3 prev_position;
     Vector3 prev_position_turn; 

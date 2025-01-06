@@ -11,7 +11,6 @@
 #include <ctype.h>
 
 int control_index = 0;
-bool mouse_control;
 setting settings;
 
 bool strtobool(const char *input) {
@@ -347,30 +346,95 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     DrawRectangle(WIDTH - 40, (int)rec.y + 3, 17, 17, *setting ? BLUE : RED);
 }
 
-char btn_control[2] = {'\0', '\0'};
-void AddButtonSetting(int *key, const Rectangle rec, const char *setting_name) {
-    btn_control[0] = (char)*key;
-    if(mouse_control) {
+void AddButtonSetting(int *key, const Rectangle rec, char *label_name, const int btn_id) {
+    static bool mouse_control[21] = {0};
+    static char button_control[21][2] = {0};
+    static int error[21] = {0};
+
+    switch(*key) {
+        case 257:
+            button_control[btn_id][0] = (char)0;
+        break;
+        case 262:
+            button_control[btn_id][0] = (char)1;
+        break;
+        case 263:
+            button_control[btn_id][0] = (char)2;
+        break;
+        case 264:
+            button_control[btn_id][0] = (char)3;
+        break;
+        case 265:
+            button_control[btn_id][0] = (char)4;
+        break;
+        default: button_control[btn_id][0] = (char)*key;
+    }
+    button_control[btn_id][1] = '\0';
+    if(mouse_control[btn_id]) {
         if(CheckCollisionPointRec(GetMousePosition(), rec)) {
+            char temp;
             SetMouseCursor(MOUSE_CURSOR_IBEAM);
             int new_key = GetKeyPressed();
-            while(isalnum(new_key) || ispunct(new_key)) {
+            if(new_key) error[btn_id] = 0;
+            while(isalnum(new_key) || ispunct(new_key) || isspace(new_key) || (new_key >= 257 && new_key <= 265)) {
+                if (new_key == 257) temp = (char)0;
+                else if (new_key == 262) temp = (char)1;
+                else if (new_key == 263) temp = (char)2;
+                else if (new_key == 264) temp = (char)3;
+                else if (new_key == 265) temp = (char)4;
+                else temp = (char)toupper(new_key);
+
+                int c=14, j=0;
+                if(btn_id > 13) {
+                    c=7;
+                    j=14;
+                }
+                for(int i=0; i<c; i++) {
+                    if(temp == button_control[i+j][0]) error[btn_id] += 1;
+                }
+                if(error[btn_id]) break;
+                button_control[btn_id][0] = temp;
                 *key = toupper(new_key);
-                btn_control[0] = (char)toupper(new_key);
                 new_key = GetKeyPressed();
             }
-            DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GREEN);
+            if(error[btn_id]) {
+                DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, RED);
+                DrawText("KEY ALREADY IN USE", WIDTH/2 - 163, HEIGHT - 50, 30, RED);
+                if(btn_id < 14) DrawText("Note: Player 1 and Player 2 MUST have different controls", 5*WIDTH/6-250, HEIGHT-30, 18, DARKBLUE);
+            }
+            else DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GREEN);
+            DrawText(label_name, 30, HEIGHT - 100, 30, GREEN);
         } else {
-            mouse_control = false;
+            mouse_control[btn_id] = false;
+            error[btn_id] = 0;
             SetMouseCursor(MOUSE_CURSOR_ARROW);
             UpdateSettingsConfig(settings);
         }
     } else {
-        mouse_control = CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+        mouse_control[btn_id] = CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
         DrawRectangleLines((int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, GRAY);
     }
-    DrawText(btn_control, (int)rec.x + 10, (int)rec.y + 8, 25, BLACK);
-    DrawText(setting_name, (int)rec.x - 400, (int)rec.y + 10, 20, BLACK);
+    switch((int)button_control[btn_id][0]) {
+        case 32:
+            DrawText("SP", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);
+        break;
+        case 0:
+            DrawText("EN", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);
+        break;
+        case 1:
+            DrawText("RA", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);
+        break;
+        case 2:
+            DrawText("LA", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);
+        break;
+        case 3:
+            DrawText("DA", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);
+        break;
+        case 4:
+            DrawText("UA", (int)rec.x + 4, (int)rec.y + 12, 40, BLACK);
+        break;
+        default: DrawText(button_control[btn_id], (int)rec.x + 18, (int)rec.y + 12, 40, BLACK);
+    }
 }
 
 void LoadSettings(bool* bgm_en) {

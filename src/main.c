@@ -90,7 +90,6 @@ int main() {
 
 	Animation explosion_anim = CreateAnim("resources/sprites/explosion_sheet.png", 8, 12, (Vector2){64, 64});
 	Animation splash_anim = CreateAnim("resources/sprites/splash_sheet.png", 15, 8, (Vector2){64, 64});
-	Animation water_anim = CreateAnim("resources/sprites/water_spritesheet.png", 6, 15, (Vector2){64,64});
 	Animation anim_list[2] = {splash_anim, explosion_anim};
 
 	//Recalculate SkyBox bounds
