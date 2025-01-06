@@ -40,8 +40,8 @@ RenderTexture screenCurrentShip;
 
 void InitMainWindow()
 {
-    // Tell the window to use vsync and work on high DPI displays
-    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+    // Tell the window to use vsync, work on high DPI displays and add anti aliasing
+    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
     // Create the window and OpenGL context
     InitWindow(WIDTH, HEIGHT, "NavalDuel");
     // Set Framerate
