@@ -492,9 +492,20 @@ void UpdateShipCamera(const Ship *ship, const bool first_person)
     else
     {
         // third person
-        ship->camera->position = Vector3Add(ship->position, Vector3RotateByAxisAngle(ship->camera_distance_vector_tp, (Vector3){0, 1, 0}, ship->yaw));
-        ship->camera->target = Vector3Add(ship->position, (Vector3){0, 10, 0});
-        ship->camera->up = (Vector3){0, 1, 0};
+        if(Vector3Add(ship->position, Vector3RotateByAxisAngle(ship->camera_distance_vector_tp, (Vector3){0, 1, 0}, ship->yaw)).x < -375
+        || Vector3Add(ship->position, Vector3RotateByAxisAngle(ship->camera_distance_vector_tp, (Vector3){0, 1, 0}, ship->yaw)).z < -375
+        || Vector3Add(ship->position, Vector3RotateByAxisAngle(ship->camera_distance_vector_tp, (Vector3){0, 1, 0}, ship->yaw)).x > 375
+        || Vector3Add(ship->position, Vector3RotateByAxisAngle(ship->camera_distance_vector_tp, (Vector3){0, 1, 0}, ship->yaw)).z > 375){
+            //hardcoded bounds vals because game_bounds is 325 instead of 375 which is the extent of the skybox
+            //camera will be above the ships center which cant go OOB
+            ship->camera->position = Vector3Add(ship->position, Vector3RotateByAxisAngle((Vector3){0, ship->camera_distance_vector_tp.y, 10}, (Vector3){0, 1, 0}, ship->yaw));
+            ship->camera->target = Vector3Add(ship->position, Vector3RotateByAxisAngle((Vector3){0, ship->camera_distance_vector_tp.y, 100}, (Vector3){0,1,0}, ship->yaw));
+            ship->camera->up = (Vector3){0, 1, 0};
+        } else {
+            ship->camera->position = Vector3Add(ship->position, Vector3RotateByAxisAngle(ship->camera_distance_vector_tp, (Vector3){0, 1, 0}, ship->yaw));
+            ship->camera->target = Vector3Add(ship->position, (Vector3){0, 15, 0});
+            ship->camera->up = (Vector3){0, 1, 0};
+        }
     }
 }
 

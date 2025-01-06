@@ -1,6 +1,7 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -108,6 +109,12 @@ int main() {
 		switch (current_screen) {
 			case MAIN:
 			{
+				int default_teams[8] = {0};
+				memcpy(team_list, default_teams, sizeof(team_list));
+				for(int i = 0; i < ship_data.player_count; i++){
+					ship_data.ship_list[i].team = team_list[i];
+				}
+				
 				DisplayMainScreen(click, &obstacles, sand_tex, palm_tree, rock_tex); //Displays the game's MAIN screen
 				break;
 			}
@@ -160,7 +167,13 @@ int main() {
 				break;
 			}
 			case GAME_OVER:
-			{
+			{	
+				int default_teams[8] = {0};
+				memcpy(team_list, default_teams, sizeof(team_list));
+				for(int i = 0; i < ship_data.player_count; i++){
+					ship_data.ship_list[i].team = team_list[i];
+				}
+				
 				player_count = 2;
 				DisplayGameOverScreen(winner, click); //Ends the game (game over)
 				break;

@@ -20,7 +20,14 @@ obj/x86/Debug/navaduel/util.o: ../../src/util.c \
  /usr/include/setjmp.h /usr/include/bits/setjmp.h \
  /usr/include/bits/types/struct___jmp_buf_tag.h \
  /usr/include/bits/types/__sigset_t.h ../../src/cJSON.h ../../src/ship.h \
- ../../src/anim.h ../../src/game.h /usr/include/stdlib.h \
+ ../../src/anim.h ../../src/game.h ../../include/raymath.h \
+ /usr/include/math.h /usr/include/bits/math-vector.h \
+ /usr/include/bits/libm-simd-decl-stubs.h \
+ /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
+ /usr/include/bits/fp-fast.h \
+ /usr/include/bits/mathcalls-helper-functions.h \
+ /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
+ /usr/include/bits/iscanonical.h /usr/include/stdlib.h \
  /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
  /usr/include/bits/types/locale_t.h /usr/include/bits/types/__locale_t.h \
  /usr/include/sys/types.h /usr/include/bits/types/clock_t.h \
@@ -37,13 +44,7 @@ obj/x86/Debug/navaduel/util.o: ../../src/util.c \
  /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
  /usr/include/bits/struct_rwlock.h /usr/include/alloca.h \
  /usr/include/bits/stdlib-float.h /usr/include/string.h \
- /usr/include/strings.h ../../include/raymath.h /usr/include/math.h \
- /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
- /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
- /usr/include/bits/fp-fast.h \
- /usr/include/bits/mathcalls-helper-functions.h \
- /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
- /usr/include/bits/iscanonical.h
+ /usr/include/strings.h /usr/include/ctype.h
 /usr/include/stdc-predef.h:
 ../../include/ini.h:
 /usr/include/stdio.h:
@@ -84,6 +85,17 @@ obj/x86/Debug/navaduel/util.o: ../../src/util.c \
 ../../src/ship.h:
 ../../src/anim.h:
 ../../src/game.h:
+../../include/raymath.h:
+/usr/include/math.h:
+/usr/include/bits/math-vector.h:
+/usr/include/bits/libm-simd-decl-stubs.h:
+/usr/include/bits/flt-eval-method.h:
+/usr/include/bits/fp-logb.h:
+/usr/include/bits/fp-fast.h:
+/usr/include/bits/mathcalls-helper-functions.h:
+/usr/include/bits/mathcalls.h:
+/usr/include/bits/mathcalls-narrow.h:
+/usr/include/bits/iscanonical.h:
 /usr/include/stdlib.h:
 /usr/include/bits/waitflags.h:
 /usr/include/bits/waitstatus.h:
@@ -115,14 +127,4 @@ obj/x86/Debug/navaduel/util.o: ../../src/util.c \
 /usr/include/bits/stdlib-float.h:
 /usr/include/string.h:
 /usr/include/strings.h:
-../../include/raymath.h:
-/usr/include/math.h:
-/usr/include/bits/math-vector.h:
-/usr/include/bits/libm-simd-decl-stubs.h:
-/usr/include/bits/flt-eval-method.h:
-/usr/include/bits/fp-logb.h:
-/usr/include/bits/fp-fast.h:
-/usr/include/bits/mathcalls-helper-functions.h:
-/usr/include/bits/mathcalls.h:
-/usr/include/bits/mathcalls-narrow.h:
-/usr/include/bits/iscanonical.h:
+/usr/include/ctype.h:

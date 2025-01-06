@@ -370,22 +370,18 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
                 DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){1,0,1000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
                 DrawLine3D(Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))), Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, Vector3Add(Vector3RotateByAxisAngle((Vector3){-1,0,1000}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), Vector3Add(current_player_ship.position, Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw)))), PURPLE);
 
-                //for the reticle itself, assume cannon rel pos as the origin O(0,0,0)
+                //for the reticle itself, assume that the initial height is equal to the final height
                 //Approach 1: simulate particle motion. Approach 2: Asynchronously calculate pos using a looping thread.
                 //Formula: R = 2*tanf*u0^2*cos^2(f) / g -> R = u0^2*sin2f/g, T = 2*sinf*u0/g 
-                // DrawCircle3D( 
-                //     /*center_pos:*/ 
-                //     Vector3Add(/*origin*/Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
-                //                 Vector3Add(current_player_ship.position, 
-                //                             Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))),
-
-                //             /*displacement vec*/
-                //                     Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
-                //                     Vector3Add(Vector3RotateByAxisAngle((Vector3){/*0,0,pow(1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x, 2) * sin(2 * current_player_ship.cannon->rotation.x) / -current_player_ship.cannonball.accel.y*/0,0,50}, (Vector3){0,1,0}, current_player_ship.yaw + current_player_ship.cannon->rotation.y), 
-                //                                 Vector3Add(current_player_ship.position, 
-                //                                             Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))))), 
-                //             1, //radius 
-                //             /*rotation axis is x axis*/(Vector3){1, 0, 0}, 3.1415/2, ReturnColorFromTeamInt(current_player_ship.id));
+                float u0 = 1.25f - current_player_ship.cannonball_power_coefficient * current_player_ship.cannon->rotation.x;
+                float g = -0.005f; //hardcoded to avoid conflict with initcannonball, since accel never changes anyways
+                DrawSphereWires( 
+                    /*center_pos:*/ 
+                    Vector3Add(/*origin*/Vector3Add((Vector3){0, - current_player_ship.cannon->relative_position.y - current_player_ship.position.y + 6, 0}, 
+                                                    Vector3Add(current_player_ship.position, 
+                                                               Vector3RotateByAxisAngle(current_player_ship.cannon->relative_position, (Vector3){0, 1, 0}, current_player_ship.yaw))),
+                                /*displacement*/Vector3RotateByAxisAngle((Vector3){0,0, pow(u0, 2) * sin(2 * current_player_ship.cannon->rotation.x) / g}, (Vector3){0,1,0},current_player_ship.yaw + current_player_ship.cannon->rotation.y)
+                    ),1, 4, 4, LIME);
             }
         }
         EndMode3D();
@@ -438,7 +434,7 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
 
 
         //Insert debugging text here when needed
-        DrawText(TextFormat("Time:%f", current_player_ship.time_to_reload_since_last_shot), 5, HEIGHT - 30, 20, RED);
+        //DrawText(TextFormat("R:%f", pow(u0, 2) * sin(2 * current_player_ship.cannon->rotation.x) / -0.005f), 5, HEIGHT - 30, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
