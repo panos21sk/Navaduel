@@ -165,8 +165,10 @@ Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obsta
 }
 
 Ship LoadShip(const int type, const cJSON *shipState, const int playercount) {
-    const movement_buttons btns1 = {KEY_D, KEY_A, KEY_W, KEY_S, KEY_E, KEY_Q, KEY_SPACE};
-    const movement_buttons btns2 = {KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_APOSTROPHE, KEY_SEMICOLON, KEY_ENTER};
+    const movement_buttons btns1 = settings.player_one_buttons;
+    const movement_buttons btns2 = settings.player_two_buttons;
+    const movement_buttons btns3 = settings.player_indep_buttons;
+
     Cannon cannon_inst;
     Cannon* cannon_addr = MemAlloc(sizeof(Cannon));
     Camera* camera_addr = MemAlloc(sizeof(Camera));
@@ -352,21 +354,21 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
     if(ship->can_fire) {
         if (IsKeyDown(ship->movement_buttons.turn_cannon_left))
         {
-            ship->cannon->rotation.y = (ship->cannon->rotation.y > -MAX_TURN) ? (ship->cannon->rotation.y - MOVEMENT_STEP / 10.0f * ship->accel.turn_l_coefficient) : (float)-MAX_TURN;
+            ship->cannon->rotation.y = (ship->cannon->rotation.y < MAX_TURN) ? ship->cannon->rotation.y + MOVEMENT_STEP / 10.0f * ship->accel.turn_l_coefficient : (float)MAX_TURN;
             ship->accel.turn_l_coefficient = (ship->accel.l_coefficient < ship->max_accel) ? (ship->accel.turn_l_coefficient + ship->accel_step) : ship->max_accel;
         }
         if (IsKeyDown(ship->movement_buttons.turn_cannon_right))
         {
-            ship->cannon->rotation.y = (ship->cannon->rotation.y < MAX_TURN) ? ship->cannon->rotation.y + MOVEMENT_STEP / 10.0f * ship->accel.turn_r_coefficient : (float)MAX_TURN;
+            ship->cannon->rotation.y = (ship->cannon->rotation.y > -MAX_TURN) ? (ship->cannon->rotation.y - MOVEMENT_STEP / 10.0f * ship->accel.turn_r_coefficient) : (float)-MAX_TURN;
             ship->accel.turn_r_coefficient = (ship->accel.r_coefficient < ship->max_accel) ? (ship->accel.turn_r_coefficient + ship->accel_step) : ship->max_accel;
         }
         if (IsKeyUp(ship->movement_buttons.turn_cannon_left))
         {
             if (ship->accel.turn_l_coefficient > ship->min_accel)
             {
-                if (ship->cannon->rotation.y > -MAX_TURN)
+                if (ship->cannon->rotation.y < MAX_TURN)
                 {
-                    ship->cannon->rotation.y -= MOVEMENT_STEP / 10 * ship->accel.turn_l_coefficient;
+                    ship->cannon->rotation.y += MOVEMENT_STEP / 10 * ship->accel.turn_l_coefficient;
                     ship->accel.turn_l_coefficient -= DEACCEL_STEP;
                 }
                 else
@@ -379,9 +381,9 @@ void CheckMovement(Ship* ship, const Sound fire, const bool sfx_en)
         {
             if (ship->accel.turn_r_coefficient > ship->min_accel)
             {
-                if (ship->cannon->rotation.y < MAX_TURN)
+                if (ship->cannon->rotation.y > -MAX_TURN)
                 {
-                    ship->cannon->rotation.y += MOVEMENT_STEP / 10 * ship->accel.turn_r_coefficient;
+                    ship->cannon->rotation.y -= MOVEMENT_STEP / 10 * ship->accel.turn_r_coefficient;
                     ship->accel.turn_r_coefficient -= DEACCEL_STEP;
                 }
                 else

@@ -34,6 +34,31 @@ Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20
 Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
 
+//Button settings (name style: movementType_player)
+Rectangle forward_btn_1 = {(float)WIDTH/6 - 30, 120, 60, 60};
+Rectangle backwards_btn_1 = {(float)WIDTH/6 - 30, 200, 60, 60};
+Rectangle right_btn_1 = {(float)WIDTH/6 + 50, 200, 60, 60};
+Rectangle left_btn_1 = {(float)WIDTH/6 - 110, 200, 60, 60};
+Rectangle cannon_right_btn_1 = {(float)WIDTH/6 + 50, 280, 60, 60};
+Rectangle cannon_left_btn_1 = {(float)WIDTH/6 - 110, 280, 60, 60};
+Rectangle fire_btn_1 = {(float)WIDTH/6 - 30, 280, 60, 60};
+
+Rectangle forward_btn_2 = {(float)WIDTH/2 - 30, 120, 60, 60};
+Rectangle backwards_btn_2 = {(float)WIDTH/2 - 30, 200, 60, 60};
+Rectangle right_btn_2 = {(float)WIDTH/2 + 50, 200, 60, 60};
+Rectangle left_btn_2 = {(float)WIDTH/2 - 110, 200, 60, 60};
+Rectangle cannon_right_btn_2 = {(float)WIDTH/2 + 50, 280, 60, 60};
+Rectangle cannon_left_btn_2 = {(float)WIDTH/2 - 110, 280, 60, 60};
+Rectangle fire_btn_2 = {(float)WIDTH/2 - 30, 280, 60, 60};
+
+Rectangle forward_btn_3 = {(float)5*WIDTH/6 - 30, 120, 60, 60};
+Rectangle backwards_btn_3 = {(float)5*WIDTH/6 - 30, 200, 60, 60};
+Rectangle right_btn_3 = {(float)5*WIDTH/6 + 50, 200, 60, 60};
+Rectangle left_btn_3 = {(float)5*WIDTH/6 - 110, 200, 60, 60};
+Rectangle cannon_right_btn_3 = {(float)5*WIDTH/6 + 50, 280, 60, 60};
+Rectangle cannon_left_btn_3 = {(float)5*WIDTH/6 - 110, 280, 60, 60};
+Rectangle fire_btn_3 = {(float)5*WIDTH/6 - 30, 280, 60, 60};
+
 RenderTexture screenShip1;
 RenderTexture screenShip2;
 RenderTexture screenCurrentShip;
@@ -338,9 +363,33 @@ void DisplayControlsScreen(const Sound click)
         DrawLine(WIDTH/3, 0, WIDTH/3, HEIGHT, BLACK);
         DrawLine(2*WIDTH/3, 0, 2*WIDTH/3, HEIGHT, BLACK);
 
-        DrawText("PLAYER 1", WIDTH/6 - 65, 20, 30, BROWN);
-        DrawText("PLAYER 2", WIDTH/2 - 65, 20, 30, BROWN);
-        DrawText(">2 PLAYERS", 5*WIDTH/6 - 80, 20, 30, BROWN);
+        DrawText("PLAYER 1", WIDTH/6 - 70, 20, 30, BROWN);
+        DrawText("PLAYER 2", WIDTH/2 - 70, 20, 30, BROWN);
+        DrawText(">2 PLAYERS", 5*WIDTH/6 - 90, 20, 30, BROWN);
+
+        AddButtonSetting(&settings.player_one_buttons.forward, forward_btn_1, "Forward", 0);
+        AddButtonSetting(&settings.player_one_buttons.backwards, backwards_btn_1, "Backwards", 1);
+        AddButtonSetting(&settings.player_one_buttons.right, right_btn_1, "Right", 2);
+        AddButtonSetting(&settings.player_one_buttons.left, left_btn_1, "Left", 3);
+        AddButtonSetting(&settings.player_one_buttons.turn_cannon_left, cannon_left_btn_1, "Cannon Left", 4);
+        AddButtonSetting(&settings.player_one_buttons.turn_cannon_right, cannon_right_btn_1, "Cannon Right", 5);
+        AddButtonSetting(&settings.player_one_buttons.fire, fire_btn_1, "Fire", 6);
+
+        AddButtonSetting(&settings.player_two_buttons.forward, forward_btn_2, "Forward", 7);
+        AddButtonSetting(&settings.player_two_buttons.backwards, backwards_btn_2, "Backwards", 8);
+        AddButtonSetting(&settings.player_two_buttons.right, right_btn_2, "Right", 9);
+        AddButtonSetting(&settings.player_two_buttons.left, left_btn_2, "Left", 10);
+        AddButtonSetting(&settings.player_two_buttons.turn_cannon_left, cannon_left_btn_2, "Cannon Left", 11);
+        AddButtonSetting(&settings.player_two_buttons.turn_cannon_right, cannon_right_btn_2, "Cannon Right", 12);
+        AddButtonSetting(&settings.player_two_buttons.fire, fire_btn_2, "Fire", 13);
+
+        AddButtonSetting(&settings.player_indep_buttons.forward, forward_btn_3, "Forward", 14);
+        AddButtonSetting(&settings.player_indep_buttons.backwards, backwards_btn_3, "Backwards", 15);
+        AddButtonSetting(&settings.player_indep_buttons.right, right_btn_3, "Right", 16);
+        AddButtonSetting(&settings.player_indep_buttons.left, left_btn_3, "Left", 17);
+        AddButtonSetting(&settings.player_indep_buttons.turn_cannon_left, cannon_left_btn_3, "Cannon Left", 18);
+        AddButtonSetting(&settings.player_indep_buttons.turn_cannon_right, cannon_right_btn_3, "Cannon Right", 19);
+        AddButtonSetting(&settings.player_indep_buttons.fire, fire_btn_3, "Fire", 20);
 
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
     }
