@@ -120,6 +120,7 @@ int main() {
 			case GAMEMODES:
 			{
 				DisplayGamemodesScreen(click, player_count_addr, real_or_turn_addr);
+				game_ended = false;
 				break;
 			}
 			case SHIP_SELECT:
@@ -174,7 +175,7 @@ int main() {
 				}
 				
 				player_count = 2;
-				DisplayGameOverScreen(winner, click); //Ends the game (game over)
+				DisplayGameOverScreen(wintext, click); //Ends the game (game over)
 				break;
 			}
 			case OPTIONS:

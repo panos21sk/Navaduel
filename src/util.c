@@ -142,13 +142,13 @@ void SaveGameState(const Obstacles obstacles) {
         cJSON *move_t = cJSON_CreateNumber(move_time);
         cJSON *fire_t = cJSON_CreateNumber(fire_time);
         cJSON *c_turn = cJSON_CreateNumber(current_turn->id);
-        cJSON *n_turn = cJSON_CreateNumber(next_turn->id);
+        //cJSON *n_turn = cJSON_CreateNumber(next_turn->id);
         cJSON *has_fired = cJSON_CreateBool(has_fired_once);
 
         cJSON_AddItemToObject(jsonfinal, "move_time", move_t);
         cJSON_AddItemToObject(jsonfinal, "fire_time", fire_t);
         cJSON_AddItemToObject(jsonfinal, "current_turn", c_turn);
-        cJSON_AddItemToObject(jsonfinal, "next_turn", n_turn);
+        //cJSON_AddItemToObject(jsonfinal, "next_turn", n_turn);
         cJSON_AddItemToObject(jsonfinal, "has_fired", has_fired);
     }
 
@@ -222,7 +222,7 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
         move_time = move_t->valueint;
         fire_time = fire_t->valueint;
         current_turn = &ship_data->ship_list[c_turn->valueint];
-        next_turn = &ship_data->ship_list[n_turn->valueint];
+        //next_turn = &ship_data->ship_list[n_turn->valueint];
         has_fired_once = has_fired->type ? true : false;
     }
 

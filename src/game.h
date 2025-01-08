@@ -6,17 +6,17 @@
 #include "obstacles.h"
 #include "anim.h"
 
-#define MOVEMENT_TIME 4 //time allowed for the current ship to move (turn-based gm, in seconds)
-#define FIRE_TIME 4 //time allowed for the current ship to fire (turn-based gm, in seconds)
+#define MOVEMENT_TIME 2 //time allowed for the current ship to move (turn-based gm, in seconds)
+#define FIRE_TIME 2 //time allowed for the current ship to fire (turn-based gm, in seconds)
 
-extern int winner;
+extern char* wintext;
 extern int startup_counter;
 extern int dice_state;
 extern int reset_state;
 extern int move_time;
 extern int fire_time;
 extern Ship *current_turn;
-extern Ship *next_turn;
+//extern Ship *next_turn;
 extern bool is_loaded;
 extern bool has_fired_once;
 extern BoundingBox game_bounds;

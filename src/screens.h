@@ -9,7 +9,7 @@
 #define DISPLAY GetCurrentMonitor()
 #define WIDTH 1600
 #define HEIGHT 700 //setting to 700 cuz shit doesnt fit to my screen T-T
-#define GAME_STARTUP_COUNTER 3 // in seconds
+#define GAME_STARTUP_COUNTER 1 // in seconds
 #define CAMERA_DISTANCE_VECTOR_TP (Vector3){0.0f, 25.0f, -50.0f}
 #define CAMERA_DISTANCE_VECTOR_FP (Vector3){0.0f, 15.0f, 25.0f}
 
@@ -44,7 +44,7 @@ void DisplayMainScreen(Sound click, Obstacles *obstacles, Texture2D sand_tex, Mo
 void DisplayGamemodesScreen(Sound click, int* player_count_addr, char* real_or_turn_addr);
 void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char real_or_turn);
 void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char real_or_turn);
-void DisplayGameOverScreen(int winnerId, Sound click);
+void DisplayGameOverScreen(char* wintext, Sound click);
 void DisplayOptionsScreen(Sound click, bool* bgm_en);
 void DisplayControlsScreen(Sound click);
 void DisplayAboutScreen(Sound click);

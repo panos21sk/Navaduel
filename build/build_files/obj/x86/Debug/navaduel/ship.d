@@ -44,7 +44,8 @@ obj/x86/Debug/navaduel/ship.o: ../../src/ship.c \
  /usr/include/bits/types/__fpos64_t.h /usr/include/bits/types/__FILE.h \
  /usr/include/bits/types/FILE.h /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
- /usr/include/bits/stdio_lim.h ../../src/util.h /usr/include/setjmp.h
+ /usr/include/bits/stdio_lim.h /usr/include/string.h \
+ /usr/include/strings.h ../../src/util.h /usr/include/setjmp.h
 /usr/include/stdc-predef.h:
 ../../src/ship.h:
 ../../include/raylib.h:
@@ -128,5 +129,7 @@ obj/x86/Debug/navaduel/ship.o: ../../src/ship.c \
 /usr/include/bits/types/struct_FILE.h:
 /usr/include/bits/types/cookie_io_functions_t.h:
 /usr/include/bits/stdio_lim.h:
+/usr/include/string.h:
+/usr/include/strings.h:
 ../../src/util.h:
 /usr/include/setjmp.h:
