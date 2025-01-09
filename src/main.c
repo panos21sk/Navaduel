@@ -218,6 +218,10 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
+	if (wintext != NULL) {
+    	free(wintext);
+    	wintext = NULL; // Set to NULL to avoid dangling pointer
+	}
 	CloseAudioDevice();
 	DeinitMainWindow(); //Main window de-initialization
 	// TODO: add everything to 1 function

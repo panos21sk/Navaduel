@@ -8,7 +8,8 @@
 #include "unistd.h"
 // #include "stdlib.h" for pseudorandomness
 #include <stdio.h> //for sprintf
-#include <string.h> //for strcat
+#include <stdlib.h> //for malloc
+#include <string.h> //for strcpy
 
 #include "cJSON.h"
 #include "util.h"
@@ -328,7 +329,12 @@ void CheckWin(Ship_data ship_data)
         if (red_team_count == 0 && blue_team_count == 0 && green_team_count == 0 && yellow_team_count == 0 && no_team_count == 1)
         {
             // winner is no_team_ids[0]
-            wintext = TextFormat("player %d", no_team_ids[0]);
+            if (wintext == NULL) {
+                wintext = (char*)malloc(sizeof(char) * 30);
+            } else {
+                wintext = (char*)realloc(wintext, sizeof(char) * 30);
+            }
+            sprintf(wintext, "player %d", no_team_ids[0] + 1);
             pthread_t wait_before_end;
             pthread_create(&wait_before_end, NULL, EndGame, 0);
             pthread_detach(wait_before_end);
@@ -394,7 +400,7 @@ int FindNextAliveShipIndex(Ship_data ship_data, int start_index){
     return -1; //arbitrary return val if no alive ship is found, will throw a sigsev
 }
 
-void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
+void CheckMovement(Ship *ship, const Sound fire)
 {
     if (!ship->is_destroyed)
     {
@@ -549,7 +555,7 @@ void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
             if (ship->can_fire && (ship->cannonball.position.y < 0 || ship->cannonball.position.y > 999))
             {
                 InitializeCannonball(ship);
-                if (sfx_en)
+                if (settings.enable_sfx)
                     PlaySound(fire);
                 ship->can_fire = false;
                 ship->prev_shot_release = ship->cannon->rotation.x;
@@ -591,14 +597,14 @@ void InitializeCannonball(Ship *ship)
     }
 }
 
-void UpdateCannonballState(Cannonball *cannonball, Sound splash, Animation *splash_anim, bool sfx_en)
+void UpdateCannonballState(Cannonball *cannonball, Sound splash, Animation *splash_anim)
 {
     if (cannonball->position.y < 0.0f)
     {
         if (!cannonball->has_splashed)
         {
             StartAnim(splash_anim, Vector3Add(cannonball->position, (Vector3){0, splash_anim->tex.height / 4, 0}));
-            if (sfx_en)
+            if (settings.enable_sfx)
             {
                 PlaySound(splash);
             }
@@ -646,7 +652,7 @@ void UpdateShipCamera(const Ship *ship, const bool first_person)
 }
 
 // TODO: Make function return int specifying player id of winner
-void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles obstacles, Ship_data *ship_data_addr, bool sfx_en, Animation *explosion_anim)
+void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles obstacles, Ship_data *ship_data_addr, Animation *explosion_anim)
 {
     // adding small delay before stopping game to improve game feel.
     if (CheckCollisionSpheres(enemy_ship->position, enemy_ship->sphere_hitbox_radius, player_ship->cannonball.position, 1))
@@ -657,7 +663,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
             {
                 enemy_ship->current_health -= 1;
                 StartAnim(explosion_anim, enemy_ship->position);
-                if (sfx_en)
+                if (settings.enable_sfx)
                     PlaySound(explosion);
                 player_ship->cannonball.has_hit_enemy = true;
                 if (enemy_ship->current_health <= 0)
@@ -672,7 +678,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
     if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, enemy_ship->position, enemy_ship->sphere_hitbox_radius))
     {
         if(!enemy_ship->is_destroyed){
-            if (sfx_en)
+            if (settings.enable_sfx)
                 PlaySound(explosion);
             player_ship->is_destroyed = true;
             enemy_ship->is_destroyed = true;
@@ -684,7 +690,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
     {
         if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.island_list[i].center_pos, obstacles.island_list[i].radius))
         {
-            if (sfx_en)
+            if (settings.enable_sfx)
                 PlaySound(explosion);
             player_ship->is_destroyed = true;
         }
@@ -704,7 +710,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
                                                       obstacles.rock_list[i].center_pos.z + obstacles.rock_list[i].height / 6}},
                                         player_ship->position, player_ship->sphere_hitbox_radius))
             {
-                if (sfx_en)
+                if (settings.enable_sfx)
                     PlaySound(explosion);
                 player_ship->is_destroyed = true;
             }
@@ -712,7 +718,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
         case 2: // sphere
             if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.rock_list[i].center_pos, obstacles.rock_list[i].height))
             {
-                if (sfx_en)
+                if (settings.enable_sfx)
                     PlaySound(explosion);
                 player_ship->is_destroyed = true;
             }

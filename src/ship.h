@@ -101,11 +101,11 @@ Ship LoadShip(int type, const cJSON *shipState, int playercount);
 void *EndGame();
 void CheckWin(Ship_data ship_data);
 int FindNextAliveShipIndex(Ship_data ship_data, int start_index);
-void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
+void CheckMovement(Ship *ship, Sound fire);
 void InitializeCannonball(Ship* ship);
-void UpdateCannonballState(Cannonball* cannonball, Sound splash, Animation* splash_anim,bool sfx_en);
+void UpdateCannonballState(Cannonball* cannonball, Sound splash, Animation* splash_anim);
 void UpdateShipCamera(const Ship *ship, bool first_person);
-void CheckHit(Ship* player_ship, Ship* enemy_ship, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, bool sfx_en, Animation* explosion_anim);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, Animation* explosion_anim);
 void CheckCollisionWithBounds(Ship *ship, BoundingBox bound);
 
 #endif // SHIP_H

@@ -17,7 +17,7 @@
 /* Game independant variables */
 int startup_counter = GAME_STARTUP_COUNTER;
 bool is_loaded = false;
-char* wintext;
+char* wintext = NULL;
 BoundingBox game_bounds;
 int allow_next_loop = 1; //controls loops, DO NOT DELETE IN ANY CASE (the program will hang up)
 
@@ -60,16 +60,16 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
 
     //! Input Handling:
     // Ship Movement
-    CheckMovement(&ship_data.ship_list[0], game_sounds[0], settings.enable_sfx);
-    CheckMovement(&ship_data.ship_list[1], game_sounds[0], settings.enable_sfx);
+    CheckMovement(&ship_data.ship_list[0], game_sounds[0]);
+    CheckMovement(&ship_data.ship_list[1], game_sounds[0]);
 
     // Update Camera manually
     // TODO: Find a way to get the camera behind the ship regardless of where its facing
     UpdateShipCamera(&ship_data.ship_list[0], settings.first_or_third_person_cam);
     UpdateShipCamera(&ship_data.ship_list[1], settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&ship_data.ship_list[0].cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
-    UpdateCannonballState(&ship_data.ship_list[1].cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
+    UpdateCannonballState(&ship_data.ship_list[0].cannonball, game_sounds[1], &anim_list[0]);
+    UpdateCannonballState(&ship_data.ship_list[1].cannonball, game_sounds[1], &anim_list[0]);
 
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
@@ -172,18 +172,16 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
     HideCursor();
 
-    CheckWin(ship_data);
-
     CheckCollisionWithBounds(current_turn, game_bounds);
 
     //! Input Handling:
     // Ship Movement
-    CheckMovement(current_turn, game_sounds[0], settings.enable_sfx);
+    CheckMovement(current_turn, game_sounds[0]);
 
     // Update Camera manually
     UpdateShipCamera(current_turn, settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&current_turn->cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
+    UpdateCannonballState(&current_turn->cannonball, game_sounds[1], &anim_list[0]);
 
     UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
 
@@ -191,6 +189,8 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
     UpdateAnim(&anim_list[1]);
 
     DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, 't',game_models, *current_turn, game_textures, anim_list, water_textures);
+
+    CheckWin(ship_data);
 
     const Rectangle screenRec = {0.0f, 0.0f, (float)screenCurrentShip.texture.width, (float)-screenCurrentShip.texture.height};
 
@@ -450,7 +450,7 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
         Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship_data.ship_list[i].cannon->rotation.x), MatrixRotateY(ship_data.ship_list[i].yaw - 3.1415f / 2 + ship_data.ship_list[i].cannon->rotation.y));
         ship_data.ship_list[i].cannon->rail_model.transform = cannon_transform1;
         for(int j = 0; j < ship_data.player_count; j++){
-            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], explosion, obstacles, &ship_data, settings.enable_sfx, explosion_anim);
+            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], explosion, obstacles, &ship_data, explosion_anim);
         }
     }
 }
