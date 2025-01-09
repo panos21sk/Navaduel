@@ -59,6 +59,22 @@ If you are to play with 3 or more players, after selecting your ship in the turn
 ### REAL-TIME / TURN-BASED GAME DIFFERENCES:
 * Real-time: You and 1 other person can control 1 ship at a time and face off concurrently with a split screen setup. You can always move around freely and fire as many times as you have to in order to destroy your opponent.\
 * Turn-based: You and up to 7 other people each taking turns controlling the displayed ship. The game starts by selecting a random player to go first. Each player has a move period, where they can move and relocate their ship, followed by a fire period where they can aim their shot and shoot it. After that the game finds and hands over control to the next player alive in the queue. \
+### PAUSE MENU:
+By pressing escape in game you go to the pause menu, where the game's process is blocked and its state remains the same, allowing you to continue when you wish by clicking continue.\
+You can also save the game's state to a .json file and return to that game state at a later time using the save game button.\
+You can also return to the main menu using the exit button. 
+### LOAD GAME:
+During the game, after pressing the escape button, you can choose to save the game state to an external .json file.
+\By clicking the LOAD GAME button on the main menu, you can restore the saved game state.
+### OPTIONS:
+In this screen you can enable/disable the reticle(sightline + target), first person mode, fullscreen, background music, and sound effects.
+### CONTROLS:
+In this screen you change the key bindings to the several actions in game, by hovering over the desired key you want to change, clicking the left mouse button, and then pressing your new desired key. Note that the new input will be canceled if your mouse leaves the binding's box. Also, after clicking, you will be given a description of the binding's specified action.\
+For a 2 player game, the 2 players need to have different controls. In a game with more than 2 players, all players share the same controls.
+### EXIT:
+Kill the game instance and exit back to the desktop
+### ABOUT:
+The about button takes you to a screen where you can view a brief description about the game and view information about the game's authors, as well as being able to go to their github accounts in your browser of choice.
 # <a id="docs"></a>DOCUMENTATION
 Code is documented in the source files, where each function has a detailed explanation of its usage and its signature. 
 # <a id="refs"></a>REFERENCES

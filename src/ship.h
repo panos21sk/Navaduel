@@ -94,6 +94,7 @@ extern Camera camera1;
 extern Camera camera2;
 extern Ship_data ship_data;
 extern bool game_ended;
+extern Cannonball initcannonball;
 
 Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models);
 Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models);

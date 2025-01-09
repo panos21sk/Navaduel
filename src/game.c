@@ -262,6 +262,9 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
         while(move_time > 0 && allow_next_loop) {
             current_turn->can_fire = false;
+            current_turn->cannonball.position.y = 1100;
+            current_turn->cannonball.velocity.y = 0;
+            current_turn->cannonball.accel.y = 0; //reset cannonball y to ensure can_fire gets reset
             allow_next_loop = 0;
             pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
             pthread_detach(decrement_move_time_thread);
@@ -437,6 +440,9 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
         DrawRectangleRec((Rectangle){reload_rec.x, reload_rec.y, 
                         reload_rec.width * percentage
                         , reload_rec.height}, YELLOW);
+
+        //debugging:
+        DrawText(TextFormat("%d. %f", current_turn->can_fire, current_turn->cannonball.position.y), 5, HEIGHT - 25, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
