@@ -382,6 +382,18 @@ void CheckWin(Ship_data ship_data)
     }
 }
 
+int FindNextAliveShipIndex(Ship_data ship_data, int start_index){
+    int index = start_index % ship_data.player_count;
+    for(int i = 0; i < 16; i++){
+        if( ! ship_data.ship_list[index].is_destroyed){
+            return index;
+        }  
+        index = (index + 1) % ship_data.player_count;
+    }
+    
+    return -1; //arbitrary return val if no alive ship is found, will throw a sigsev
+}
+
 void CheckMovement(Ship *ship, const Sound fire, const bool sfx_en)
 {
     if (!ship->is_destroyed)
@@ -660,10 +672,10 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
     if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, enemy_ship->position, enemy_ship->sphere_hitbox_radius))
     {
         if(!enemy_ship->is_destroyed){
-            player_ship->is_destroyed = true;
-            enemy_ship->is_destroyed = true;
             if (sfx_en)
                 PlaySound(explosion);
+            player_ship->is_destroyed = true;
+            enemy_ship->is_destroyed = true;
         }
     }
 
@@ -672,9 +684,9 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
     {
         if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.island_list[i].center_pos, obstacles.island_list[i].radius))
         {
-            player_ship->is_destroyed = true;
             if (sfx_en)
                 PlaySound(explosion);
+            player_ship->is_destroyed = true;
         }
     }
     for (int i = 0; i < obstacles.rock_count; i++)
@@ -692,17 +704,17 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
                                                       obstacles.rock_list[i].center_pos.z + obstacles.rock_list[i].height / 6}},
                                         player_ship->position, player_ship->sphere_hitbox_radius))
             {
-                player_ship->is_destroyed = true;
                 if (sfx_en)
                     PlaySound(explosion);
+                player_ship->is_destroyed = true;
             }
             break;
         case 2: // sphere
             if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.rock_list[i].center_pos, obstacles.rock_list[i].height))
             {
-                player_ship->is_destroyed = true;
                 if (sfx_en)
                     PlaySound(explosion);
+                player_ship->is_destroyed = true;
             }
         }
     }

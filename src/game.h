@@ -6,8 +6,8 @@
 #include "obstacles.h"
 #include "anim.h"
 
-#define MOVEMENT_TIME 2 //time allowed for the current ship to move (turn-based gm, in seconds)
-#define FIRE_TIME 2 //time allowed for the current ship to fire (turn-based gm, in seconds)
+#define MOVEMENT_TIME 4 //time allowed for the current ship to move (turn-based gm, in seconds)
+#define FIRE_TIME 1 //time allowed for the current ship to fire (turn-based gm, in seconds)
 
 extern char* wintext;
 extern int startup_counter;

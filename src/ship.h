@@ -100,6 +100,7 @@ Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obsta
 Ship LoadShip(int type, const cJSON *shipState, int playercount);
 void *EndGame();
 void CheckWin(Ship_data ship_data);
+int FindNextAliveShipIndex(Ship_data ship_data, int start_index);
 void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
 void InitializeCannonball(Ship* ship);
 void UpdateCannonballState(Cannonball* cannonball, Sound splash, Animation* splash_anim,bool sfx_en);

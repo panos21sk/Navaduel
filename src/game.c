@@ -284,12 +284,8 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
         }
         if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
             //next_turn = current_turn;
-            if(current_turn->id < ship_data.player_count - 1){
-                //find next available ship
-                current_turn = &ship_data.ship_list[current_turn->id + 1];
-                //logic:  iterate over ship list starting from current players id + 1, and loop if necessary
-            } else 
-                current_turn = &ship_data.ship_list[0];
+            //find next available ship
+            current_turn = &ship_data.ship_list[FindNextAliveShipIndex(ship_data, current_turn->id + 1)];
 
             cannonball.position = (Vector3){0, 1000, 0};
             cannonball.velocity = Vector3Zero();
