@@ -690,7 +690,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
     {
         if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.island_list[i].center_pos, obstacles.island_list[i].radius))
         {
-            if (settings.enable_sfx)
+            if (settings.enable_sfx && ! player_ship->is_destroyed)
                 PlaySound(explosion);
             player_ship->is_destroyed = true;
         }
@@ -710,7 +710,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
                                                       obstacles.rock_list[i].center_pos.z + obstacles.rock_list[i].height / 6}},
                                         player_ship->position, player_ship->sphere_hitbox_radius))
             {
-                if (settings.enable_sfx)
+                if (settings.enable_sfx && ! player_ship->is_destroyed)
                     PlaySound(explosion);
                 player_ship->is_destroyed = true;
             }
@@ -718,7 +718,7 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
         case 2: // sphere
             if (CheckCollisionSpheres(player_ship->position, player_ship->sphere_hitbox_radius, obstacles.rock_list[i].center_pos, obstacles.rock_list[i].height))
             {
-                if (settings.enable_sfx)
+                if (settings.enable_sfx && ! player_ship->is_destroyed)
                     PlaySound(explosion);
                 player_ship->is_destroyed = true;
             }
