@@ -17,7 +17,7 @@
 /* Game independant variables */
 int startup_counter = GAME_STARTUP_COUNTER;
 bool is_loaded = false;
-int winner;
+char* wintext = NULL;
 BoundingBox game_bounds;
 int allow_next_loop = 1; //controls loops, DO NOT DELETE IN ANY CASE (the program will hang up)
 
@@ -26,7 +26,7 @@ Cannonball cannonball;
 int move_time = MOVEMENT_TIME;
 int fire_time = FIRE_TIME;
 Ship *current_turn;
-Ship *next_turn;
+//Ship *next_turn;
 int dice_state = 1; //dice = choosing randomly a player for turn-based gameplay
 int reset_state = 1;
 bool has_fired_once = false;
@@ -60,16 +60,16 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
 
     //! Input Handling:
     // Ship Movement
-    CheckMovement(&ship_data.ship_list[0], game_sounds[0], settings.enable_sfx);
-    CheckMovement(&ship_data.ship_list[1], game_sounds[0], settings.enable_sfx);
+    CheckMovement(&ship_data.ship_list[0], game_sounds[0]);
+    CheckMovement(&ship_data.ship_list[1], game_sounds[0]);
 
     // Update Camera manually
     // TODO: Find a way to get the camera behind the ship regardless of where its facing
     UpdateShipCamera(&ship_data.ship_list[0], settings.first_or_third_person_cam);
     UpdateShipCamera(&ship_data.ship_list[1], settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&ship_data.ship_list[0].cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
-    UpdateCannonballState(&ship_data.ship_list[1].cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
+    UpdateCannonballState(&ship_data.ship_list[0].cannonball, game_sounds[1], &anim_list[0]);
+    UpdateCannonballState(&ship_data.ship_list[1].cannonball, game_sounds[1], &anim_list[0]);
 
     const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
 
@@ -80,6 +80,8 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
 
     DrawGameState(ship_data, *ship_data.ship_list[0].camera, screenShip1, obstacles, 'r', game_models, ship_data.ship_list[0], game_textures, anim_list, water_textures);
     DrawGameState(ship_data, *ship_data.ship_list[1].camera, screenShip2, obstacles, 'r',game_models, ship_data.ship_list[1], game_textures, anim_list, water_textures);
+
+    CheckWin(ship_data);
 
     if (startup_counter > 0)
     {
@@ -155,7 +157,7 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
         srand(time(0));
         const int number = rand() % ship_data.player_count;
         current_turn = &ship_data.ship_list[number];
-        next_turn = &ship_data.ship_list[number + 1];
+        //next_turn = &ship_data.ship_list[number + 1];
         dice_state = 0; //thrown
     }
 
@@ -174,12 +176,12 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
     //! Input Handling:
     // Ship Movement
-    CheckMovement(current_turn, game_sounds[0], settings.enable_sfx);
+    CheckMovement(current_turn, game_sounds[0]);
 
     // Update Camera manually
     UpdateShipCamera(current_turn, settings.first_or_third_person_cam);
 
-    UpdateCannonballState(&current_turn->cannonball, game_sounds[1], &anim_list[0], settings.enable_sfx);
+    UpdateCannonballState(&current_turn->cannonball, game_sounds[1], &anim_list[0]);
 
     UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
 
@@ -187,6 +189,8 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
     UpdateAnim(&anim_list[1]);
 
     DrawGameState(ship_data, *(current_turn->camera), screenCurrentShip, obstacles, 't',game_models, *current_turn, game_textures, anim_list, water_textures);
+
+    CheckWin(ship_data);
 
     const Rectangle screenRec = {0.0f, 0.0f, (float)screenCurrentShip.texture.width, (float)-screenCurrentShip.texture.height};
 
@@ -258,6 +262,9 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
         while(move_time > 0 && allow_next_loop) {
             current_turn->can_fire = false;
+            current_turn->cannonball.position.y = 1100;
+            current_turn->cannonball.velocity.y = 0;
+            current_turn->cannonball.accel.y = 0; //reset cannonball y to ensure can_fire gets reset
             allow_next_loop = 0;
             pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
             pthread_detach(decrement_move_time_thread);
@@ -279,20 +286,18 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             current_turn->can_fire = false;
         }
         if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
-            next_turn = current_turn;
-            if(current_turn->id < ship_data.player_count - 1){
-                current_turn = &ship_data.ship_list[current_turn->id + 1];
-            } else {
-                current_turn = &ship_data.ship_list[0];
-            }
+            //next_turn = current_turn;
+            //find next available ship
+            current_turn = &ship_data.ship_list[FindNextAliveShipIndex(ship_data, current_turn->id + 1)];
+
             cannonball.position = (Vector3){0, 1000, 0};
             cannonball.velocity = Vector3Zero();
             cannonball.accel = Vector3Zero();
             cannonball.has_splashed = true;
             cannonball.has_hit_enemy = true;
 
-            next_turn->accel = next_turn->default_accel;
-            next_turn->cannonball = cannonball;
+            //next_turn->accel = next_turn->default_accel;
+            //next_turn->cannonball = cannonball;
 
             reset_state = 1;
         }
@@ -328,15 +333,19 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
 
             for(int i = 0; i < ship_data.player_count; i++){
                 if(i == current_player_ship.id || real_or_turn == 'r'){
-                    DrawModel(ship_data.ship_list[i].model, ship_data.ship_list[i].position, 1.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                    DrawModel(ship_data.ship_list[i].cannon->rail_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                    DrawModel(ship_data.ship_list[i].cannon->stand_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                    DrawSphere(ship_data.ship_list[i].cannonball.position, 1, BLACK);
+                    if( ! ship_data.ship_list[i].is_destroyed){
+                        DrawModel(ship_data.ship_list[i].model, ship_data.ship_list[i].position, 1.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                        DrawModel(ship_data.ship_list[i].cannon->rail_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                        DrawModel(ship_data.ship_list[i].cannon->stand_model, Vector3Add(ship_data.ship_list[i].position, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                        DrawSphere(ship_data.ship_list[i].cannonball.position, 1, BLACK);
+                    }
                 } else {
                     if(!Vector3Equals(ship_data.ship_list[i].prev_position_turn, (Vector3){0, 1000, 0})){
-                        DrawModelWires(ship_data.ship_list[i].model, ship_data.ship_list[i].prev_position_turn, 1.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                        DrawModelWires(ship_data.ship_list[i].cannon->rail_model, Vector3Add(ship_data.ship_list[i].prev_position_turn, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
-                        DrawModelWires(ship_data.ship_list[i].cannon->stand_model, Vector3Add(ship_data.ship_list[i].prev_position_turn, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                        if( ! ship_data.ship_list[i].is_destroyed) {
+                            DrawModelWires(ship_data.ship_list[i].model, ship_data.ship_list[i].prev_position_turn, 1.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                            DrawModelWires(ship_data.ship_list[i].cannon->rail_model, Vector3Add(ship_data.ship_list[i].prev_position_turn, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                            DrawModelWires(ship_data.ship_list[i].cannon->stand_model, Vector3Add(ship_data.ship_list[i].prev_position_turn, Vector3RotateByAxisAngle(ship_data.ship_list[i].cannon->relative_position, (Vector3){0, 1, 0}, ship_data.ship_list[i].yaw)), 5.0f, ReturnColorFromTeamInt(ship_data.ship_list[i].team));
+                        }
                     }
                 }
             }
@@ -431,6 +440,9 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
         DrawRectangleRec((Rectangle){reload_rec.x, reload_rec.y, 
                         reload_rec.width * percentage
                         , reload_rec.height}, YELLOW);
+
+        //debugging:
+        DrawText(TextFormat("%d. %f", current_turn->can_fire, current_turn->cannonball.position.y), 5, HEIGHT - 25, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
@@ -444,7 +456,7 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
         Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship_data.ship_list[i].cannon->rotation.x), MatrixRotateY(ship_data.ship_list[i].yaw - 3.1415f / 2 + ship_data.ship_list[i].cannon->rotation.y));
         ship_data.ship_list[i].cannon->rail_model.transform = cannon_transform1;
         for(int j = 0; j < ship_data.player_count; j++){
-            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], &current_screen, explosion, obstacles, &ship_data, settings.enable_sfx, explosion_anim);
+            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], explosion, obstacles, &ship_data, explosion_anim);
         }
     }
 }

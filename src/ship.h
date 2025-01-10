@@ -70,6 +70,7 @@ typedef struct {
     int current_health;
     accel_settings default_accel;
     accel_settings accel;
+    bool is_destroyed;
     //ship specific
     float cannonball_power_coefficient;
     int initial_health;
@@ -89,23 +90,23 @@ typedef struct {
 } Ship_data;
 
 extern const accel_settings default_accel;
-extern Ship ship1;
-extern Ship ship2;
 extern Camera camera1;
 extern Camera camera2;
 extern Ship_data ship_data;
+extern bool game_ended;
+extern Cannonball initcannonball;
 
 Ship* SetupShips(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models);
 Ship_data CreateShipData(int player_count, int* type_list, int* team_list, Obstacles obs, Model* ship_models);
 Ship LoadShip(int type, const cJSON *shipState, int playercount);
-void DestroyShip(Ship_data* ship_data, int id);
-void CheckMovement(Ship *ship, Sound fire, bool sfx_en);
-void InitializeCannonball(Ship* ship);
-void UpdateCannonballState(Cannonball* cannonball, Sound splash, Animation* splash_anim,bool sfx_en);
-void UpdateShipCamera(const Ship *ship, bool first_person);
-void *EndGame(void* arg);
-void CheckHit(Ship* player_ship, Ship* enemy_ship, screen* state, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, bool sfx_en, Animation* explosion_anim);
-void CheckCollisionWithBounds(Ship *ship, BoundingBox bound);
+void *EndGame();
 void CheckWin(Ship_data ship_data);
+int FindNextAliveShipIndex(Ship_data ship_data, int start_index);
+void CheckMovement(Ship *ship, Sound fire);
+void InitializeCannonball(Ship* ship);
+void UpdateCannonballState(Cannonball* cannonball, Sound splash, Animation* splash_anim);
+void UpdateShipCamera(const Ship *ship, bool first_person);
+void CheckHit(Ship* player_ship, Ship* enemy_ship, Sound explosion, Obstacles obstacles, Ship_data* ship_data_addr, Animation* explosion_anim);
+void CheckCollisionWithBounds(Ship *ship, BoundingBox bound);
 
 #endif // SHIP_H

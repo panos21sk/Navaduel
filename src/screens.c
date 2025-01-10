@@ -65,8 +65,8 @@ RenderTexture screenCurrentShip;
 
 void InitMainWindow()
 {
-    // Tell the window to use vsync and work on high DPI displays
-    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+    // Tell the window to use vsync, work on high DPI displays and add anti aliasing
+    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
     // Create the window and OpenGL context
     InitWindow(WIDTH, HEIGHT, "NavalDuel");
     // Set Framerate
@@ -301,7 +301,7 @@ void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char
     EndDrawing();
 }
 
-void DisplayGameOverScreen(const int winnerId, const Sound click)
+void DisplayGameOverScreen(char* wintext, Sound click)
 {
     mouse_point = GetMousePosition();
     ShowCursor();
@@ -313,7 +313,7 @@ void DisplayGameOverScreen(const int winnerId, const Sound click)
         AddScreenChangeBtn(play_again_button, "PLAY AGAIN", mouse_point, click, &current_screen, GAMEMODES, settings.enable_sfx);
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
 
-        DrawText(TextFormat("The winner is %s!", winnerId > 0 ? TextFormat("Player %d", winnerId) : "no one"), WIDTH / 2 - 170, 70, 30, LIME);
+        DrawText(TextFormat("The winner is %s!", wintext), WIDTH / 2 - 170, 70, 30, LIME);
     }
     EndDrawing();
 }
@@ -451,6 +451,7 @@ void DisplayAboutScreen(const Sound click)
         ClearBackground(RAYWHITE);
 
         DrawText("Gameplay", 10, 10, 100, GREEN);
+        DrawText("Navaduel is a game where you and up to 7 friends can all duke it out\nwith pirate ships trying to sink each other in the open sea full of\nrandomly generated obstacles by precisely aiming your cannons\nat each others current positions until only one team is left.\nThe game also features a real-time 1v1 game mode where you can face off\nagainst one friend in real-time combat instead of taking turns\nand analysing each other players movement", 10, 120, 20, BLACK);
         // TODO: Add details about gameplay
         DrawText("Credits", WIDTH / 2 + 10, 10, 100, GREEN);
         DrawRectangleRec((Rectangle){(float)WIDTH / 2 - 5, 0, 5, HEIGHT}, BLACK);

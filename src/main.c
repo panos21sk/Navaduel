@@ -120,6 +120,7 @@ int main() {
 			case GAMEMODES:
 			{
 				DisplayGamemodesScreen(click, player_count_addr, real_or_turn_addr);
+				game_ended = false;
 				break;
 			}
 			case SHIP_SELECT:
@@ -174,7 +175,7 @@ int main() {
 				}
 				
 				player_count = 2;
-				DisplayGameOverScreen(winner, click); //Ends the game (game over)
+				DisplayGameOverScreen(wintext, click); //Ends the game (game over)
 				break;
 			}
 			case OPTIONS:
@@ -217,6 +218,10 @@ int main() {
 	UnloadTexture(rock_tex);
 	UnloadModel(palm_tree);
 	UnloadMusicStream(bgm);
+	if (wintext != NULL) {
+    	free(wintext);
+    	wintext = NULL; // Set to NULL to avoid dangling pointer
+	}
 	CloseAudioDevice();
 	DeinitMainWindow(); //Main window de-initialization
 	// TODO: add everything to 1 function

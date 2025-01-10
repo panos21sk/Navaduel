@@ -44,7 +44,15 @@ obj/x86/Debug/navaduel/ship.o: ../../src/ship.c \
  /usr/include/bits/types/__fpos64_t.h /usr/include/bits/types/__FILE.h \
  /usr/include/bits/types/FILE.h /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
- /usr/include/bits/stdio_lim.h ../../src/util.h /usr/include/setjmp.h
+ /usr/include/bits/stdio_lim.h /usr/include/stdlib.h \
+ /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
+ /usr/include/sys/types.h /usr/include/bits/stdint-intn.h \
+ /usr/include/endian.h /usr/include/bits/byteswap.h \
+ /usr/include/bits/uintn-identity.h /usr/include/sys/select.h \
+ /usr/include/bits/select.h /usr/include/bits/types/sigset_t.h \
+ /usr/include/alloca.h /usr/include/bits/stdlib-float.h \
+ /usr/include/string.h /usr/include/strings.h ../../src/util.h \
+ /usr/include/setjmp.h
 /usr/include/stdc-predef.h:
 ../../src/ship.h:
 ../../include/raylib.h:
@@ -128,5 +136,20 @@ obj/x86/Debug/navaduel/ship.o: ../../src/ship.c \
 /usr/include/bits/types/struct_FILE.h:
 /usr/include/bits/types/cookie_io_functions_t.h:
 /usr/include/bits/stdio_lim.h:
+/usr/include/stdlib.h:
+/usr/include/bits/waitflags.h:
+/usr/include/bits/waitstatus.h:
+/usr/include/sys/types.h:
+/usr/include/bits/stdint-intn.h:
+/usr/include/endian.h:
+/usr/include/bits/byteswap.h:
+/usr/include/bits/uintn-identity.h:
+/usr/include/sys/select.h:
+/usr/include/bits/select.h:
+/usr/include/bits/types/sigset_t.h:
+/usr/include/alloca.h:
+/usr/include/bits/stdlib-float.h:
+/usr/include/string.h:
+/usr/include/strings.h:
 ../../src/util.h:
 /usr/include/setjmp.h:

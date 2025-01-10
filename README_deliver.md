@@ -1,6 +1,6 @@
-# NAVADUEL
-A 3D 2 Player Game made using Raylib
-
+# NAVAL DUEL
+Παναγιώτης Σκούλης (new aem here), Δημήτριος Κακαγιάννης (aem)
+Δομημένος προγραμματισμός - 1ο έτος, Τμήμα Ηλεκτρολόγων Μηχανικών & Μηχανικών Υπολογιστών, ΑΠΘ
 ## Chapters:
 * [DESCRIPTION](#desc)
 * [BUILDING](#build)
@@ -58,7 +58,7 @@ Regardless of the mode of your choice, you will be asked to select a ship for ea
 If you are to play with 3 or more players, after selecting your ship in the turn-based game mode, you will be prompted to select each players team. Team selection resets every new game, unlike ship selection. Game ends when either only 1 team is alive or when 1 player with no team is alive.\
 ### REAL-TIME / TURN-BASED GAME DIFFERENCES:
 * Real-time: You and 1 other person can control 1 ship at a time and face off concurrently with a split screen setup. You can always move around freely and fire as many times as you have to in order to destroy your opponent.\
-* Turn-based: You and up to 7 other people each taking turns controlling the displayed ship. The game starts by selecting a random player to go first. Each player has a move period, where they can move and relocate their ship, followed by a fire period where they can aim their shot and shoot it. After that the game finds and hands over control to the next player alive in the queue. 
+* Turn-based: You and up to 7 other people each taking turns controlling the displayed ship. The game starts by selecting a random player to go first. Each player has a move period, where they can move and relocate their ship, followed by a fire period where they can aim their shot and shoot it. After that the game finds and hands over control to the next player alive in the queue. \
 ### PAUSE MENU:
 By pressing escape in game you go to the pause menu, where the game's process is blocked and its state remains the same, allowing you to continue when you wish by clicking continue.\
 You can also save the game's state to a .json file and return to that game state at a later time using the save game button.\
