@@ -92,7 +92,7 @@ Ship *SetupShips(int player_count, int *type_list, int *team_list, Obstacles obs
             // randomize position and set spawn to be valid until proven otherwise
             ship_inst.is_spawn_valid = true;
             ship_inst.position = (Vector3){
-                (float)GetRandomValue(-324, 324), init_y, (float)GetRandomValue(-324, 324) // add it via ref to bounds later
+                (float)GetRandomValue(-320, 320), init_y, (float)GetRandomValue(-320, 320) // add it via ref to bounds later
             };
             // check if ship spawns on island
             for (int i1 = 0; i1 < obs.island_count; i1++)
@@ -206,26 +206,42 @@ Ship LoadShip(const int type, const cJSON *shipState, const int playercount)
     if (playercount == 2)
         ship.movement_buttons = ship.id == 0 ? btns1 : btns2;
     else
-        ship.movement_buttons = btns1;
+        ship.movement_buttons = btns3;
 
     const cJSON *yaw = cJSON_GetArrayItem(shipState, 3);
     ship.yaw = (float)yaw->valuedouble;
 
     const cJSON *positionState = cJSON_GetArrayItem(shipState, 4);
-    const float x = (float)cJSON_GetArrayItem(positionState, 0)->valuedouble;
-    const float y = (float)cJSON_GetArrayItem(positionState, 1)->valuedouble;
-    const float z = (float)cJSON_GetArrayItem(positionState, 2)->valuedouble;
-    const Vector3 position = {x, y, z};
+    float x = (float)cJSON_GetArrayItem(positionState, 0)->valuedouble;
+    float y = (float)cJSON_GetArrayItem(positionState, 1)->valuedouble;
+    float z = (float)cJSON_GetArrayItem(positionState, 2)->valuedouble;
+    const Vector3 position = (Vector3){x, y, z};
     ship.position = position;
 
-    const cJSON *cannon_rel_pos = cJSON_GetArrayItem(shipState, 5);
-    const float rx = (float)cJSON_GetArrayItem(cannon_rel_pos, 0)->valuedouble;
-    const float ry = (float)cJSON_GetArrayItem(cannon_rel_pos, 1)->valuedouble;
-    const float rz = (float)cJSON_GetArrayItem(cannon_rel_pos, 2)->valuedouble;
-    cannon_inst.relative_position = (Vector3){rx, ry, rz};
+    const cJSON *prev_pos_state = cJSON_GetArrayItem(shipState, 5);
+    x = (float)cJSON_GetArrayItem(prev_pos_state, 0)->valuedouble;
+    y = (float)cJSON_GetArrayItem(prev_pos_state, 1)->valuedouble;
+    z = (float)cJSON_GetArrayItem(prev_pos_state, 2)->valuedouble;
+    const Vector3 prev_pos = (Vector3){x, y, z};
+    ship.prev_position = prev_pos;
 
-    const cJSON *health = cJSON_GetArrayItem(shipState, 6);
+    const cJSON *cannon_rel_pos = cJSON_GetArrayItem(shipState, 6);
+    x = (float)cJSON_GetArrayItem(cannon_rel_pos, 0)->valuedouble;
+    y = (float)cJSON_GetArrayItem(cannon_rel_pos, 1)->valuedouble;
+    z = (float)cJSON_GetArrayItem(cannon_rel_pos, 2)->valuedouble;
+    cannon_inst.relative_position = (Vector3){x, y, z};
+
+    const cJSON *health = cJSON_GetArrayItem(shipState, 7);
     ship.current_health = health->valueint;
+
+    const cJSON *prev_shot_r = cJSON_GetArrayItem(shipState, 8);
+    ship.prev_shot_release = (float)prev_shot_r->valuedouble;
+
+    const cJSON *reload_time = cJSON_GetArrayItem(shipState, 9);
+    ship.time_to_reload_since_last_shot = (float)reload_time->valuedouble;
+
+    const cJSON *is_destr = cJSON_GetArrayItem(shipState, 10);
+    ship.is_destroyed = (bool)is_destr->valueint;
 
     initcannonball.position = (Vector3){0, 1000, 0};
     initcannonball.velocity = Vector3Zero();
@@ -239,7 +255,6 @@ Ship LoadShip(const int type, const cJSON *shipState, const int playercount)
     cannon_inst.rotation = Vector3Zero();
     cannon_inst.stand_model = LoadModel("resources/models/cannon_stand.glb");
     cannon_inst.rail_model = LoadModel("resources/models/cannon_rail.glb");
-    ship.prev_position = (Vector3){0.0f, 0.0f, 0.0f};
     ship.cannon = cannon_addr;
     *ship.cannon = cannon_inst;
     ship.cannonball = initcannonball;

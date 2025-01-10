@@ -104,6 +104,7 @@ int main() {
 	{
 		if(WindowShouldClose()) exit_window = true;
 		if(bgm_en) UpdateMusicStream(bgm);
+		CheckFullscreenToggle();
 		//rendering begin
 		switch (current_screen) {
 			case MAIN:

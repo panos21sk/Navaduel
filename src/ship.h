@@ -56,7 +56,7 @@ typedef struct {
     movement_buttons movement_buttons;
     Vector3 position;
     Vector3 prev_position;
-    Vector3 prev_position_turn; 
+    Vector3 prev_position_turn;
     float prev_shot_release;
     float time_to_reload_since_last_shot;
     Camera *camera;
@@ -70,7 +70,7 @@ typedef struct {
     int current_health;
     accel_settings default_accel;
     accel_settings accel;
-    bool is_destroyed;
+    bool is_destroyed; //
     //ship specific
     float cannonball_power_coefficient;
     int initial_health;

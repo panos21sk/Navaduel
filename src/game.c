@@ -157,7 +157,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
         srand(time(0));
         const int number = rand() % ship_data.player_count;
         current_turn = &ship_data.ship_list[number];
-        //next_turn = &ship_data.ship_list[number + 1];
         dice_state = 0; //thrown
     }
 
@@ -286,7 +285,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             current_turn->can_fire = false;
         }
         if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
-            //next_turn = current_turn;
             //find next available ship
             current_turn = &ship_data.ship_list[FindNextAliveShipIndex(ship_data, current_turn->id + 1)];
 
@@ -295,9 +293,6 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
             cannonball.accel = Vector3Zero();
             cannonball.has_splashed = true;
             cannonball.has_hit_enemy = true;
-
-            //next_turn->accel = next_turn->default_accel;
-            //next_turn->cannonball = cannonball;
 
             reset_state = 1;
         }
@@ -440,9 +435,6 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
         DrawRectangleRec((Rectangle){reload_rec.x, reload_rec.y, 
                         reload_rec.width * percentage
                         , reload_rec.height}, YELLOW);
-
-        //debugging:
-        DrawText(TextFormat("%d. %f", current_turn->can_fire, current_turn->cannonball.position.y), 5, HEIGHT - 25, 20, RED);
 }
 
 void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){

@@ -37,5 +37,6 @@ cJSON *create_ship_json(Ship ship, int type);
 Color ReturnColorFromTeamInt(int col_int);
 void SaveGameState(Obstacles obstacles);
 int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex);
+void CheckFullscreenToggle();
 
 #endif //UTIL_H
