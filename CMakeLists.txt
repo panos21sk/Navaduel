@@ -3,6 +3,7 @@ project(NavalDuel)
 
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_compile_options("-DGRAPHICS_API_OPENGL_21 -DCMAKE_USAGE")
 
 # Dependencies
 set(RAYLIB_VERSION 5.5)
@@ -25,20 +26,21 @@ endif()
 # Our Project
 
 add_executable(${PROJECT_NAME} src/main.c
-        src/ship.h
         src/ship.c
         src/screens.c
-        src/screens.h
         src/util.c
         src/game.c
-        src/game.h
         src/obstacles.c
-        src/obstacles.h
         src/anim.c
 )
+add_library(ini lib/ini.c)
+add_library(cJSON lib/cJSON.c)
+include_directories(include)
+#target_include_directories(${PROJECT_NAME} include/)
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib)
 target_link_libraries(${PROJECT_NAME} ini)
+target_link_libraries(${PROJECT_NAME} cJSON)
 
 # Web Configurations
 if (${PLATFORM} STREQUAL "Web")
