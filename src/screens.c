@@ -213,7 +213,7 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
 /**
  * @brief Displays the ship selection screen.
  * @param click The button click sound
- * @param type_list A pointer to the array declaring each player's ship type
+ * @param type_list An array declaring each player's ship type
  * @param player_count The amount of players participating in the game
  * @param real_or_turn The variable which declares if the game is real-time or turn-based
  */

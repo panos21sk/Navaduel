@@ -512,7 +512,8 @@ void UpdateVariables(Ship_data ship_data, const Sound explosion, const Obstacles
 /**
  * @brief Decreases a time variable by 1 per second
  * @details Used in threads for every gamemode
- * @param arg The time variable to decrease
+ * @note The function is NOT defined to return a pointer, please ignore any warnings.
+ * @param arg The time variable to decrease. This argument is passed through the pthread_create function
  * @return Nothing, according to its usage in DisplayRealTimeGameScreen and DisplayTurnBasedGameScreen
  */
 void *DecreaseTime(void *arg) {
@@ -525,7 +526,8 @@ void *DecreaseTime(void *arg) {
 /**
  * @brief Decreases a counter variable by 1 per second
  * @details Used in threads for every gamemode
- * @param arg The counter variable to decrease
+ * @note The function is NOT defined to return a pointer, please ignore any warnings.
+ * @param arg The counter variable to decrease. This argument is passed through the pthread_create function
  * @return Nothing, according to its usage in DisplayRealTimeGameScreen and DisplayTurnBasedGameScreen
  */
 void *DecreaseCounter(void *arg) {

@@ -1,25 +1,37 @@
+/* Import the required game headers (first party libraries) */
 #include "ship.h"
 #include "game.h"
-#include "raylib.h"
-#include "raymath.h"
 #include "screens.h"
 #include "anim.h"
-#include "pthread.h"
-#include "unistd.h"
-// #include "stdlib.h" for pseudorandomness
-#include <stdio.h> //for sprintf
-#include <stdlib.h> //for malloc
-#include <string.h> //for strcpy
-
-#include "cJSON.h"
 #include "util.h"
 
+/* Import the required game headers (third party libraries) */
+#include "raylib.h"
+#include "raymath.h"
+
+/* Import the required tool headers (third party libraries) */
+#include "cJSON.h"
+#include <pthread.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+/* Variable initialization */
 accel_settings bounds_accel;
 Cannonball initcannonball;
 Ship_data ship_data;
 bool game_ended;
 
-Ship *SetupShips(int player_count, int *type_list, int *team_list, Obstacles obs, Model *ship_models)
+/**
+ * @brief Sets up the appropriate amount of ships for a game to begin.
+ * @param player_count The amount of Players (ships) to be spawned
+ * @param type_list An array of integers declaring each ship's type
+ * @param team_list An array of integers declaring each ship's team
+ * @param obs The Obstacles object, holding data for spawned obstacles
+ * @param ship_models An array of Models with the ships' models
+ * @return A pointer to the generated Ship object
+ */
+Ship *SetupShips(int player_count, const int *type_list, const int *team_list, Obstacles obs, Model *ship_models)
 {
     static Ship ship_list[8]; // 8 is the num of max players
     // Variable init
@@ -177,15 +189,32 @@ Ship *SetupShips(int player_count, int *type_list, int *team_list, Obstacles obs
     return ship_list;
 }
 
+/**
+ * @brief Creates a Ship_data structure, which holds essential information about ships, their type and team indexes.
+ * @param player_count The amount of players (ships) to be generated
+ * @param type_list An array of integers declaring each ship's type
+ * @param team_list An array of integers declaring each ship's team
+ * @param obs The Obstacles object, holding data for spawned obstacles
+ * @param ship_models An array of Models with the ships' models
+ * @return The generated Ship_data structure
+ */
 Ship_data CreateShipData(int player_count, int *type_list, int *team_list, Obstacles obs, Model *ship_models)
 {
     Ship_data ship_data;
     ship_data.ship_list = SetupShips(player_count, type_list, team_list, obs, ship_models);
     ship_data.player_count = player_count;
     ship_data.type_list = type_list;
+    ship_data.team_list = team_list;
     return ship_data;
 }
 
+/**
+ * @brief Loads a ship from a saved game state properly.
+ * @param type The ship's type
+ * @param shipState A pointer to the cJSON array, which holds its saved state
+ * @param playercount The amount of players who started the game (derived from the game state)
+ * @return A Ship object, properly set up to continue the game
+ */
 Ship LoadShip(const int type, const cJSON *shipState, const int playercount)
 {
     const movement_buttons btns1 = settings.player_one_buttons;
@@ -300,13 +329,24 @@ Ship LoadShip(const int type, const cJSON *shipState, const int playercount)
     return ship;
 }
 
+/**
+ * @brief Executes commands to properly finish the game.
+ * @details This specific function is used in a pthread, in order to NOT interrupt the main game control. It waits for a
+ * second (1000000 microseconds) and changes the screen to the game over, to announce the winner.
+ * @note The function is NOT defined to return a pointer, please ignore any warnings.
+ * @return Nothing, according to its usage in CheckWin procedure
+ */
 void *EndGame()
 {
     usleep(1000000); // in microsec
     current_screen = GAME_OVER;
 }
 
-void CheckWin(Ship_data ship_data)
+/**
+ * @brief Responsible to check who the winner of a game is (either team or solo)
+ * @param ship_data The Ship_data object, containing data for the ships
+ */
+void CheckWin(const Ship_data ship_data)
 {
     if (!game_ended)
     {
@@ -403,7 +443,13 @@ void CheckWin(Ship_data ship_data)
     }
 }
 
-int FindNextAliveShipIndex(Ship_data ship_data, int start_index){
+/**
+ * @brief Calculates the next alive ship's index number inside the ship_data structure
+ * @param ship_data The Ship_data object
+ * @param start_index The starting index to begin the calculations
+ * @return The calculated index (integer)
+ */
+int FindNextAliveShipIndex(const Ship_data ship_data, const int start_index){
     int index = start_index % ship_data.player_count;
     for(int i = 0; i < 16; i++){
         if( ! ship_data.ship_list[index].is_destroyed){
@@ -415,6 +461,11 @@ int FindNextAliveShipIndex(Ship_data ship_data, int start_index){
     return -1; //arbitrary return val if no alive ship is found, will throw a sigsev
 }
 
+/**
+ * @brief Responsible to CONSTANTLY check for any button press and apply the change in ships' movement and control.
+ * @param ship A pointer to the Ship object required to control
+ * @param fire The fire sound to be played in-game
+ */
 void CheckMovement(Ship *ship, const Sound fire)
 {
     if (!ship->is_destroyed)
@@ -595,7 +646,10 @@ void CheckMovement(Ship *ship, const Sound fire)
     }
 }
 
-// Dynamic
+/**
+ * @brief Initializes the cannonball for the Ship object to use in-game.
+ * @param ship A pointer to the Ship object to initialize its cannonball
+ */
 void InitializeCannonball(Ship *ship)
 {
     if (!ship->is_destroyed)
@@ -603,7 +657,7 @@ void InitializeCannonball(Ship *ship)
         ship->cannonball.position = Vector3Add(
             ship->position,
             Vector3RotateByAxisAngle(ship->cannon->relative_position, (Vector3){0, 1, 0}, ship->yaw));
-        // see commemts on the transform of cannon rail
+        // see comments on the transform of cannon rail
         Matrix speed_transform_matrix = MatrixMultiply(MatrixRotateX(ship->cannon->rotation.x), MatrixRotateY(ship->yaw + ship->cannon->rotation.y));
         ship->cannonball.velocity = Vector3Transform((Vector3){0, 0, 1.25f - ship->cannonball_power_coefficient * ship->cannon->rotation.x}, speed_transform_matrix);
         ship->cannonball.accel = (Vector3){0, -0.005f, 0};
@@ -612,7 +666,13 @@ void InitializeCannonball(Ship *ship)
     }
 }
 
-void UpdateCannonballState(Cannonball *cannonball, Sound splash, Animation *splash_anim)
+/**
+ * @brief Updates the given cannonball's firing state.
+ * @param cannonball The Cannonball object to update
+ * @param splash The splash sound to be played in-game, when the cannonball reaches the water
+ * @param splash_anim The splash animation to be played in-game, when the cannonball reaches the water
+ */
+void UpdateCannonballState(Cannonball *cannonball, const Sound splash, Animation *splash_anim)
 {
     if (cannonball->position.y < 0.0f)
     {
@@ -633,6 +693,11 @@ void UpdateCannonballState(Cannonball *cannonball, Sound splash, Animation *spla
     }
 }
 
+/**
+ * @brief Updates the given Ship's camera to adjust to any movement changes.
+ * @param ship A pointer to the Ship to update
+ * @param first_person Declares if the camera is in first or third person
+ */
 void UpdateShipCamera(const Ship *ship, const bool first_person)
 {
     if (!ship->is_destroyed)
@@ -666,8 +731,15 @@ void UpdateShipCamera(const Ship *ship, const bool first_person)
     }
 }
 
-// TODO: Make function return int specifying player id of winner
-void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles obstacles, Ship_data *ship_data_addr, Animation *explosion_anim)
+/**
+ * @brief Checks for any kind of interaction between hitboxes (ships, cannonballs).
+ * @param player_ship The current Ship playing
+ * @param enemy_ship The enemy Ship
+ * @param explosion The explosion sound to be played in-game when an interaction occurs
+ * @param obstacles The Obstacles object, holding data for spawned obstacles
+ * @param explosion_anim The explosion animation to be played in-game when an interaction occurs
+ */
+void CheckHit(Ship *player_ship, Ship *enemy_ship, const Sound explosion, const Obstacles obstacles, Animation *explosion_anim)
 {
     // adding small delay before stopping game to improve game feel.
     if (CheckCollisionSpheres(enemy_ship->position, enemy_ship->sphere_hitbox_radius, player_ship->cannonball.position, 1))
@@ -741,6 +813,11 @@ void CheckHit(Ship *player_ship, Ship *enemy_ship, Sound explosion, Obstacles ob
     }
 }
 
+/**
+ * @brief CONSTANTLY checks if the given Ship collides with the game boundaries (SkyBox's scaled Bounding Box).
+ * @param ship A pointer to the Ship to check for collision
+ * @param bound The game boundaries
+ */
 void CheckCollisionWithBounds(Ship *ship, const BoundingBox bound)
 {
     bounds_accel.b_coefficient = MIN_ACCEL;
