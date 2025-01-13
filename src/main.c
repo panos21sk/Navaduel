@@ -17,6 +17,8 @@ int main() {
     //SetTraceLogLevel(6); //7 - nothing, 6 - fatal
 	//! Main window initialization
 	InitMainWindow();
+	Image window_img = LoadImage("resources/N.png");
+	SetWindowIcon(window_img);
 
 	//! Load game settings
 	bool bgm_en;
@@ -224,6 +226,7 @@ int main() {
 	}
 	CloseAudioDevice();
 	DeinitMainWindow(); //Main window de-initialization
+	UnloadImage(window_img);
 	// TODO: add everything to 1 function
 	return 0;
 }

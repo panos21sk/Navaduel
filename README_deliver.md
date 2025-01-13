@@ -1,4 +1,4 @@
-# NAVAL DUEL
+# NAVADUEL
 Παναγιώτης Σκούλης (new aem here), Δημήτριος Κακαγιάννης (aem)
 Δομημένος προγραμματισμός - 1ο έτος, Τμήμα Ηλεκτρολόγων Μηχανικών & Μηχανικών Υπολογιστών, ΑΠΘ
 ## Chapters:
@@ -18,10 +18,8 @@ The game also features a real-time 1v1 game mode where you can face off against 
 # <a id="build"></a>BUILDING
 
 ### Supported Platforms
-Quickstart supports the main 3 desktop platforms:
 * Windows
 * Linux
-* MacOS
 
 ## Windows Users
 * Run `compile.bat` to compile the source code (one-time required)
@@ -30,13 +28,6 @@ Quickstart supports the main 3 desktop platforms:
 ## Linux Users
 * CD into the build folder
 * run `./premake5 gmake2`
-* CD back to the root
-* run `make`
-* you are good to go
-
-## MacOS Users
-* CD into the build folder
-* run `./premake5.osx gmake2`
 * CD back to the root
 * run `make`
 * you are good to go
