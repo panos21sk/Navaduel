@@ -260,7 +260,7 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
     }
 
     Island *island_list = malloc(sizeof(Island)*island_count->valueint);
-    Rock *rock_list = malloc(sizeof(Island)*island_count->valueint);
+    Rock *rock_list = malloc(sizeof(Island)*rock_count->valueint);
 
     for(int i = 0; i < island_count->valueint; i++) {
         Island island;

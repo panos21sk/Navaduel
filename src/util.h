@@ -1,14 +1,20 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "raylib.h"
-#include <setjmp.h>
-#include "cJSON.h"
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-
+/* Import the required game headers (first party libraries) */
 #include "screens.h"
 #include "ship.h"
 
+/* Import the required game headers (third party libraries) */
+#include "raylib.h"
+
+/* Import the required tool headers (third party libraries) */
+#include "cJSON.h"
+
+/* Defines the matching algorithm between section and element name for the INI parser */
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+
+/* setting structure */
 typedef struct {
     bool show_reticle;
     bool first_or_third_person_cam;
@@ -21,10 +27,11 @@ typedef struct {
     movement_buttons player_indep_buttons; //independent
 } setting;
 
-extern int control_index;
-extern jmp_buf reset_point;
-extern setting settings;
+/* Variable declarations */
+extern int control_index; //Controls loops inside the game loop
+extern setting settings; //The settings object, holding the settings derived from config.ini
 
+/* Function declarations */
 bool strtobool(const char *input);
 char *booltostr(bool input);
 void AddScreenChangeBtn(Rectangle rec, const char* text, Vector2 mouse_point, Sound click, screen* current_screen, screen scr, bool sfx_en);
