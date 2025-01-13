@@ -1,21 +1,24 @@
+/* Import the required game headers (first party libraries) */
 #include "screens.h"
 #include "obstacles.h"
 #include "ship.h"
 #include "util.h"
-#include "raylib.h"
 #include "game.h"
+
+/* Import the required game headers (third party libraries) */
+#include "raylib.h"
 #include "rlgl.h"
 
+/* Variable initialization */
 bool exit_window = false;
 
 int success_save = 0;
 int success_load = 1;
 
-Vector2 mouse_point;
-
 screen current_screen = MAIN;
 screen gamemode;
 
+/* Screen buttons */
 Rectangle play_new_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 100, 160, 40};
 Rectangle play_load_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
 Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
@@ -34,7 +37,7 @@ Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20
 Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
 
-//Button settings (name style: movementType_player)
+/* Button settings (name style: movementType_player) */
 Rectangle forward_btn_1 = {(float)WIDTH/6 - 30, 120, 60, 60};
 Rectangle backwards_btn_1 = {(float)WIDTH/6 - 30, 200, 60, 60};
 Rectangle right_btn_1 = {(float)WIDTH/6 + 50, 200, 60, 60};
@@ -59,10 +62,14 @@ Rectangle cannon_right_btn_3 = {(float)5*WIDTH/6 + 50, 280, 60, 60};
 Rectangle cannon_left_btn_3 = {(float)5*WIDTH/6 - 110, 280, 60, 60};
 Rectangle fire_btn_3 = {(float)5*WIDTH/6 - 30, 280, 60, 60};
 
-RenderTexture screenShip1;
-RenderTexture screenShip2;
-RenderTexture screenCurrentShip;
+/* Screens */
+RenderTexture screenShip1; //Real-time Player 1
+RenderTexture screenShip2; //Real-time Player 2
+RenderTexture screenCurrentShip; //Turn-based current Player
 
+/**
+ * @brief Initializes the game's window.
+ */
 void InitMainWindow()
 {
     // Tell the window to use vsync, work on high DPI displays and add anti aliasing
@@ -79,7 +86,15 @@ void InitMainWindow()
     screenCurrentShip = LoadRenderTexture(WIDTH, HEIGHT);
 }
 
-void DisplayMainScreen(const Sound click, Obstacles *obstacles, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex)
+/**
+ * @brief Displays the game's Main screen.
+ * @param click The button click sound
+ * @param obstacles A pointer to the generated Obstacles instance
+ * @param sand_tex The islands' sand texture
+ * @param palm_tree The islands' palm tree texture
+ * @param rock_tex The rocks' texture
+ */
+void DisplayMainScreen(const Sound click, Obstacles *obstacles, const Texture2D sand_tex, const Model palm_tree, const Texture2D rock_tex)
 {
     startup_counter = GAME_STARTUP_COUNTER;
     control_index = 0;
@@ -139,9 +154,14 @@ void DisplayMainScreen(const Sound click, Obstacles *obstacles, Texture2D sand_t
     EndDrawing();
 }
 
-char player_count[2] = {'2', '\0'};
+/**
+ * @brief Displays the gamemode selection screen.
+ * @param click The button click sound
+ * @param player_count_addr A pointer to the player count integer
+ * @param real_or_turn_addr A pointer to the variable declaring if the gamemode is real-time or turn-based
+ */
 void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* real_or_turn_addr) {
-    mouse_point = GetMousePosition();
+    static char player_count[2] = {'2', '\0'}; //Displayed in button
     control_index = 0;
     static int letter_count;
     player_count[0] = (char)(*player_count_addr + 48);
@@ -150,7 +170,7 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
         ClearBackground(RAYWHITE);
         DrawText("GAMEMODES", 20, 20, 30, BLUE);
         DrawRectangleRec(player_count_button, LIGHTGRAY);
-        if (CheckCollisionPointRec(mouse_point, player_count_button))
+        if (CheckCollisionPointRec(GetMousePosition(), player_count_button))
         {
             int key = 50;
             SetMouseCursor(MOUSE_CURSOR_IBEAM);
@@ -190,7 +210,14 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
     EndDrawing();
 }
 
-void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char real_or_turn)
+/**
+ * @brief Displays the ship selection screen.
+ * @param click The button click sound
+ * @param type_list A pointer to the array declaring each player's ship type
+ * @param player_count The amount of players participating in the game
+ * @param real_or_turn The variable which declares if the game is real-time or turn-based
+ */
+void DisplayShipSelectScreen(const Sound click, int* type_list, const int player_count, const char real_or_turn)
 {
     BeginDrawing();
     {
@@ -248,7 +275,14 @@ void DisplayShipSelectScreen(Sound click, int* type_list, int player_count, char
     EndDrawing();
 }
 
-void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char real_or_turn){
+/**
+ * @brief Displays the team selection screen.
+ * @param click The button click sound
+ * @param team_list A pointer to the array declaring each player's team
+ * @param player_count The amount of players participating in the game
+ * @param real_or_turn The variable which declares if the game is real-time or turn-based
+ */
+void DisplayTeamSelectScreen(const Sound click, int* team_list, const int player_count, const char real_or_turn){
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -301,42 +335,51 @@ void DisplayTeamSelectScreen(Sound click, int* team_list, int player_count, char
     EndDrawing();
 }
 
-void DisplayGameOverScreen(char* wintext, Sound click)
+/**
+ * @brief Displays the game over screen, when the game ends.
+ * @param wintext The text which declares the winner of the game
+ * @param click The button click sound
+ */
+void DisplayGameOverScreen(char* wintext, const Sound click)
 {
-    mouse_point = GetMousePosition();
+
     ShowCursor();
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
 
         DrawText("THE GAME IS OVER", WIDTH / 2 - 175, 20, 35, BLUE);
-        AddScreenChangeBtn(play_again_button, "PLAY AGAIN", mouse_point, click, &current_screen, GAMEMODES, settings.enable_sfx);
-        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
+        AddScreenChangeBtn(play_again_button, "PLAY AGAIN", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
+        AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
 
         DrawText(TextFormat("The winner is %s!", wintext), WIDTH / 2 - 170, 70, 30, LIME);
     }
     EndDrawing();
 }
 
+/**
+ * @brief Displays the game menu screen, when pressing the ESCAPE button in-game.
+ * @param click The button click sound
+ * @param obstacles The Obstacles instance
+ */
 void DisplayGameMenuScreen(const Sound click, const Obstacles obstacles) {
     if(IsKeyPressed(KEY_ESCAPE)) {
         current_screen = gamemode;
         success_save = 0;
     }
 
-    mouse_point = GetMousePosition();
     ShowCursor();
     BeginDrawing();
     {
         ClearBackground(RAYWHITE); // prior to change
 
-        AddScreenChangeBtn(continue_game_button, "CONTINUE GAME", mouse_point, click, &current_screen, gamemode, settings.enable_sfx);
-        AddScreenChangeBtn(exit_no_save_button, "EXIT", mouse_point, click, &current_screen, MAIN, settings.enable_sfx);
+        AddScreenChangeBtn(continue_game_button, "CONTINUE GAME", GetMousePosition(), click, &current_screen, gamemode, settings.enable_sfx);
+        AddScreenChangeBtn(exit_no_save_button, "EXIT", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
 
         // Manually build the save button
         {
             DrawRectangleRec(save_button, BLACK);
-            if (CheckCollisionPointRec(mouse_point, save_button))
+            if (CheckCollisionPointRec(GetMousePosition(), save_button))
             {
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                 {
@@ -354,6 +397,10 @@ void DisplayGameMenuScreen(const Sound click, const Obstacles obstacles) {
     EndDrawing();
 }
 
+/**
+ * @brief Displays the control settings screen.
+ * @param click The button click sound
+ */
 void DisplayControlsScreen(const Sound click)
 {
     BeginDrawing();
@@ -396,16 +443,21 @@ void DisplayControlsScreen(const Sound click)
     EndDrawing();
 }
 
+/**
+ * @brief Displays the options (settings) screen.
+ * @param click The button click sound
+ * @param bgm_en Declares if background game music is enabled or not
+ */
 void DisplayOptionsScreen(const Sound click, bool *bgm_en)
 {
-    Rectangle reticle_rec = {17, 17, WIDTH - 37, 23};
-    Rectangle first_person_rec = {17, 57, WIDTH - 37, 23};
-    Rectangle fullscreen_rec = {17, 97, WIDTH - 37, 23};
-    Rectangle sfx_rec = {17, 137, WIDTH - 37, 23};
-    Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
-    Rectangle fps_rec = {17, 217, WIDTH - 37, 23};
+    const Rectangle reticle_rec = {17, 17, WIDTH - 37, 23};
+    const Rectangle first_person_rec = {17, 57, WIDTH - 37, 23};
+    const Rectangle fullscreen_rec = {17, 97, WIDTH - 37, 23};
+    const Rectangle sfx_rec = {17, 137, WIDTH - 37, 23};
+    const Rectangle bgm_rec = {17, 177, WIDTH - 37, 23};
+    const Rectangle fps_rec = {17, 217, WIDTH - 37, 23};
 
-    bool tmp = settings.fullscreen;
+    const bool tmp = settings.fullscreen;
 
     BeginDrawing();
     {
@@ -443,9 +495,13 @@ void DisplayOptionsScreen(const Sound click, bool *bgm_en)
     }
 }
 
+/**
+ * @brief Displays the about screen, with credits and gameplay instructions.
+ * @param click The button click sound
+ */
 void DisplayAboutScreen(const Sound click)
 {
-    mouse_point = GetMousePosition();
+
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
@@ -462,7 +518,7 @@ void DisplayAboutScreen(const Sound click)
         DrawRectangleRec(github_jim_button, BLACK);
         DrawRectangleRec(github_panos_button, BLACK);
 
-        if (CheckCollisionPointRec(mouse_point, github_jim_button))
+        if (CheckCollisionPointRec(GetMousePosition(), github_jim_button))
         {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
@@ -471,7 +527,7 @@ void DisplayAboutScreen(const Sound click)
             }
             DrawRectangleRec(github_jim_button, RED);
         }
-        if (CheckCollisionPointRec(mouse_point, github_panos_button))
+        if (CheckCollisionPointRec(GetMousePosition(), github_panos_button))
         {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
@@ -480,7 +536,7 @@ void DisplayAboutScreen(const Sound click)
             }
             DrawRectangleRec(github_panos_button, RED);
         }
-        if (CheckCollisionPointRec(mouse_point, return_to_main_button))
+        if (CheckCollisionPointRec(GetMousePosition(), return_to_main_button))
         {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
@@ -498,13 +554,14 @@ void DisplayAboutScreen(const Sound click)
     EndDrawing();
 }
 
+/**
+ * @brief De-initializes the Main window on exit.
+ */
 void DeinitMainWindow()
 {
     UnloadRenderTexture(screenShip1);
     UnloadRenderTexture(screenShip2);
     UnloadRenderTexture(screenCurrentShip);
-    //DestroyShip(&ship1); //TODO: Update this
-    //DestroyShip(&ship2);
     //! destroy the window and cleanup the OpenGL context
     CloseWindow();
 }

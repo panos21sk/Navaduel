@@ -1,7 +1,18 @@
+/* Import the required game headers (first party libraries) */
 #include "obstacles.h"
 #include "game.h"
+
+/* Import the required game headers (third party libraries) */
 #include "raymath.h"
 
+/**
+ * @brief Defines an Island object.
+ * @param sand_tex The island's sand texture
+ * @param palm_tree The island's palm tree model
+ * @param corner_bound The corner of the game bounds, used in spawning (2D)
+ * @param opp_corner_bound The opposite corner of corner_bound, used in spawning (2D)
+ * @return The created Island object
+ */
 Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, Vector2 opp_corner_bound){
     Island island_instance;
     island_instance.radius = GetRandomValue(MAX_ISLAND_RADIUS / 2, MAX_ISLAND_RADIUS);
@@ -18,6 +29,15 @@ Island CreateIsland(Texture2D sand_tex, Model palm_tree, Vector2 corner_bound, V
     return island_instance;
 }
 
+/**
+ * @brief Defines an array of Islands and returns it.
+ * @param sand_tex The islands' sand texture
+ * @param toppings The islands' palm tree model
+ * @param corner_bound The corner of the game bounds, used in spawning (2D)
+ * @param opp_corner_bound The opposite corner of corner_bound, used in spawning (2D)
+ * @param island_count The number of islands to generate
+ * @return An array of Islands created
+ */
 Island* CreateAllIslands(Texture2D sand_tex, Model toppings, Vector2 corner_bound, Vector2 opp_corner_bound, int island_count){
     static Island island_list[MAX_ISLANDS];
     for(int i = 0; i < island_count; i++){
@@ -26,6 +46,13 @@ Island* CreateAllIslands(Texture2D sand_tex, Model toppings, Vector2 corner_boun
     return island_list;
 }
 
+/**
+ * @brief Defines a Rock object.
+ * @param rock_tex The rock's texture
+ * @param corner_bound The corner of the game bounds, used in spawning (2D)
+ * @param opp_corner_bound The opposite corner of corner_bound, used in spawning (2D)
+ * @return The created Rock object
+ */
 Rock CreateRock(Texture2D rock_tex, Vector2 corner_bound, Vector2 opp_corner_bound){
     Rock rock_instance;
     rock_instance.height = GetRandomValue(MAX_ROCK_HEIGHT / 3, MAX_ROCK_HEIGHT);
@@ -62,6 +89,14 @@ Rock CreateRock(Texture2D rock_tex, Vector2 corner_bound, Vector2 opp_corner_bou
     return rock_instance;
 }
 
+/**
+ * @brief Defines an array of Rocks and returns it.
+ * @param rock_tex The rocks' texture
+ * @param corner_bound The corner of the game bounds, used in spawning (2D)
+ * @param opp_corner_bound The opposite corner of corner_bound, used in spawning (2D)
+ * @param rock_count The number of rocks to generate
+ * @return An array of Rocks created
+ */
 Rock* CreateAllRocks(Texture2D rock_tex, Vector2 corner_bound, Vector2 opp_corner_bound, int rock_count){
     static Rock rock_list[MAX_ROCKS];
     for(int i = 0; i < rock_count; i++){
@@ -70,6 +105,14 @@ Rock* CreateAllRocks(Texture2D rock_tex, Vector2 corner_bound, Vector2 opp_corne
     return rock_list;
 }
 
+/**
+ * @brief Creates an Obstacles object, in which are stored the data for any obstacle spawned in-game.
+ * @param island_list The array of Islands generated
+ * @param island_count The number of Islands generated
+ * @param rock_list The array of Rocks generated
+ * @param rock_count The number of Rocks generated
+ * @return The generated Obstacles instance
+ */
 Obstacles CreateObstactlesInstance(Island* island_list, int island_count, Rock* rock_list, int rock_count){
     Obstacles obj_inst;
     obj_inst.island_count = island_count;
@@ -79,6 +122,13 @@ Obstacles CreateObstactlesInstance(Island* island_list, int island_count, Rock* 
     return obj_inst;
 }
 
+/**
+ * @brief A procedure which creates the required parameters to generate an Obstacles object.
+ * @param sand_tex The islands' sand texture
+ * @param rock_tex The rocks' texture
+ * @param palm_tree The islands' palm tree model
+ * @return The final Obstacles instance
+ */
 Obstacles init_obs(Texture2D sand_tex, Texture2D rock_tex, Model palm_tree){
     const int island_count = GetRandomValue(MIN_ISLANDS, MAX_ISLANDS);
 	Island* island_list = CreateAllIslands(sand_tex, palm_tree, (Vector2){-375, -375}, (Vector2){375, 375}, island_count); //hardcoded bounds initially

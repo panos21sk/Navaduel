@@ -1,6 +1,4 @@
-#include "raylib.h"
-#include "raymath.h"
-#include "rlgl.h"
+/* Import the required game headers (first party libraries) */
 #include "game.h"
 #include "ship.h"
 #include "anim.h"
@@ -8,45 +6,66 @@
 #include "obstacles.h"
 #include "util.h"
 
+/* Import the required game headers (third party libraries) */
+#include "raylib.h"
+#include "raymath.h"
+#include "rlgl.h"
+
+/* Import some tool headers (third party libraries) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
 
-/* Game independant variables */
+/* Game independent variables initialization */
 int startup_counter = GAME_STARTUP_COUNTER;
 bool is_loaded = false;
 char* wintext = NULL;
 BoundingBox game_bounds;
-int allow_next_loop = 1; //controls loops, DO NOT DELETE IN ANY CASE (the program will hang up)
+int allow_next_loop = 1; //Controls loops in time decrement
 
-/* Turn-based gameplay declarations */
-Cannonball cannonball;
+/* Turn-based gameplay variables initialization */
+Cannonball cannonball; //A Cannonball object, used to initialize the cannonball per-turn
 int move_time = MOVEMENT_TIME;
 int fire_time = FIRE_TIME;
-Ship *current_turn;
-//Ship *next_turn;
-int dice_state = 1; //dice = choosing randomly a player for turn-based gameplay
+int dice_state = 1;
 int reset_state = 1;
 bool has_fired_once = false;
-void *DecreaseTime(void *arg);
-void *DecreaseCounter(void *arg);
+Ship *current_turn;
 
 /* Threads */
-pthread_t decrement_counter_thread;
-pthread_t decrement_move_time_thread;
-pthread_t decrement_fire_time_thread;
+pthread_t decrement_counter_thread; //Responsible to decrease the start-up counter (in all gamemodes)
+pthread_t decrement_move_time_thread; //Responsible to decrease the ship's move time (turn-based gamemode)
+pthread_t decrement_fire_time_thread; //Responsible to decrease the ship's fire time (turn-based gamemode)
 
-void FixShipPosition() { // potential fix for ship position offset
-    for(int i = 0; i<ship_data.player_count; i++) {
+/**
+ * @brief A bug-fixing procedure
+ * @details This procedure fixes a bug that occurred when trying to spawn each ship in a rendering screen. Occasionally,
+ * the ship's Y position coordinate would "displace" itself to a lower point (between 10-20 points off). Therefore, this
+ * procedure forces ships to ALWAYS spawn in the Y position coordinate which responds to their type. This bug is reproducible
+ * by removing the procedure call in DisplayRealTimeGameScreen and DisplayTurnBasedGameScreen procedures.
+ */
+void FixShipPosition() {
+    for (int i = 0; i < ship_data.player_count; i++) {
         const float check = ship_data.type_list[i] == 0 ? 17.0f : 8.0f;
-        if(ship_data.ship_list[i].position.y < check || ship_data.ship_list[i].position.y > check) ship_data.ship_list[i].position.y = check;
+        if (ship_data.ship_list[i].position.y < check || ship_data.ship_list[i].position.y > check)
+            ship_data.ship_list[i].position.y = check;
     }
 }
 
+/**
+ * @brief Displays the real-time gameplay screen and manages the game.
+ * @param ship_data Holds the spawned ships' data
+ * @param obstacles Holds the spawned islands and rocks' data
+ * @param game_models Holds the models to be rendered in-game
+ * @param game_sounds Holds the sounds to be played in-game
+ * @param game_textures Holds the textures to be drawn in-game
+ * @param anim_list Holds the animations to be played in-game
+ * @param water_textures Holds the water textures for the water animation to be played in-game
+ */
 void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstacles,
-        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures)
+                               Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures)
 {
     if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
 
@@ -146,6 +165,16 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
     }
 }
 
+/**
+ * @brief Displays the turn-based gameplay screen and manages the game.
+ * @param ship_data Holds the spawned ships' data
+ * @param obstacles Holds the spawned islands and rocks' data
+ * @param game_models Holds the models to be rendered in-game
+ * @param game_sounds Holds the sounds to be played in-game
+ * @param game_textures Holds the textures to be drawn in-game
+ * @param anim_list Holds the animations to be played in-game
+ * @param water_textures Holds the water textures for the water animation to be played in-game
+ */
 void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obstacles,
         Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures)
 {
@@ -299,8 +328,21 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
     }
 }
 
-void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, char real_or_turn,
-                    Model* game_models, Ship current_player_ship, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures){
+/**
+ * @brief Schedules the textures, models and animations to be displayed in any gamemode and updated to camera
+ * @param ship_data Holds the spawned ships' data
+ * @param camera The Camera object in which everything is displayed and updated
+ * @param screenShip The screen in which textures will be drawn
+ * @param obstacles Holds the spawned islands and rocks' data
+ * @param real_or_turn Determines if the gamemode is real-time or turn-based
+ * @param game_models Holds the models to be rendered in-game
+ * @param current_player_ship The screen ship's instance
+ * @param game_textures Holds the textures to be drawn in-game
+ * @param anim_list Holds the animations to be played in-game
+ * @param water_textures Holds the water textures for the water animation to be played in-game
+ */
+void DrawGameState(const Ship_data ship_data, const Camera camera, const RenderTexture screenShip, const Obstacles obstacles, const char real_or_turn,
+                    const Model* game_models, const Ship current_player_ship, Texture2D* game_textures, const Animation* anim_list, const Texture2D* water_textures){
     static int water_anim_index = 0;
     static int frame = 0;
     int delay_per_frame = 24;
@@ -396,7 +438,14 @@ void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip,
     EndTextureMode();
 }
 
-void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture screenShip){
+/**
+ * @brief Part of the DrawGameState procedure
+ * @details Specifically, draws UI-related elements, such as the FPS text, the power and reload bars
+ * @param current_player_ship The screen ship's instance
+ * @param game_textures Holds the textures to be drawn in-game
+ * @param screenShip The screen in which textures will be drawn
+ */
+void DrawUI(const Ship current_player_ship, const Texture2D* game_textures, const RenderTexture screenShip){
     if(settings.show_fps) DrawFPS(
             screenShip.texture.width - 100,
             gamemode == GAME_REAL ? 20 : 60);
@@ -437,7 +486,14 @@ void DrawUI(Ship current_player_ship, Texture2D* game_textures, RenderTexture sc
                         , reload_rec.height}, YELLOW);
 }
 
-void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, Animation* explosion_anim){
+/**
+ * @brief A procedure which checks for updates and updates the ships' state (attributes)
+ * @param ship_data Holds the spawned ships' data
+ * @param explosion The explosion sound to be played in-game
+ * @param obstacles Holds the spawned inslands and rocks' data
+ * @param explosion_anim The explosion animation to be played in-game
+ */
+void UpdateVariables(Ship_data ship_data, const Sound explosion, const Obstacles obstacles, Animation* explosion_anim){
     // rotate ships
     for(int i = 0; i < ship_data.player_count; i++){
         ship_data.ship_list[i].model.transform = MatrixRotateXYZ((Vector3){0, ship_data.ship_list[i].yaw, 0});
@@ -453,6 +509,12 @@ void UpdateVariables(Ship_data ship_data, Sound explosion, Obstacles obstacles, 
     }
 }
 
+/**
+ * @brief Decreases a time variable by 1 per second
+ * @details Used in threads for every gamemode
+ * @param arg The time variable to decrease
+ * @return Nothing, according to its usage in DisplayRealTimeGameScreen and DisplayTurnBasedGameScreen
+ */
 void *DecreaseTime(void *arg) {
     int *input = (int *)arg;
     (*input)--;
@@ -460,6 +522,12 @@ void *DecreaseTime(void *arg) {
     allow_next_loop = 1;
 }
 
+/**
+ * @brief Decreases a counter variable by 1 per second
+ * @details Used in threads for every gamemode
+ * @param arg The counter variable to decrease
+ * @return Nothing, according to its usage in DisplayRealTimeGameScreen and DisplayTurnBasedGameScreen
+ */
 void *DecreaseCounter(void *arg) {
     int *input = (int *)arg;
     sleep(1);

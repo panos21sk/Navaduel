@@ -1,29 +1,53 @@
-#include "ini.h"
-#include "raylib.h"
+/* Import the required game headers (first party libraries) */
 #include "screens.h"
 #include "util.h"
 #include "ship.h"
 #include "game.h"
-#include "cJSON.h"
+
+/* Import the required game headers (third party libraries) */
+#include "raylib.h"
 #include "raymath.h"
+
+/* Import the required tool headers (third party libraries) */
+#include "cJSON.h" //JSON parser
+#include "ini.h" //INI parser
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
+/* Variable initialization */
 int control_index = 0;
 setting settings;
 
+/**
+ * @brief Converts a string to bool (default to false)
+ * @param input The string to be converted
+ * @return The appropriate Boolean value
+ */
 bool strtobool(const char *input) {
     if(strcmp(input, "true") == 0) return true;
     return false;
 }
 
+/**
+ * @brief Converts a bool to string (default to "false")
+ * @param input The bool to be converted
+ * @return The appropriate string value
+ */
 char *booltostr(const bool input) {
     if(input) return "true";
     return "false";
 }
 
 //Reference: https://github.com/benhoyt/inih
+/**
+ * @brief The main INI parser, parsing config.ini and setting up the settings object (follows prototype structure, check reference).
+ * @param user The object to be set up
+ * @param section The current INI section
+ * @param name The current INI item's name
+ * @param value The item's value
+ * @return Returns 1 in success, 0 in failure
+ */
 static int parseHandler(void* user, const char* section, const char* name, const char* value) {
     setting* settings = user;
 
@@ -94,6 +118,10 @@ static int parseHandler(void* user, const char* section, const char* name, const
     return 1;
 }
 
+/**
+ * @brief Saves the current game state, parsing the data to a JSON file.
+ * @param obstacles The Obstacles instance, holding the essential information about each and every spawned obstacle in the game
+ */
 void SaveGameState(const Obstacles obstacles) {
     // Saving data
     cJSON *jsonfinal = cJSON_CreateObject();
@@ -158,6 +186,15 @@ void SaveGameState(const Obstacles obstacles) {
     cJSON_Delete(jsonfinal);
 }
 
+/**
+ * @brief Loads a game state from a JSON file, parsing its data and initializing the appropriate variables for smooth gameplay.
+ * @param obstacles A pointer to the Obstacles object
+ * @param ship_data A pointer to the array holding the ships' data
+ * @param sand_tex The islands' sand texture
+ * @param palm_tree The islands' palm tree model
+ * @param rock_tex The rocks' texture
+ * @return Returns 1 in success, 0 in failure
+ */
 int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex, Model palm_tree, Texture2D rock_tex) {
     //init
     FILE *stateFile = fopen("game.json", "r");
@@ -294,6 +331,16 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
     return 0;
 }
 
+/**
+ * @brief Adds a working button.
+ * @param rec The button's rectangle
+ * @param text The button's text
+ * @param mouse_point The current mouse location on-screen
+ * @param click The button click sound
+ * @param current_screen A pointer to the current screen variable
+ * @param scr The screen to switch to when the button is pressed
+ * @param sfx_en Declares if the sound effects are enabled or not (derived from settings)
+ */
 void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mouse_point, const Sound click, screen* current_screen, const screen scr, bool sfx_en){
     DrawRectangleRec(rec, BLACK);
     if (CheckCollisionPointRec(mouse_point, rec))
@@ -331,6 +378,14 @@ void AddScreenChangeBtn(const Rectangle rec, const char* text, const Vector2 mou
     DrawText(text, (int)rec.x + 5, (int)rec.y + 10, 20, WHITE);
 }
 
+/**
+ * @brief Adds a setting in the Options screen.
+ * @param setting A pointer to the setting
+ * @param setting_name The setting's name
+ * @param rec The setting's rectangle
+ * @param click The button click sound
+ * @param sfx_en Declares if the sound effects are enabled or not
+ */
 void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, const Sound click, const bool sfx_en){
     if (CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         if(sfx_en) PlaySound(click);
@@ -342,7 +397,14 @@ void AddSetting(bool* setting, const char* setting_name, const Rectangle rec, co
     DrawRectangle(WIDTH - 40, (int)rec.y + 3, 17, 17, *setting ? BLUE : RED);
 }
 
-void AddButtonSetting(int *key, const Rectangle rec, char *label_name, const int btn_id) {
+/**
+ * @brief Adds a button setting in the Controls screen.
+ * @param key The key to control
+ * @param rec The button's rectangle
+ * @param label_name The key's functionality label
+ * @param btn_id The button's id number
+ */
+void AddButtonSetting(int *key, const Rectangle rec, const char *label_name, const int btn_id) {
     static bool mouse_control[21] = {0};
     static char button_control[21][2] = {0};
     static int error[21] = {0};
@@ -433,6 +495,10 @@ void AddButtonSetting(int *key, const Rectangle rec, char *label_name, const int
     }
 }
 
+/**
+ * @brief Loads settings, parsed from config.ini.
+ * @param bgm_en Declares if the background game music is enabled or not
+ */
 void LoadSettings(bool* bgm_en) {
     movement_buttons init_btns = {0};
 
@@ -452,6 +518,10 @@ void LoadSettings(bool* bgm_en) {
     *bgm_en = settings.enable_bgm;
 }
 
+/**
+ * @brief Dynamically parses any change in settings during runtime to config.ini.
+ * @param settings The settings object
+ */
 void UpdateSettingsConfig(const setting settings) {
     const char *game = TextFormat("[Game] ; Game settings\nshow_reticle = %s\nfirst_or_third_person_cam = %s ; true = first person, false = third person\nfullscreen = %s\nenable_sfx = %s\nenable_bgm = %s\nshow_fps = %s\n\n",
         booltostr(settings.show_reticle), booltostr(settings.first_or_third_person_cam),
@@ -486,6 +556,12 @@ void UpdateSettingsConfig(const setting settings) {
     fclose(config);
 }
 
+/**
+ * @brief Creates a JSON array, storing essential information about a ship's state.
+ * @param ship The ship to be saved
+ * @param type The ship's type
+ * @return A pointer to a cJSON array object
+ */
 cJSON *create_ship_json(const Ship ship, const int type) {
     cJSON *array = cJSON_CreateArray();
     if(array == NULL) goto fail;
@@ -552,7 +628,12 @@ cJSON *create_ship_json(const Ship ship, const int type) {
     }
 }
 
-Color ReturnColorFromTeamInt(int col_int){
+/**
+ * @brief Returns the color of each team, depending on its id.
+ * @param col_int The team's id
+ * @return The appropriate Color code
+ */
+Color ReturnColorFromTeamInt(const int col_int){
     switch(col_int){
         case 0: return WHITE;
         case 1: return RED;
@@ -563,6 +644,9 @@ Color ReturnColorFromTeamInt(int col_int){
     }
 }
 
+/**
+ * @brief Toggles fullscreen and updates settings dynamically, when F11 is pressed anytime during runtime.
+ */
 void CheckFullscreenToggle() {
     if(IsKeyPressed(KEY_F11)) {
         settings.fullscreen = !settings.fullscreen;
