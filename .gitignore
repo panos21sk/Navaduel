@@ -1,4 +1,15 @@
 .*
 .*/
-bin/
-Makefile
+build/
+CMakeCache.txt
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+Navaduel
+spec.txt
+.idea
+cmake-build-debug
+resources/dev_assets
+game.json
+NavalDuel.exe
+build/build_files
