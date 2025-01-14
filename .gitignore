@@ -12,4 +12,3 @@ cmake-build-debug
 resources/dev_assets
 game.json
 NavalDuel.exe
-build/build_files

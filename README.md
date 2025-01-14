@@ -21,6 +21,7 @@ The game also features a real-time 1v1 game mode where you can face off against 
 * Windows
 * Linux
 
+
 ## Windows Users
 * Run `compile.bat` to compile the source code (one-time required)
 * Run `NavalDuel.exe` to run the game
@@ -87,6 +88,14 @@ Code is documented in the source files, where each function has a detailed expla
 * sound loading
 
 # <a id="license"></a>License
+
+### Third-Party Libraries
+This project uses the following libraries:
+- [cJSON](https://github.com/DaveGamble/cJSON) - MIT License
+- [inih](https://github.com/benhoyt/inih) - New BSD License
+
+See ./COPYING for details
+
 Copyright (C) 2024 Panagiotis Skoulis, Dimitrios Kakagiannis
 
     This program is free software: you can redistribute it and/or modify
@@ -101,3 +110,4 @@ Copyright (C) 2024 Panagiotis Skoulis, Dimitrios Kakagiannis
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
