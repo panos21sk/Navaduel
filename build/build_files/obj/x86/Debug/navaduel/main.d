@@ -41,7 +41,7 @@ obj/x86/Debug/navaduel/main.o: ../../src/main.c \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
  /usr/include/bits/iscanonical.h ../../src/ship.h ../../src/screens.h \
- ../../src/obstacles.h ../../src/anim.h ../../src/cJSON.h \
+ ../../src/obstacles.h ../../src/anim.h ../../include/cJSON.h \
  ../../src/util.h ../../src/game.h
 /usr/include/stdc-predef.h:
 /usr/include/setjmp.h:
@@ -120,6 +120,6 @@ obj/x86/Debug/navaduel/main.o: ../../src/main.c \
 ../../src/screens.h:
 ../../src/obstacles.h:
 ../../src/anim.h:
-../../src/cJSON.h:
+../../include/cJSON.h:
 ../../src/util.h:
 ../../src/game.h:

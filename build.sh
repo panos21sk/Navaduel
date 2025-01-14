@@ -9,8 +9,9 @@ echo "[Desktop Entry]
 Version=1.0
 Name=Navaduel
 Terminal=false
-Exec=/home/panos/Documents/pGames/navaduel/navaduel
-Icon=/home/panos/Documents/pGames/navaduel/resources/N.png
+Exec=$(pwd)/navaduel
+Path=$(pwd)/
+Icon=$(pwd)/resources/N.png
 Type=Application
 Categories=Game;" | tee $HOME/Desktop/Navaduel.desktop
 chmod +x $HOME/Desktop/Navaduel.desktop

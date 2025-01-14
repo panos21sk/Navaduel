@@ -19,10 +19,10 @@ obj/x86/Debug/navaduel/util.o: ../../src/util.c \
  ../../src/screens.h ../../src/obstacles.h ../../src/util.h \
  /usr/include/setjmp.h /usr/include/bits/setjmp.h \
  /usr/include/bits/types/struct___jmp_buf_tag.h \
- /usr/include/bits/types/__sigset_t.h ../../src/cJSON.h ../../src/ship.h \
- ../../src/anim.h ../../src/game.h ../../include/raymath.h \
- /usr/include/math.h /usr/include/bits/math-vector.h \
- /usr/include/bits/libm-simd-decl-stubs.h \
+ /usr/include/bits/types/__sigset_t.h ../../include/cJSON.h \
+ ../../src/ship.h ../../src/anim.h ../../src/game.h \
+ ../../include/raymath.h /usr/include/math.h \
+ /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
  /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
  /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
@@ -81,7 +81,7 @@ obj/x86/Debug/navaduel/util.o: ../../src/util.c \
 /usr/include/bits/setjmp.h:
 /usr/include/bits/types/struct___jmp_buf_tag.h:
 /usr/include/bits/types/__sigset_t.h:
-../../src/cJSON.h:
+../../include/cJSON.h:
 ../../src/ship.h:
 ../../src/anim.h:
 ../../src/game.h:

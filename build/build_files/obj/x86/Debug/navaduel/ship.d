@@ -3,7 +3,7 @@ obj/x86/Debug/navaduel/ship.o: ../../src/ship.c \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdbool.h \
  ../../src/screens.h ../../src/obstacles.h ../../src/anim.h \
- ../../src/cJSON.h \
+ ../../include/cJSON.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h \
  ../../src/game.h ../../include/raymath.h /usr/include/math.h \
  /usr/include/bits/libc-header-start.h /usr/include/features.h \
@@ -61,7 +61,7 @@ obj/x86/Debug/navaduel/ship.o: ../../src/ship.c \
 ../../src/screens.h:
 ../../src/obstacles.h:
 ../../src/anim.h:
-../../src/cJSON.h:
+../../include/cJSON.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stddef.h:
 ../../src/game.h:
 ../../include/raymath.h:
