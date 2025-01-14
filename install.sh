@@ -1,8 +1,9 @@
+#!/bin/bash
 echo "Note: This program must be ran from games root directory, ie the navaduel folder"
 if [ $(basename $(pwd)) == 'navaduel' ]; then
 echo "Building makefiles..."
 mkdir ./build
-cmake -DCMAKE_C_COMPILER=gcc -S ./ -B build
+cmake -B build
 echo "Done!"
 echo "Building executable file..."
 cmake --build build
@@ -31,4 +32,3 @@ echo "Finished!"
 else 
 echo "Install not ran from game's root directory"
 fi
-#./navaduel
