@@ -16,28 +16,40 @@ Navaduel is a game where you and up to 7 friends can all duke it out with pirate
 The game also features a real-time 1v1 game mode where you can face off against one friend in real-time combat instead of taking turns and analysing each other players movement.
 
 # <a id="build"></a>BUILDING
-
 ### Supported Platforms
 * Windows
 * Linux
+* MacOs
 
-## Windows Users
-* Run `compile.bat` to compile the source code (one-time required)
-* Run `NavalDuel.exe` to run the game
+The program will be built upon trying to install via the provided install script.\
+To manually build program, you need cmake. Refer to [cmake's official download page](https://cmake.org/download/) for instructions
+### Windows:
 
-## Linux Users
-* CD into the build folder
-* run `./premake5 gmake2`
-* CD back to the root
-* run `make`
-* you are good to go
-
-### Output files
-The built code will be in the bin dir
+### Linux/MacOs:
+To keep root dir clean, create a build directory: `mkdir build`\
+To generate makefiles using cmake, run: `cmake -B build`\
+To create binary, run: `cmake --build build`\
+Binary should be in ./build/Navaduel\
+If needed, make it executable with: `sudo chmod +x ./build/Navaduel`\
+Recommended to keep binary in the game's root directory
 
 # <a id="install"></a>INSTALLING
+### Windows:
+
+### Linux/MacOs:
+Clone repository: `git clone https://github.com/panos21sk/Navaduel`\
+cd into cloned repo: `cd Navaduel`\
+Ensure install.sh is executable: `sudo chmod +x ./install.sh`\
+Run install.sh: `./install.sh`\
+The install will build the binary, move it to the root folder, and also create a .desktop file in your $HOME/Desktop folder, as well as in your $HOME/.local/share/applications/ folder
 
 # <a id="exec"></a>EXECUTING
+### Windows:
+
+### Linux/MacOs:
+You can either: Open your terminal in the game's root folder and run the binary with: `./Navaduel`\
+Or you can also execute (or double-click) the Navaduel.desktop file on your desktop and $HOME/desktop folder\
+Or if using programs like rofi, you can search for it there since the .desktop is in your $HOME/.local/share/applications/ folder.
 
 # <a id="instructions"></a>INSTRUCTIONS
 ### MAIN MENU:
@@ -87,6 +99,14 @@ Code is documented in the source files, where each function has a detailed expla
 * sound loading
 
 # <a id="license"></a>License
+
+### Third-Party Libraries
+This project uses the following libraries:
+- [cJSON](https://github.com/DaveGamble/cJSON) - MIT License
+- [inih](https://github.com/benhoyt/inih) - New BSD License
+
+See ./COPYING for details
+
 Copyright (C) 2024 Panagiotis Skoulis, Dimitrios Kakagiannis
 
     This program is free software: you can redistribute it and/or modify
@@ -101,3 +121,4 @@ Copyright (C) 2024 Panagiotis Skoulis, Dimitrios Kakagiannis
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
