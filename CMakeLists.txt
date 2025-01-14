@@ -1,54 +1,45 @@
-cmake_minimum_required(VERSION 3.11) # FetchContent is available in 3.11+
-project(NavalDuel)
+#Copyright (c) 2013-2023 Ramon Santamaria (@raysan5)
+#
+#This software is provided "as-is", without any express or implied warranty. In no event 
+#will the authors be held liable for any damages arising from the use of this software.
+#
+#Permission is granted to anyone to use this software for any purpose, including commercial 
+#applications, and to alter it and redistribute it freely, subject to the following restrictions:
+#
+# 1. The origin of this software must not be misrepresented; you must not claim that you 
+#  wrote the original software. If you use this software in a product, an acknowledgment 
+#  in the product documentation would be appreciated but is not required.
+#
+#  2. Altered source versions must be plainly marked as such, and must not be misrepresented
+#  as being the original software.
+#
+#  3. This notice may not be removed or altered from any source distribution.
 
-# Generate compile_commands.json
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+cmake_minimum_required(VERSION 3.0)
+project(Navaduel C)
+set(CMAKE_C_STANDARD 99)
 
-# Dependencies
-set(RAYLIB_VERSION 5.5)
-find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
-if (NOT raylib_FOUND) # If there's none, fetch and build raylib
-    include(FetchContent)
-    FetchContent_Declare(
-            raylib
-            DOWNLOAD_EXTRACT_TIMESTAMP OFF
-            URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
-    )
-    FetchContent_GetProperties(raylib)
-    if (NOT raylib_POPULATED) # Have we downloaded raylib yet?
-        set(FETCHCONTENT_QUIET NO)
-        FetchContent_MakeAvailable(raylib)
-        set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
-    endif()
-endif()
+# Adding Raylib
+include(FetchContent)
+set(FETCHCONTENT_QUIET FALSE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
+set(BUILD_GAMES    OFF CACHE BOOL "" FORCE) # don't build the supplied example games
 
-# Our Project
-
-add_executable(${PROJECT_NAME} src/main.c
-        src/ship.h
-        src/ship.c
-        src/screens.c
-        src/screens.h
-        src/util.c
-        src/game.c
-        src/game.h
-        src/obstacles.c
-        src/obstacles.h
-        src/anim.c
+FetchContent_Declare(
+    raylib
+    GIT_REPOSITORY "https://github.com/raysan5/raylib.git"
+    GIT_TAG "master"
+    GIT_PROGRESS TRUE
 )
-#set(raylib_VERBOSE 1)
-target_link_libraries(${PROJECT_NAME} raylib)
-target_link_libraries(${PROJECT_NAME} ini)
+FetchContent_MakeAvailable(raylib)
 
-# Web Configurations
-if (${PLATFORM} STREQUAL "Web")
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html") # Tell Emscripten to build an example.html file.
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
-endif()
 
-# Checks if OSX and links appropriate frameworks (Only required on MacOS)
-if (APPLE)
-    target_link_libraries(${PROJECT_NAME} "-framework IOKit")
-    target_link_libraries(${PROJECT_NAME} "-framework Cocoa")
-    target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
-endif()
+# Adding our source files
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/src/*.c") # Define PROJECT_SOURCES as a list of all source files
+set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/include/") # Define PROJECT_INCLUDE to be the path to the include directory of the project
+
+# Declaring our executable
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
