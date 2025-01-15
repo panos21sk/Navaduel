@@ -24,11 +24,11 @@ extern int fire_time; //The current fire time for ships in turn-based games, def
 extern Ship *current_turn; //The current ship playing in turn-based games.
 extern bool is_loaded; //Declares if a game is loaded from a saved game state or not.
 extern bool has_fired_once; //Declares if the current ship playing in turn-based games has fired, during its firing session.
-extern BoundingBox game_bounds; //The map bounds.
+extern BoundingBox game_bounds; //The map's bounds.
 
 /* Function declarations */
-void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures);
-void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures);
+void DisplayRealTimeGameScreen(Ship_data ship_data, Obstacles obstacles, const Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, const Texture2D* water_textures);
+void DisplayTurnBasedGameScreen(Ship_data ship_data, Obstacles obstacles, const Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, const Texture2D* water_textures);
 void DrawGameState(Ship_data ship_data, Camera camera, RenderTexture screenShip, Obstacles obstacles, char real_or_turn,
                         const Model* game_models, Ship current_player_ship, Texture2D* game_textures, const Animation* anim_list, const Texture2D* water_textures);
 void DrawUI(Ship current_player_ship, const Texture2D* game_textures, RenderTexture screenShip);

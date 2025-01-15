@@ -8,16 +8,16 @@
 
 /* Animation structure */
 typedef struct {
-    Texture2D tex; //texture to be updated
-    Rectangle frameRec; //position of curr frame in spritesheet
-    int animFrames; //total no. of frames in animation
-    int currentAnimFrame; //current frame to display
-    int frameDelay; //delay between frames of animation
-    int frameCounter; //counter of total frames elapsed
+    Texture2D tex; //Texture to be updated
+    Rectangle frameRec; //Position of current frame in sprite sheet
+    int animFrames; //Total number of frames in animation
+    int currentAnimFrame; //Current frame to display
+    int frameDelay; //Delay between frames of animation
+    int frameCounter; //Counter of total frames elapsed
     
-    bool play; //control is animation should play
-    Vector3 pos; //control where to play animation in 3d space
-    Vector2 size; //the animation's size
+    bool play; //Control if animation should play
+    Vector3 pos; //Control where to play animation in 3d space
+    Vector2 size; //The animation's size
 } Animation;
 
 /* Function declarations */

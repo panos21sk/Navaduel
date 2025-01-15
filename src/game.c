@@ -44,7 +44,7 @@ pthread_t decrement_fire_time_thread; //Responsible to decrease the ship's fire 
  * @details This procedure fixes a bug that occurred when trying to spawn each ship in a rendering screen. Occasionally,
  * the ship's Y position coordinate would "displace" itself to a lower point (between 10-20 points off). Therefore, this
  * procedure forces ships to ALWAYS spawn in the Y position coordinate which responds to their type. This bug is reproducible
- * by removing the procedure call in DisplayRealTimeGameScreen and DisplayTurnBasedGameScreen procedures.
+ * by removing the call in DisplayRealTimeGameScreen and DisplayTurnBasedGameScreen procedures.
  */
 void FixShipPosition() {
     for (int i = 0; i < ship_data.player_count; i++) {
@@ -65,32 +65,31 @@ void FixShipPosition() {
  * @param water_textures Holds the water textures for the water animation to be played in-game
  */
 void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstacles,
-                               Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures)
+                               const Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, const Texture2D* water_textures)
 {
-    if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
+    if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU; //ESC pressed -> game menu
 
     FixShipPosition();
 
     HideCursor();
 
-    //! Checks collision with bounds (skybox)
+    /* Checks collision with bounds (skybox) */
     CheckCollisionWithBounds(&ship_data.ship_list[0], game_bounds);
     CheckCollisionWithBounds(&ship_data.ship_list[1], game_bounds);
 
-    //! Input Handling:
-    // Ship Movement
+    /* Checks ships for any change in movement */
     CheckMovement(&ship_data.ship_list[0], game_sounds[0]);
     CheckMovement(&ship_data.ship_list[1], game_sounds[0]);
 
-    // Update Camera manually
-    // TODO: Find a way to get the camera behind the ship regardless of where its facing
+    /* Update Camera manually */
     UpdateShipCamera(&ship_data.ship_list[0], settings.first_or_third_person_cam);
     UpdateShipCamera(&ship_data.ship_list[1], settings.first_or_third_person_cam);
 
+    /* Update the Cannonball manually */
     UpdateCannonballState(&ship_data.ship_list[0].cannonball, game_sounds[1], &anim_list[0]);
     UpdateCannonballState(&ship_data.ship_list[1].cannonball, game_sounds[1], &anim_list[0]);
 
-    const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height};
+    const Rectangle splitScreenRect = {0.0f, 0.0f, (float)screenShip1.texture.width, (float)-screenShip1.texture.height}; //Split screen rectangle
 
     UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
 
@@ -102,7 +101,7 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
 
     CheckWin(ship_data);
 
-    if (startup_counter > 0)
+    if (startup_counter > 0) //Starts the counter for a new game
     {
         ship_data.ship_list[0].can_fire = false;
         ship_data.ship_list[1].can_fire = false;
@@ -116,7 +115,7 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
 
             DrawText(TextFormat("%d", startup_counter), WIDTH / 4, HEIGHT / 2, 50, WHITE);
             DrawText(TextFormat("%d", startup_counter), 3 * WIDTH / 4, HEIGHT / 2, 50, WHITE);
-            while(allow_next_loop) { //decreasing startup count
+            while(allow_next_loop) { //Decreasing startup count
                 allow_next_loop = 0;
                 pthread_create(&decrement_counter_thread, NULL, DecreaseCounter, &startup_counter);
                 pthread_detach(decrement_counter_thread);
@@ -176,39 +175,39 @@ void DisplayRealTimeGameScreen(const Ship_data ship_data, const Obstacles obstac
  * @param water_textures Holds the water textures for the water animation to be played in-game
  */
 void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obstacles,
-        Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, Texture2D* water_textures)
+        const Model* game_models, const Sound* game_sounds, Texture2D* game_textures, Animation* anim_list, const Texture2D* water_textures)
 {
-    if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU;
+    if(IsKeyPressed(KEY_ESCAPE)) current_screen = GAME_MENU; //ESC pressed -> game menu
 
     FixShipPosition();
 
-    if(dice_state) {
+    if(dice_state) { //Declares the first player to play
         srand(time(0));
         const int number = rand() % ship_data.player_count;
         current_turn = &ship_data.ship_list[number];
-        dice_state = 0; //thrown
+        dice_state = 0; //Thrown
     }
 
-    if(reset_state) { //on 1, resets move_time and fire_time to default
+    if(reset_state) {
         move_time = MOVEMENT_TIME;
         fire_time = FIRE_TIME;
-        startup_counter = GAME_STARTUP_COUNTER; //may remove
+        startup_counter = GAME_STARTUP_COUNTER;
         has_fired_once = false;
         current_turn->accel = current_turn->default_accel;
-        reset_state = 0; //reset
+        reset_state = 0; //Reset
     }
 
     HideCursor();
 
     CheckCollisionWithBounds(current_turn, game_bounds);
 
-    //! Input Handling:
-    // Ship Movement
+    /* Checks ships for any change in movement */
     CheckMovement(current_turn, game_sounds[0]);
 
-    // Update Camera manually
+    /* Update Camera manually */
     UpdateShipCamera(current_turn, settings.first_or_third_person_cam);
 
+    /* Update the Cannonball manually */
     UpdateCannonballState(&current_turn->cannonball, game_sounds[1], &anim_list[0]);
 
     UpdateVariables(ship_data, game_sounds[2], obstacles, &anim_list[1]);
@@ -222,8 +221,8 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
 
     const Rectangle screenRec = {0.0f, 0.0f, (float)screenCurrentShip.texture.width, (float)-screenCurrentShip.texture.height};
 
-    //Game start
-    if (startup_counter > 0)
+
+    if (startup_counter > 0) //Game or new turn start
     {
         BeginDrawing();
         {
@@ -286,34 +285,33 @@ void DisplayTurnBasedGameScreen(const Ship_data ship_data, const Obstacles obsta
         }
         EndDrawing();
 
-        if(has_fired_once) current_turn->can_fire = false;
+        if(has_fired_once) current_turn->can_fire = false; //Prevents the ships to shoot more than once
 
-        while(move_time > 0 && allow_next_loop) {
+        while(move_time > 0 && allow_next_loop) { //Moving stage
             current_turn->can_fire = false;
             current_turn->cannonball.position.y = 1100;
             current_turn->cannonball.velocity.y = 0;
-            current_turn->cannonball.accel.y = 0; //reset cannonball y to ensure can_fire gets reset
+            current_turn->cannonball.accel.y = 0; //Reset cannonball y to ensure can_fire resets
             allow_next_loop = 0;
+            /* Decrease the move time through a thread */
             pthread_create(&decrement_move_time_thread, NULL, DecreaseTime, &move_time);
             pthread_detach(decrement_move_time_thread);
         }
-        if(move_time == 0) {
+        if(move_time == 0) { //End of moving stage
             current_turn->can_move = false;
             if(!has_fired_once) current_turn->can_fire = true;
         }
 
-        if(current_turn->cannonball.position.y < 0) {
-            has_fired_once = true;
-        }
-        while(move_time == 0 && fire_time > 0 && allow_next_loop) {
+        if(current_turn->cannonball.position.y < 0) has_fired_once = true; //Checks if the current ship has shot
+        while(move_time == 0 && fire_time > 0 && allow_next_loop) { //Firing stage
             allow_next_loop = 0;
             pthread_create(&decrement_fire_time_thread, NULL, DecreaseTime, &fire_time);
             pthread_detach(decrement_fire_time_thread);
         }
-        if(fire_time == 0) {
+        if(fire_time == 0) { //End of firing time
             current_turn->can_fire = false;
         }
-        if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) {
+        if(current_turn->cannonball.has_splashed && move_time == 0 && fire_time == 0) { //Changes the turn
             //find next available ship
             current_turn = &ship_data.ship_list[FindNextAliveShipIndex(ship_data, current_turn->id + 1)];
 
@@ -450,7 +448,7 @@ void DrawUI(const Ship current_player_ship, const Texture2D* game_textures, cons
             screenShip.texture.width - 100,
             gamemode == GAME_REAL ? 20 : 60);
 
-        //for i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
+        //For i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
         for(int i = 0; i < current_player_ship.initial_health; i++){
             if(i < current_player_ship.current_health){
                 DrawTexture(game_textures[1], 5 + 55*i, 5, WHITE); //each heart is anchored 55px from the prev, and img width is 48px.
@@ -487,10 +485,10 @@ void DrawUI(const Ship current_player_ship, const Texture2D* game_textures, cons
 }
 
 /**
- * @brief A procedure which checks for updates and updates the ships' state (attributes)
+ * @brief A procedure which checks for changes and updates the ships' state (attributes)
  * @param ship_data Holds the spawned ships' data
  * @param explosion The explosion sound to be played in-game
- * @param obstacles Holds the spawned inslands and rocks' data
+ * @param obstacles Holds the spawned islands and rocks' data
  * @param explosion_anim The explosion animation to be played in-game
  */
 void UpdateVariables(Ship_data ship_data, const Sound explosion, const Obstacles obstacles, Animation* explosion_anim){
@@ -498,13 +496,13 @@ void UpdateVariables(Ship_data ship_data, const Sound explosion, const Obstacles
     for(int i = 0; i < ship_data.player_count; i++){
         ship_data.ship_list[i].model.transform = MatrixRotateXYZ((Vector3){0, ship_data.ship_list[i].yaw, 0});
         ship_data.ship_list[i].cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship_data.ship_list[i].yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
-        // rotate cannon
+        /* Rotate cannon */
         // Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
         // Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
         Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship_data.ship_list[i].cannon->rotation.x), MatrixRotateY(ship_data.ship_list[i].yaw - 3.1415f / 2 + ship_data.ship_list[i].cannon->rotation.y));
         ship_data.ship_list[i].cannon->rail_model.transform = cannon_transform1;
         for(int j = 0; j < ship_data.player_count; j++){
-            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], explosion, obstacles, &ship_data, explosion_anim);
+            if(i!=j) CheckHit(&ship_data.ship_list[i], &ship_data.ship_list[j], explosion, obstacles, explosion_anim);
         }
     }
 }

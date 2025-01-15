@@ -23,7 +23,7 @@ Animation CreateAnim(const char* sprite_sheet_path, const int animFrames, const 
     anim_inst.frameCounter = 0;
     anim_inst.frameRec = (Rectangle){0, 0, anim_inst.tex.width/anim_inst.animFrames, anim_inst.tex.height};
 
-    //filling so data isnt junk
+    //Filling so data isn't junk
     anim_inst.play = false;
     anim_inst.pos = (Vector3){0,0,0};
     anim_inst.size = size;
