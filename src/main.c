@@ -1,42 +1,47 @@
-#include <setjmp.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
-#include "raylib.h"
-#include "raymath.h"
+/* Import the required game headers (first party libraries) */
 #include "ship.h"
 #include "screens.h"
 #include "util.h"
 #include "game.h"
 #include "anim.h"
 
+/* Import the required game headers (third party libraries) */
+#include "raylib.h"
+#include "raymath.h"
+
+/* Import the required tool headers (third party libraries) */
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+/* Defines the SkyBox's Bounding Box scaling factor */
 #define BOUNDS_SCALAR 650.0f
 
 int main() {
-    //SetTraceLogLevel(6); //7 - nothing, 6 - fatal
-	//! Main window initialization
+	/* Disable logs (except for fatal errors - code 6) for lag reduction */
+    SetTraceLogLevel(6);
+
+	/* Main window initialization */
 	InitMainWindow();
 	Image window_img = LoadImage("resources/N.png");
 	SetWindowIcon(window_img);
 
-	//! Load game settings
+	/* Load game settings */
 	bool bgm_en;
 	bgm_en = true;
 	if(access("config.ini", F_OK) == 0){
 		LoadSettings(&bgm_en);
 	}
-	if(settings.fullscreen)ToggleFullscreen();
-	//! Initalize Audio and start bgm
+	if(settings.fullscreen) ToggleFullscreen();
+
+	/* Initialize audio and start the background game music (bgm) */
 	InitAudioDevice();
-	//start bgm
     //Music from #Uppbeat (free for Creators!):
     //https://uppbeat.io/t/studiokolomna/corsairs
     Music bgm = LoadMusicStream("resources/sound/music/corsairs-studiokolomna-main-version-23542-02-33.mp3");
 	PlayMusicStream(bgm);
-    //pause with StopMusicStream(bgm), resume with ResumeMusicStream(bgm);
 
-	//! Iniatializing Models for rendering
+	/* Initialize models for rendering */
 	Texture2D water_tex[6] = {LoadTexture("resources/sprites/water_anim/image_grid_24x24_01.png"), 
 	LoadTexture("resources/sprites/water_anim/image_grid_24x24_02.png"),
 	LoadTexture("resources/sprites/water_anim/image_grid_24x24_03.png"),
@@ -53,7 +58,7 @@ int main() {
 	Mesh skybox_cube = GenMeshCube(1, 1, 1);
 	Model skybox_model = LoadModelFromMesh(skybox_cube);
 	skybox_model.materials[0] = skybox_material;
-
+	//ships and cannons
 	Model ship1 = LoadModel("resources/models/ship1edited.glb");
 	Model ship2 = LoadModel("resources/models/ship2edited.glb");
 	Model cannon_stand = LoadModel("resources/models/cannon_stand.glb");
@@ -76,6 +81,7 @@ int main() {
 	Model palm_tree = LoadModel("resources/models/palm_tree.glb");
 	Texture2D rock_tex = LoadTexture("resources/sprites/rock.png");
 
+	/* Initialize runtime game settings */
 	bool gen_obs = false;
 	Obstacles obstacles;
 	int player_count = 2;
@@ -86,29 +92,32 @@ int main() {
 	char real_or_turn;
 	char* real_or_turn_addr = &real_or_turn;
 
+	/* Sounds */
 	Sound game_sounds[3] = {fire, splash, explosion};
 	Texture2D game_textures[2] = {heart_empty, heart_full};
 	Model game_models[2] = {water_model, skybox_model};
 
+	/* Animations */
 	Animation explosion_anim = CreateAnim("resources/sprites/explosion_sheet.png", 8, 12, (Vector2){64, 64});
 	Animation splash_anim = CreateAnim("resources/sprites/splash_sheet.png", 15, 8, (Vector2){64, 64});
 	Animation anim_list[2] = {splash_anim, explosion_anim};
 
-	//Recalculate SkyBox bounds
+	/* Recalculate SkyBox's Bounding Box bounds (game bounds) */
 	{
 		game_bounds = GetMeshBoundingBox(skybox_model.meshes[0]);
 		game_bounds.min = Vector3Scale(game_bounds.min, BOUNDS_SCALAR);
 		game_bounds.max = Vector3Scale(game_bounds.max, BOUNDS_SCALAR);
 	}
 
-	//! Game loop
+	/* ! Game loop ! */
 	while (!exit_window)
 	{
-		if(WindowShouldClose()) exit_window = true;
+		if(WindowShouldClose()) exit_window = true; // Exit
 		if(bgm_en) UpdateMusicStream(bgm);
-		//rendering begin
+		CheckFullscreenToggle();
+		/* Begin screen rendering */
 		switch (current_screen) {
-			case MAIN:
+			case MAIN: // Main screen
 			{
 				int default_teams[8] = {0};
 				memcpy(team_list, default_teams, sizeof(team_list));
@@ -119,23 +128,25 @@ int main() {
 				DisplayMainScreen(click, &obstacles, sand_tex, palm_tree, rock_tex); //Displays the game's MAIN screen
 				break;
 			}
-			case GAMEMODES:
+			case GAMEMODES: // Gamemode selection screen
 			{
 				DisplayGamemodesScreen(click, player_count_addr, real_or_turn_addr);
 				game_ended = false;
 				break;
 			}
-			case SHIP_SELECT:
+			case SHIP_SELECT: // Ship selection screen
 			{
 				gen_obs = true;
 				gen_ships = true;
 				DisplayShipSelectScreen(click, &type_list[0], player_count, real_or_turn);
 				break;
 			}
-			case TEAM_SELECT:
+			case TEAM_SELECT: // Team selection screen
+			{
 				DisplayTeamSelectScreen(click, &team_list[0], player_count, real_or_turn);
 				break;
-			case GAME_REAL:
+			}
+			case GAME_REAL: // Real-time gameplay screen
 			{
 				if(gen_obs){
 					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
@@ -149,7 +160,7 @@ int main() {
 				DisplayRealTimeGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list, water_tex); //Starts the real-time game
 				break;
 			}
-			case GAME_TURN:
+			case GAME_TURN: // Turn-based gameplay screen
 			{
 				if(gen_obs){
 					obstacles = init_obs(sand_tex, rock_tex, palm_tree);
@@ -163,12 +174,12 @@ int main() {
 				DisplayTurnBasedGameScreen(ship_data, obstacles, game_models, game_sounds, game_textures, anim_list, water_tex); //Starts the turn-based game
 				break;
 			}
-			case GAME_MENU:
+			case GAME_MENU: // Game menu screen (toggled with ESC)
 			{
 				DisplayGameMenuScreen(click, obstacles);
 				break;
 			}
-			case GAME_OVER:
+			case GAME_OVER: // Game over screen
 			{	
 				int default_teams[8] = {0};
 				memcpy(team_list, default_teams, sizeof(team_list));
@@ -180,17 +191,17 @@ int main() {
 				DisplayGameOverScreen(wintext, click); //Ends the game (game over)
 				break;
 			}
-			case OPTIONS:
+			case OPTIONS: // Options (settings) screen
 			{	
-				DisplayOptionsScreen(click, &bgm_en); //Settings
+				DisplayOptionsScreen(click, &bgm_en);
 				break;
 			}
-			case CONTROLS:
+			case CONTROLS: // Control settings screen
 			{
 				DisplayControlsScreen(click);
 				break;
 			}
-			case ABOUT:
+			case ABOUT: // About screen
 			{
 				DisplayAboutScreen(click); //Credits and gameplay
 				break;
@@ -199,6 +210,7 @@ int main() {
 				break;
 		}
 	}
+	/* Unload models and prepare to kill the program */
 	UnloadModel(water_model);
 	UnloadModel(ship1);
 	UnloadModel(ship2);

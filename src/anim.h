@@ -1,26 +1,27 @@
+/* Helping source: https://www.raylib.com/examples/textures/loader.html?name=textures_gif_player */
+
 #ifndef ANIM_H
 #define ANIM_H
 
-#include "raylib.h" // Include raylib for Vector3 and Texture2D
+/* Import the required game headers (first party libraries) */
+#include "raylib.h"
 
-//https://www.raylib.com/examples/textures/loader.html?name=textures_gif_player
-
-// Animation structure
+/* Animation structure */
 typedef struct {
-    Texture2D tex; //texture to be updated
-    Rectangle frameRec; //position of curr frame in spritesheet
-    int animFrames; //total no. of frames in animation
-    int currentAnimFrame; //current frame to display
-    int frameDelay; //delay between frames of animation
-    int frameCounter; //counter of total frames elapsed
+    Texture2D tex; //Texture to be updated
+    Rectangle frameRec; //Position of current frame in sprite sheet
+    int animFrames; //Total number of frames in animation
+    int currentAnimFrame; //Current frame to display
+    int frameDelay; //Delay between frames of animation
+    int frameCounter; //Counter of total frames elapsed
     
-    bool play; //control is animation should play
-    Vector3 pos; //control where to play animation in 3d space
-    Vector2 size;
+    bool play; //Control if animation should play
+    Vector3 pos; //Control where to play animation in 3d space
+    Vector2 size; //The animation's size
 } Animation;
 
-// Functions
-Animation CreateAnim(char* sprite_sheet_path, int animFrames, int frameDelay, Vector2 size);
+/* Function declarations */
+Animation CreateAnim(const char* sprite_sheet_path, int animFrames, int frameDelay, Vector2 size);
 void UpdateAnim(Animation* anim);
 void StartAnim(Animation* anim, Vector3 pos);
 void DrawAnim(Animation anim, Camera cam);
