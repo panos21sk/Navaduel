@@ -146,10 +146,6 @@ Ship *SetupShips(int player_count, const int *type_list, const int *team_list, O
             // check if ship positions overlap
             for (int i3 = 0; i3 < i; i3++)
             {
-                /*if(CheckCollisionSpheres(ship_list[i3].position, ship_list[i3].sphere_hitbox_radius, ship_inst.position, ship_inst.sphere_hitbox_radius)){
-                    ship_inst.is_spawn_valid = false;
-                    printf("\n\ncrashed\n\n");
-                }*/
                 if ((ship_list[i].position.x <= ship_inst.position.x + ship_inst.sphere_hitbox_radius / 2 && ship_inst.position.x >= ship_inst.position.x - ship_inst.sphere_hitbox_radius / 2) || (ship_list[i].position.z <= ship_inst.position.z + ship_inst.sphere_hitbox_radius / 2 && ship_inst.position.z >= ship_inst.position.z - ship_inst.sphere_hitbox_radius / 2))
                 {
                     ship_inst.is_spawn_valid = false;

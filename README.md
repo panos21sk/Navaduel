@@ -99,7 +99,8 @@ Kill the game instance and exit back to the desktop
 ### ABOUT:
 The about button takes you to a screen where you can view a brief description about the game and view information about the game's authors, as well as being able to go to their github accounts in your browser of choice.
 # <a id="docs"></a>DOCUMENTATION
-Code is documented in the source files, where each function has a detailed explanation of its usage and its signature. 
+Code is documented in the source files, where each function has a detailed explanation of its usage and its signature.\
+docs.pdf is also provided as a pdf containing all function signatures, along with descriptions for their functionality within the program, as well as information about their parameters, and return values. The contents were not included in the readme to save space and increase readability.
 # <a id="refs"></a>REFERENCES
 * https://www.raylib.com/cheatsheet/cheatsheet.html
 * https://www.raylib.com/examples.html

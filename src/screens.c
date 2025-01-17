@@ -478,19 +478,6 @@ void DisplayOptionsScreen(const Sound click, bool *bgm_en)
     // detect toggle in fullscreen boolean
     if (settings.fullscreen != tmp)
     {
-        // TODO: If time allows it, find a way to remove dependency from WIDTH, HEIGHT preprocessor definitions, to fullscreen into our monitors res instead
-        // TODO: of what is already defined
-        //  int display = GetCurrentMonitor();
-        //  if (IsWindowFullscreen())
-        //      {
-        //          // if we are full screen, then go back to the windowed size
-        //          SetWindowSize(WIDTH, HEIGHT);
-        //      }
-        //      else
-        //      {
-        //          // if we are not full screen, set the window size to match the monitor we are on
-        //          SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
-        //      }
         ToggleFullscreen();
     }
 }
@@ -508,7 +495,6 @@ void DisplayAboutScreen(const Sound click)
 
         DrawText("Gameplay", 10, 10, 100, GREEN);
         DrawText("Navaduel is a game where you and up to 7 friends can all duke it out\nwith pirate ships trying to sink each other in the open sea full of\nrandomly generated obstacles by precisely aiming your cannons\nat each others current positions until only one team is left.\nThe game also features a real-time 1v1 game mode where you can face off\nagainst one friend in real-time combat instead of taking turns\nand analysing each other players movement", 10, 120, 20, BLACK);
-        // TODO: Add details about gameplay
         DrawText("Credits", WIDTH / 2 + 10, 10, 100, GREEN);
         DrawRectangleRec((Rectangle){(float)WIDTH / 2 - 5, 0, 5, HEIGHT}, BLACK);
 

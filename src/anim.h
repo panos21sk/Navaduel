@@ -1,4 +1,4 @@
-/* Helping source: https://www.raylib.com/examples/textures/loader.html?name=textures_gif_player */
+/* Helping source: https://www.raylib.com/examples/textures/loader.html?name=textures_sprite_anim*/
 
 #ifndef ANIM_H
 #define ANIM_H

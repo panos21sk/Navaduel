@@ -16,13 +16,14 @@
 
 /* setting structure */
 typedef struct {
-    bool show_reticle;
-    bool first_or_third_person_cam;
-    bool fullscreen;
-    bool enable_sfx;
-    bool enable_bgm;
-    bool show_fps;
-    movement_buttons player_one_buttons;
+    bool show_reticle; //enable sightline and final location of shot 
+    bool first_or_third_person_cam; //enables first person camera as opposed to third person
+    bool fullscreen; //toggles fullscreen
+    bool enable_sfx; //enables sound effects
+    bool enable_bgm; //enables background music
+    bool show_fps; //displays fps in game
+    //button settings for player 1, player 2, and >2 players saved in config.ini.
+    movement_buttons player_one_buttons; 
     movement_buttons player_two_buttons;
     movement_buttons player_indep_buttons; //independent
 } setting;
