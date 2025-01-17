@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Note: This program must be ran from games root directory, ie the navaduel folder"
-if [ $(basename $(pwd)) == 'navaduel' ]; then
+if [ $(basename $(pwd)) == 'Navaduel' ]; then
 echo "Building makefiles..."
 mkdir ./build
 cmake -B build

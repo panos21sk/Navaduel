@@ -1,20 +1,3 @@
-#Copyright (c) 2013-2023 Ramon Santamaria (@raysan5)
-#
-#This software is provided "as-is", without any express or implied warranty. In no event 
-#will the authors be held liable for any damages arising from the use of this software.
-#
-#Permission is granted to anyone to use this software for any purpose, including commercial 
-#applications, and to alter it and redistribute it freely, subject to the following restrictions:
-#
-# 1. The origin of this software must not be misrepresented; you must not claim that you 
-#  wrote the original software. If you use this software in a product, an acknowledgment 
-#  in the product documentation would be appreciated but is not required.
-#
-#  2. Altered source versions must be plainly marked as such, and must not be misrepresented
-#  as being the original software.
-#
-#  3. This notice may not be removed or altered from any source distribution.
-
 cmake_minimum_required(VERSION 3.0)
 project(Navaduel C)
 set(CMAKE_C_STANDARD 99)
@@ -29,6 +12,8 @@ FetchContent_Declare(
     raylib
     GIT_REPOSITORY "https://github.com/raysan5/raylib.git"
     GIT_TAG "master"
+    GIT_PROGRESS TRUE         # Show progress during the download
+    GIT_SHALLOW TRUE          # Only fetch the latest commit for faster cloning
 )
 FetchContent_MakeAvailable(raylib)
 
@@ -42,6 +27,10 @@ FetchContent_MakeAvailable(inih)
 
 # Disable uninstall target for cJSON to avoid conflicts
 set(ENABLE_CJSON_UNINSTALL OFF CACHE BOOL "" FORCE)
+# Disable warnings as errors
+set(ENABLE_CJSON_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
+# Disable cJSON tests
+set(ENABLE_CJSON_TEST OFF CACHE BOOL "" FORCE)
 # Add cJSON
 FetchContent_Declare(
     cJSON
@@ -58,4 +47,17 @@ set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/include/") # Define PROJECT_INCLU
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
-target_link_libraries(${PROJECT_NAME} PRIVATE raylib inih cjson)
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib cjson)
+
+# Add inih headers and source file directly to the executable, since inih is a smaill single file lib
+target_include_directories(${PROJECT_NAME} PRIVATE ${inih_SOURCE_DIR})
+target_sources(${PROJECT_NAME} PRIVATE ${inih_SOURCE_DIR}/ini.c)
+
+# Suppress warnings for cJSON 
+if(TARGET cjson)
+    target_compile_options(cjson PRIVATE
+        $<$<C_COMPILER_ID:GNU>:-w>               # Disable all warnings for GCC/MinGW
+        $<$<C_COMPILER_ID:MSVC>:/w>              # Disable all warnings for MSVC
+        $<$<C_COMPILER_ID:GNU>:-Wno-float-conversion>  # Specifically disable float-conversion warning
+    )
+endif()

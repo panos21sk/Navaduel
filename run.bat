@@ -1,2 +1,0 @@
-gcc src/obstacles.c src/anim.c src/game.c src/util.c src/screens.c src/ship.c src/main.c -o NavalDuel.exe -O1 -Wall -std=c17 -Wno-missing-braces -I include/ -L lib/ -lcJson -lini -lraylib -lopengl32 -lgdi32 -lwinmm
-NavalDuel.exe
