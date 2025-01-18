@@ -498,7 +498,7 @@ void UpdateVariables(Ship_data ship_data, const Sound explosion, const Obstacles
         ship_data.ship_list[i].cannon->stand_model.transform = MatrixRotateXYZ((Vector3){0, ship_data.ship_list[i].yaw - 3.1415f / 2, 0}); // adjust for model being offset rotationally by 90deg
         /* Rotate cannon */
         // Rotating around Z instead of X to account for cannon 90deg rotation offset on display, which shuffles the x and z axes. Try setting pitch variable to rotation.z and try old approach again if time allows it
-        // Combine transform or rotation around y axis first and then around the cannons new x axis, "I think"
+        // Combine transform or rotation around y axis first and then around the cannons new x axis
         Matrix cannon_transform1 = MatrixMultiply(MatrixRotateZ(-ship_data.ship_list[i].cannon->rotation.x), MatrixRotateY(ship_data.ship_list[i].yaw - 3.1415f / 2 + ship_data.ship_list[i].cannon->rotation.y));
         ship_data.ship_list[i].cannon->rail_model.transform = cannon_transform1;
         for(int j = 0; j < ship_data.player_count; j++){

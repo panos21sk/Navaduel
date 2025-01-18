@@ -1,3 +1,21 @@
+//LICENSE
+/*
+Copyright (C) 2024 Panagiotis Skoulis, Dimitrios Kakagiannis
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 /* Import the required game headers (first party libraries) */
 #include "ship.h"
 #include "screens.h"
@@ -17,12 +35,17 @@
 /* Defines the SkyBox's Bounding Box scaling factor */
 #define BOUNDS_SCALAR 650.0f
 
+
+//Main contains initialization of many variables passed down to other functions, the basic game loop, 
+//and program de-initialization before process termination (freeing up resources).
 int main() {
 	/* Disable logs (except for fatal errors - code 6) for lag reduction */
     SetTraceLogLevel(6);
 
 	/* Main window initialization */
 	InitMainWindow();
+	Image window_img = LoadImage("resources/N.png");
+	SetWindowIcon(window_img);
 
 	/* Load game settings */
 	bool bgm_en;
@@ -236,6 +259,6 @@ int main() {
 	}
 	CloseAudioDevice();
 	DeinitMainWindow(); //Main window de-initialization
-	// TODO: add everything to 1 function
+	UnloadImage(window_img);
 	return 0;
 }
