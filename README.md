@@ -31,7 +31,7 @@ Executable should be in ./build/Navaduel\
 To ensure default settings are applied and work correctly, along with saves and other resources, always keep the executable in the root directory.\
 You can do that in the command line with:\ 
 `cd build`\
-'move "Navaduel.exe" ".."`
+`move "Navaduel.exe" ".."`
 
 ### Linux/MacOs:
 To keep root dir clean, create a build directory: `mkdir build`\
