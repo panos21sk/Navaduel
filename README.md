@@ -47,7 +47,8 @@ Clone repository: `git clone https://github.com/panos21sk/Navaduel`\
 cd into cloned repo: `cd Navaduel`\
 To install the game, if you have MinGW build tools installed and on your systems path, simply double click install.bat.\
 Else you might have to modify `cmake -S . -B build -G "MinGW Makefiles"` and change MinGW Makefiles into the build system youre using (Refer to CMake Docs)\
-If the install script ran successfully, a batch script named run_navaduel.bat should have appeared on your desktop. 
+If the install script ran successfully, a batch script named run_navaduel.bat should have appeared on your desktop. \
+Note that if you install with install.bat there may be a small bug with the rendering. Run run.bat to remedy this.
 
 ### Linux/MacOs:
 Clone repository: `git clone https://github.com/panos21sk/Navaduel`\
