@@ -13,9 +13,9 @@
 #endif //bool
 
 /* Defines the width of the Main window */
-#define WIDTH 1280
+#define WIDTH 1920
 /* Defines the height of the Main window */
-#define HEIGHT 720 //setting to 700 cuz shit doesnt fit to my screen T-T
+#define HEIGHT 1080 //setting to 700 cuz shit doesnt fit to my screen T-T
 /* Defines the start-up counter time, in seconds */
 #define GAME_STARTUP_COUNTER 3
 
