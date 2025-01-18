@@ -61,3 +61,8 @@ if(TARGET cjson)
         $<$<C_COMPILER_ID:GNU>:-Wno-float-conversion>  # Specifically disable float-conversion warning
     )
 endif()
+
+target_compile_definitions(Navaduel PRIVATE 
+    PLATFORM_DESKTOP 
+    GRAPHICS_API_OPENGL_11
+)
