@@ -35,7 +35,6 @@ Copyright (C) 2024 Panagiotis Skoulis, Dimitrios Kakagiannis
 /* Defines the SkyBox's Bounding Box scaling factor */
 #define BOUNDS_SCALAR 650.0f
 
-
 //Main contains initialization of many variables passed down to other functions, the basic game loop, 
 //and program de-initialization before process termination (freeing up resources).
 int main() {

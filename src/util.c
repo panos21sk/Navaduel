@@ -653,4 +653,9 @@ void CheckFullscreenToggle() {
         UpdateSettingsConfig(settings);
         ToggleFullscreen();
     }
+    if(settings.fullscreen) {
+        #ifndef WIDTH
+        #define WIDTH
+        #endif //WIDTH
+    }
 }

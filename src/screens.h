@@ -12,10 +12,9 @@
 #include <stdbool.h>
 #endif //bool
 
-/* Defines the width of the Main window */
-#define WIDTH 1920
-/* Defines the height of the Main window */
-#define HEIGHT 1080 //setting to 700 cuz shit doesnt fit to my screen T-T
+#define WIDTH 1920.
+#define HEIGHT 700.
+
 /* Defines the start-up counter time, in seconds */
 #define GAME_STARTUP_COUNTER 3
 

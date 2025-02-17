@@ -1,5 +1,6 @@
 # NAVADUEL
-A 3D 2 Player Game made using Raylib
+A 3D 2 Player Game made using Raylib.\
+This project (v1.0) served as a University project for the Structured Programming (004) University course of AUTh (Aristotle University of Thessaloniki), but we decided to take it to the next level.
 
 ## Chapters:
 * [DESCRIPTION](#desc)

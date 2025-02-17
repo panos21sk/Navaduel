@@ -448,10 +448,10 @@ void DrawUI(const Ship current_player_ship, const Texture2D* game_textures, cons
             screenShip.texture.width - 100,
             gamemode == GAME_REAL ? 20 : 60);
 
-        //For i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px width), for i between 0, inital - current health, render black hearts
+        //For i between 0, ship.current_health exclusive, render full hearts spaces 55px apart (48px WIDTH), for i between 0, inital - current health, render black hearts
         for(int i = 0; i < current_player_ship.initial_health; i++){
             if(i < current_player_ship.current_health){
-                DrawTexture(game_textures[1], 5 + 55*i, 5, WHITE); //each heart is anchored 55px from the prev, and img width is 48px.
+                DrawTexture(game_textures[1], 5 + 55*i, 5, WHITE); //each heart is anchored 55px from the prev, and img WIDTH is 48px.
             } else {
                 DrawTexture(game_textures[0], 5 + 55 * i, 5, WHITE); //hearts empty in those indices
             }

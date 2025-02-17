@@ -19,48 +19,48 @@ screen current_screen = MAIN;
 screen gamemode;
 
 /* Screen buttons */
-Rectangle play_new_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 100, 160, 40};
-Rectangle play_load_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
-Rectangle options_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
-Rectangle controls_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 140, 160, 40};
-Rectangle exit_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 + 220, 160, 40};
-Rectangle about_button = {(float)WIDTH - 165, (float)HEIGHT - 45, 160, 40};
-Rectangle real_time_1v1_button = {(float)WIDTH / 2 - 180, (float)HEIGHT / 2 - 20, 170, 40};
-Rectangle turn_based_1v1_button = {(float)WIDTH / 2 + 10, (float)HEIGHT / 2 - 20, 180, 40};
+Rectangle play_new_button = {WIDTH / 2 - 80, HEIGHT / 2 - 100, 160, 40};
+Rectangle play_load_button = {WIDTH / 2 - 80, HEIGHT / 2 - 20, 160, 40};
+Rectangle options_button = {WIDTH / 2 - 80, HEIGHT / 2 + 60, 160, 40}; // diff: 40px height
+Rectangle controls_button = {WIDTH / 2 - 80, HEIGHT / 2 + 140, 160, 40};
+Rectangle exit_button = {WIDTH / 2 - 80, HEIGHT / 2 + 220, 160, 40};
+Rectangle about_button = {WIDTH - 165, HEIGHT - 45, 160, 40};
+Rectangle real_time_1v1_button = {WIDTH / 2 - 180, HEIGHT / 2 - 20, 170, 40};
+Rectangle turn_based_1v1_button = {WIDTH / 2 + 10, HEIGHT / 2 - 20, 180, 40};
 Rectangle game_button = {WIDTH - 90, HEIGHT - 60, 70, 40};
-Rectangle player_count_button = {(float)WIDTH / 2 - 12, (float)HEIGHT / 2 + 32, 24, 24}; // textbox
-Rectangle github_jim_button = {(float)WIDTH / 2 + 90, 210, 160, 40};
-Rectangle github_panos_button = {(float)WIDTH / 2 + 430, 210, 160, 40};
-Rectangle play_again_button = {(float)WIDTH / 2 - 80, (float)HEIGHT / 2 - 20, 160, 40};
-Rectangle save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 40, 180, 40};
-Rectangle continue_game_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 - 20, 180, 40};
-Rectangle exit_no_save_button = {(float)WIDTH / 2 - 100, (float)HEIGHT / 2 + 100, 180, 40};
+Rectangle player_count_button = {WIDTH / 2 - 12, HEIGHT / 2 + 32, 24, 24}; // textbox
+Rectangle github_jim_button = {WIDTH / 2 + 90, 210, 160, 40};
+Rectangle github_panos_button = {WIDTH / 2 + 430, 210, 160, 40};
+Rectangle play_again_button = {WIDTH / 2 - 80, HEIGHT / 2 - 20, 160, 40};
+Rectangle save_button = {WIDTH / 2 - 100, HEIGHT / 2 + 40, 180, 40};
+Rectangle continue_game_button = {WIDTH / 2 - 100, HEIGHT / 2 - 20, 180, 40};
+Rectangle exit_no_save_button = {WIDTH / 2 - 100, HEIGHT / 2 + 100, 180, 40};
 Rectangle return_to_main_button = {20, HEIGHT - 60, 260, 40};
 
 /* Button settings (name style: movementType_player) */
-Rectangle forward_btn_1 = {(float)WIDTH/6 - 30, 120, 60, 60};
-Rectangle backwards_btn_1 = {(float)WIDTH/6 - 30, 200, 60, 60};
-Rectangle right_btn_1 = {(float)WIDTH/6 + 50, 200, 60, 60};
-Rectangle left_btn_1 = {(float)WIDTH/6 - 110, 200, 60, 60};
-Rectangle cannon_right_btn_1 = {(float)WIDTH/6 + 50, 280, 60, 60};
-Rectangle cannon_left_btn_1 = {(float)WIDTH/6 - 110, 280, 60, 60};
-Rectangle fire_btn_1 = {(float)WIDTH/6 - 30, 280, 60, 60};
+Rectangle forward_btn_1 = {WIDTH/6 - 30, 120, 60, 60};
+Rectangle backwards_btn_1 = {WIDTH/6 - 30, 200, 60, 60};
+Rectangle right_btn_1 = {WIDTH/6 + 50, 200, 60, 60};
+Rectangle left_btn_1 = {WIDTH/6 - 110, 200, 60, 60};
+Rectangle cannon_right_btn_1 = {WIDTH/6 + 50, 280, 60, 60};
+Rectangle cannon_left_btn_1 = {WIDTH/6 - 110, 280, 60, 60};
+Rectangle fire_btn_1 = {WIDTH/6 - 30, 280, 60, 60};
 
-Rectangle forward_btn_2 = {(float)WIDTH/2 - 30, 120, 60, 60};
-Rectangle backwards_btn_2 = {(float)WIDTH/2 - 30, 200, 60, 60};
-Rectangle right_btn_2 = {(float)WIDTH/2 + 50, 200, 60, 60};
-Rectangle left_btn_2 = {(float)WIDTH/2 - 110, 200, 60, 60};
-Rectangle cannon_right_btn_2 = {(float)WIDTH/2 + 50, 280, 60, 60};
-Rectangle cannon_left_btn_2 = {(float)WIDTH/2 - 110, 280, 60, 60};
-Rectangle fire_btn_2 = {(float)WIDTH/2 - 30, 280, 60, 60};
+Rectangle forward_btn_2 = {WIDTH/2 - 30, 120, 60, 60};
+Rectangle backwards_btn_2 = {WIDTH/2 - 30, 200, 60, 60};
+Rectangle right_btn_2 = {WIDTH/2 + 50, 200, 60, 60};
+Rectangle left_btn_2 = {WIDTH/2 - 110, 200, 60, 60};
+Rectangle cannon_right_btn_2 = {WIDTH/2 + 50, 280, 60, 60};
+Rectangle cannon_left_btn_2 = {WIDTH/2 - 110, 280, 60, 60};
+Rectangle fire_btn_2 = {WIDTH/2 - 30, 280, 60, 60};
 
-Rectangle forward_btn_3 = {(float)5*WIDTH/6 - 30, 120, 60, 60};
-Rectangle backwards_btn_3 = {(float)5*WIDTH/6 - 30, 200, 60, 60};
-Rectangle right_btn_3 = {(float)5*WIDTH/6 + 50, 200, 60, 60};
-Rectangle left_btn_3 = {(float)5*WIDTH/6 - 110, 200, 60, 60};
-Rectangle cannon_right_btn_3 = {(float)5*WIDTH/6 + 50, 280, 60, 60};
-Rectangle cannon_left_btn_3 = {(float)5*WIDTH/6 - 110, 280, 60, 60};
-Rectangle fire_btn_3 = {(float)5*WIDTH/6 - 30, 280, 60, 60};
+Rectangle forward_btn_3 = {5.*WIDTH/6 - 30, 120, 60, 60};
+Rectangle backwards_btn_3 = {5.*WIDTH/6 - 30, 200, 60, 60};
+Rectangle right_btn_3 = {5.*WIDTH/6 + 50, 200, 60, 60};
+Rectangle left_btn_3 = {5.*WIDTH/6 - 110, 200, 60, 60};
+Rectangle cannon_right_btn_3 = {5.*WIDTH/6 + 50, 280, 60, 60};
+Rectangle cannon_left_btn_3 = {5.*WIDTH/6 - 110, 280, 60, 60};
+Rectangle fire_btn_3 = {5.*WIDTH/6 - 30, 280, 60, 60};
 
 /* Screens */
 RenderTexture screenShip1; //Real-time Player 1
@@ -75,15 +75,15 @@ void InitMainWindow()
     // Tell the window to use vsync, work on high DPI displays and add anti aliasing
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
     // Create the window and OpenGL context
-    InitWindow(WIDTH, HEIGHT, "NavalDuel");
+    InitWindow(WIDTH, HEIGHT, "NavalDuel"); //0,0 for native screen resolution
     // Set Framerate
     SetTargetFPS(60);
     // So we can use ESC for the game menu
     SetExitKey(0);
 
-    screenShip1 = LoadRenderTexture(WIDTH / 2, HEIGHT);
-    screenShip2 = LoadRenderTexture(WIDTH / 2, HEIGHT);
-    screenCurrentShip = LoadRenderTexture(WIDTH, HEIGHT);
+    screenShip1 = LoadRenderTexture((int)WIDTH / 2, (int)HEIGHT);
+    screenShip2 = LoadRenderTexture((int)WIDTH / 2, (int)HEIGHT);
+    screenCurrentShip = LoadRenderTexture((int)WIDTH, (int)HEIGHT);
 }
 
 /**
@@ -129,7 +129,7 @@ void DisplayMainScreen(const Sound click, Obstacles *obstacles, const Texture2D 
             {
                 if (!success_load)
                 {
-                    DrawText("No saved game state", WIDTH / 2 - 107, HEIGHT - 30, 20, RED);
+                    DrawText("No saved game state", (int)WIDTH / 2 - 107, (int)HEIGHT - 30, 20, RED);
                 }
             }
         }
@@ -191,10 +191,10 @@ void DisplayGamemodesScreen(const Sound click, int *player_count_addr, char* rea
         {
             SetMouseCursor(MOUSE_CURSOR_DEFAULT);
         }
-        DrawText(player_count, player_count_button.x + 2, player_count_button.y + 2, 20, BLACK);
-        DrawText("Player Count:", player_count_button.x - 150, player_count_button.y + 2, 20, BLACK);
+        DrawText(player_count, (int)player_count_button.x + 2, (int)player_count_button.y + 2, 20, BLACK);
+        DrawText("Player Count:", (int)player_count_button.x - 150, (int)player_count_button.y + 2, 20, BLACK);
         DrawText("Hover mouse over the gray box and enter a number\nranging from 2-8 to change amount of players\nWorks only for Turn-Based",
-                 player_count_button.x + 26, player_count_button.y + 2, 20, BLACK);
+                 (int)player_count_button.x + 26, (int)player_count_button.y + 2, 20, BLACK);
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) if(CheckCollisionPointRec(GetMousePosition(), real_time_1v1_button)) *real_or_turn_addr = 'r';
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) if(CheckCollisionPointRec(GetMousePosition(), turn_based_1v1_button)) *real_or_turn_addr = 't';
@@ -237,30 +237,30 @@ void DisplayShipSelectScreen(const Sound click, int* type_list, const int player
         for (int i = 0; i < player_count; i++) //dont use ship_data_addr->player_count
         {
             // outer rec
-            Rec0.y = 55 + 25 * i;
-            DrawRectangleLines(Rec0.x - 1, Rec0.y - 1, Rec0.width + 2, Rec0.height + 2, BLACK);
-            DrawText(TextFormat("Player %d:", i), Rec0.x + 1, Rec0.y + 1, 20, BLACK);
+            Rec0.y = (float)(55 + 25 * i);
+            DrawRectangleLines((int)Rec0.x - 1, (int)Rec0.y - 1, (int)Rec0.width + 2, (int)Rec0.height + 2, BLACK);
+            DrawText(TextFormat("Player %d:", i), (int)Rec0.x + 1, (int)Rec0.y + 1, 20, BLACK);
             // prep for buttons
             btn0.y = Rec0.y;
             btn1.y = btn0.y;
             if (CheckCollisionPointRec(GetMousePosition(), btn0))
             {
-                DrawRectangleLines(btn0.x, btn0.y, btn0.width, btn0.height, RED);
+                DrawRectangleLines((int)btn0.x, (int)btn0.y, (int)btn0.width, (int)btn0.height, RED);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                     {type_list[i] = 0; if(settings.enable_sfx) PlaySound(click);}
             }
-            else DrawRectangleLines(btn0.x, btn0.y, btn0.width, btn0.height, BLACK);
+            else DrawRectangleLines((int)btn0.x, (int)btn0.y, (int)btn0.width, (int)btn0.height, BLACK);
             if (CheckCollisionPointRec(GetMousePosition(), btn1))
             {
-                DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, RED);
+                DrawRectangleLines((int)btn1.x, (int)btn1.y, (int)btn1.width, (int)btn1.height, RED);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                     {type_list[i] = 1; if(settings.enable_sfx) PlaySound(click);}
             }
-            else DrawRectangleLines(btn1.x, btn1.y, btn1.width, btn1.height, BLACK);
+            else DrawRectangleLines((int)btn1.x, (int)btn1.y, (int)btn1.width, (int)btn1.height, BLACK);
             DrawRectangleRec(btn0, ((bool)type_list[i]) ? LIGHTGRAY : GRAY);
-            DrawText("SHIP 1", btn0.x + 1, btn0.y + 1, 20, BLACK);
+            DrawText("SHIP 1", (int)btn0.x + 1, (int)btn0.y + 1, 20, BLACK);
             DrawRectangleRec(btn1, ((bool)type_list[i]) ? GRAY : LIGHTGRAY);
-            DrawText("SHIP 2", btn1.x + 1, btn1.y + 1, 20, BLACK);
+            DrawText("SHIP 2", (int)btn1.x + 1, (int)btn1.y + 1, 20, BLACK);
         }
         bool tmp = false;
         if(real_or_turn == 'r') tmp = true;
@@ -319,7 +319,7 @@ void DisplayTeamSelectScreen(const Sound click, int* team_list, const int player
                     case 3:
                         team = "GREEN";
                         break;
-                    case 4: 
+                    case 4:
                         team = "YELLOW";
                         break;
                 }
@@ -348,11 +348,11 @@ void DisplayGameOverScreen(char* wintext, const Sound click)
     {
         ClearBackground(RAYWHITE);
 
-        DrawText("THE GAME IS OVER", WIDTH / 2 - 175, 20, 35, BLUE);
+        DrawText("THE GAME IS OVER", (int)WIDTH / 2 - 175, 20, 35, BLUE);
         AddScreenChangeBtn(play_again_button, "PLAY AGAIN", GetMousePosition(), click, &current_screen, GAMEMODES, settings.enable_sfx);
         AddScreenChangeBtn(return_to_main_button, "RETURN TO MAIN MENU", GetMousePosition(), click, &current_screen, MAIN, settings.enable_sfx);
 
-        DrawText(TextFormat("The winner is %s!", wintext), WIDTH / 2 - 170, 70, 30, LIME);
+        DrawText(TextFormat("The winner is %s!", wintext), (int)WIDTH / 2 - 170, 70, 30, LIME);
     }
     EndDrawing();
 }
@@ -391,7 +391,7 @@ void DisplayGameMenuScreen(const Sound click, const Obstacles obstacles) {
             }
             DrawText("SAVE GAME", (int)save_button.x + 5, (int)save_button.y + 10, 20, WHITE);
             if (success_save)
-                DrawText("Game state saved successfully", WIDTH / 2 - 170, HEIGHT - 30, 20, GREEN);
+                DrawText("Game state saved successfully", (int)WIDTH / 2 - 170, (int)HEIGHT - 30, 20, GREEN);
         }
     }
     EndDrawing();
@@ -407,12 +407,12 @@ void DisplayControlsScreen(const Sound click)
     {
         ClearBackground(RAYWHITE);
 
-        DrawLine(WIDTH/3, 0, WIDTH/3, HEIGHT, BLACK);
-        DrawLine(2*WIDTH/3, 0, 2*WIDTH/3, HEIGHT, BLACK);
+        DrawLine((int)WIDTH/3, 0, (int)WIDTH/3, (int)HEIGHT, BLACK);
+        DrawLine(2*(int)WIDTH/3, 0, 2*(int)WIDTH/3, (int)HEIGHT, BLACK);
 
-        DrawText("PLAYER 1", WIDTH/6 - 70, 20, 30, BROWN);
-        DrawText("PLAYER 2", WIDTH/2 - 70, 20, 30, BROWN);
-        DrawText(">2 PLAYERS", 5*WIDTH/6 - 90, 20, 30, BROWN);
+        DrawText("PLAYER 1", (int)WIDTH/6 - 70, 20, 30, BROWN);
+        DrawText("PLAYER 2", (int)WIDTH/2 - 70, 20, 30, BROWN);
+        DrawText(">2 PLAYERS", 5*(int)WIDTH/6 - 90, 20, 30, BROWN);
 
         AddButtonSetting(&settings.player_one_buttons.forward, forward_btn_1, "Forward", 0);
         AddButtonSetting(&settings.player_one_buttons.backwards, backwards_btn_1, "Backwards", 1);
@@ -495,12 +495,12 @@ void DisplayAboutScreen(const Sound click)
 
         DrawText("Gameplay", 10, 10, 100, GREEN);
         DrawText("Navaduel is a game where you and up to 7 friends can all duke it out\nwith pirate ships trying to sink each other in the open sea full of\nrandomly generated obstacles by precisely aiming your cannons\nat each others current positions until only one team is left.\nThe game also features a real-time 1v1 game mode where you can face off\nagainst one friend in real-time combat instead of taking turns\nand analysing each other players movement", 10, 120, 20, BLACK);
-        DrawText("Credits", WIDTH / 2 + 10, 10, 100, GREEN);
-        DrawRectangleRec((Rectangle){(float)WIDTH / 2 - 5, 0, 5, HEIGHT}, BLACK);
+        DrawText("Credits", (int)WIDTH / 2 + 10, 10, 100, GREEN);
+        DrawRectangleRec((Rectangle){WIDTH / 2 - 5, 0, 5, HEIGHT}, BLACK);
 
         // Credits
-        DrawText("This game was brought to you by:", WIDTH / 2 + 10, 110, 35, BLACK);
-        DrawText("Kakagiannis Dimitrios & Panagiotis Skoulis", WIDTH / 2 + 5, 165, 30, BLUE);
+        DrawText("This game was brought to you by:", (int)WIDTH / 2 + 10, 110, 35, BLACK);
+        DrawText("Kakagiannis Dimitrios & Panagiotis Skoulis", (int)WIDTH / 2 + 5, 165, 30, BLUE);
         DrawRectangleRec(github_jim_button, BLACK);
         DrawRectangleRec(github_panos_button, BLACK);
 
