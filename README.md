@@ -1,7 +1,7 @@
 # NAVADUEL
 A 3D 2-8 Player Game made using Raylib
 > [!IMPORTANT]
-> This was a University project for the Structured Programming (004) of the Aristotle University of Thessaloniki (AUTh). This project got the First (1st) place amongst others. Expect bugs.
+> This was a University project for the Structured Programming (004) course of the Aristotle University of Thessaloniki (AUTh). This project got the First (1st) place amongst others. Expect bugs.
 
 ## Chapters:
 * [DESCRIPTION](#desc)
