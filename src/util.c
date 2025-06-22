@@ -151,6 +151,7 @@ void SaveGameState(const Obstacles obstacles) {
         cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.y));
         cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].rotation_vec.z));
         cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].height));
+        cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].model_coefficient));
         cJSON_AddItemToArray(rock_info, cJSON_CreateNumber(obstacles.rock_list[i].geometry_id));
         cJSON_AddItemToObject(jsonfinal, TextFormat("rock_%d", i), rock_info);
     }
@@ -296,7 +297,8 @@ int LoadGameState(Obstacles *obstacles, Ship_data *ship_data, Texture2D sand_tex
             (float)cJSON_GetArrayItem(rock_info, 5)->valuedouble
         };
         rock.height = cJSON_GetArrayItem(rock_info, 6)->valueint;
-        rock.geometry_id = cJSON_GetArrayItem(rock_info, 7)->valueint;
+        rock.model_coefficient = cJSON_GetArrayItem(rock_info, 7)->valueint; 
+        rock.geometry_id = cJSON_GetArrayItem(rock_info, 8)->valueint; 
         rock.rock_tex = rock_tex;
         if(rock.geometry_id == 1) {
             rock.model = LoadModelFromMesh(GenMeshCube(
